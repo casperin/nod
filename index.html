@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Nod!</title>
+    <meta charset="utf-8">
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
+    <script src="nod.js"></script>
+    <style>
+      body {margin-bottom:100px}
+      .nod_msg {
+        font-weight: bold;
+      }
+      .input-append, .input-prepend { font-size: 14px; } // bug in bootstrap?
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="top">nod for Twitter bootstrap <small>A frontend validation library for bootstrap.</small></h1>
+      <hr>
+      <p>The plugin is made as a jQuery plugin and is activated like this: <code>$("#form").nod( metrics );</code></p>
+      <p>The <code>metrics</code> is a lists that you build beforehand. It is basically a list of each selector and how you want it validated.</p>
+      <p>Example:</p>
+      <pre>var metrics = [
+  [ '#foo', 'presence', 'Cannot be empty' ],
+  [ '#bar', 'min-length:4', 'Must be at least 4 characters long' ]
+];</pre>
+      <p>First item is the selector (the validation will be applied to every field that the selector matches), second is what you wish to validate for, and last is the error message you wish to display.</p>
+      <h2 id="metrics">Metrics [ ]</h2>
+      <p>Here is a table with what you can currently validate for:</p>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>presence</td>
+            <td><code>[ '#foo', 'presence', 'Cannot be empty' ]</code></td>
+          </tr>
+          <tr>
+            <td>max-length:<span class="muted">int</span></td>
+            <td><code>[ '#foo', 'max-length:4, 'No longer than 4 characters please' ]</code></td>
+          </tr>
+          <tr>
+            <td>min-length:<span class="muted">int</span></td>
+            <td><code>[ '#foo', 'min-length:4, 'At least 4 characters please' ]</code></td>
+          </tr>
+          <tr>
+            <td>exact:<span class="muted">string</span></td>
+            <td><code>[ '#foo', 'exact:bar', 'You have to write "bar"!' ]</code></td>
+          </tr>
+          <tr>
+            <td>not:<span class="muted">string</span></td>
+            <td><code>[ '#foo', 'not:bar', 'Do not write "bar"!' ]</code></td>
+          </tr>
+          <tr>
+            <td>exact-length:<span class="muted">int</span></td>
+            <td><code>[ '#foo', 'exact-length:4', 'Must be exactly 4 characters' ]</code></td>
+          </tr>
+          <tr>
+            <td>between:<span class="muted">int</span>:<span class="muted">int</span></td>
+            <td><code>[ '#foo', 'between:2:4', 'Must be between 2 and 4 characters long' ]</code></td>
+          </tr>
+          <tr>
+            <td>integer</td>
+            <td><code>[ '#foo', 'integer', 'Must be a whole number' ]</code></td>
+          </tr>
+          <tr>
+            <td>float</td>
+            <td><code>[ '#foo', 'float', 'Must be a number (decimals are fine)' ]</code></td>
+          </tr>
+          <tr>
+            <td>same-as:<span class="muted">selector</span></td>
+            <td><code>[ '#email_repeat', 'same-as:#email', 'Your emails does not match' ]</code></td>
+          </tr>
+          <tr>
+            <td>email</td>
+            <td><code>[ '#foo', 'email', 'Must be a valid email (RFC822)' ]</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <h2 id="options">Options { }</h2>
+      <p>You can also pass along an object: <code>$("#form").nod( metrics, options );</code></p>
+      <p>Example:</p>
+      <pre>var options = {
+  'delay' : 200,
+  'submitBtnSelector' : '#submit_btn'
+};</pre>
+      <p>Here is a table of everything you can change with the options object. <b>Note </b>that some of these values will straight up break the library unless you know exactly what you're doing.</p>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Default value</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>delay</td>
+            <td>Int</td>
+            <td>700</td>
+            <td>Delay on `keyup` before it runs a check</td>
+          </tr>
+          <tr>
+            <td>disableSubmitBtn</td>
+            <td>Bool</td>
+            <td>true</td>
+            <td>Set to false if you don't want the submit button to be disabled</td>
+          </tr>
+          <tr>
+            <td>helpSpanDisplay</td>
+            <td>String</td>
+            <td>'help-inline'</td>
+            <td>Set this to 'help-block' if you want error messages to be shown on next line</td>
+          </tr>
+          <tr>
+            <td>groupClass</td>
+            <td>String</td>
+            <td>'error'</td>
+            <td>The .control-group will get this class if an error is found. Can be set to anything like, but 'error', 'info', 'warning', or 'success' makes the most sense with bootstrap :)</td>
+          </tr>
+          <tr>
+            <td>submitBtnSelector</td>
+            <td>String</td>
+            <td>'[type=submit]'</td>
+            <td>Selector to find the submit button</td>
+          </tr>
+          <tr>
+            <td>metricsSplitter</td>
+            <td>String</td>
+            <td>':'</td>
+            <td>The ":" in "max-length:4"</td>
+          </tr>
+          <tr>
+            <td>errorPosClasses</td>
+            <td>List</td>
+            <td>['.help-inline', '.add-on']</td>
+            <td>When placing the error message, nod will look for these elements and place it after these if they exist.</td>
+          </tr>
+          <tr>
+            <td>errorClass</td>
+            <td>String</td>
+            <td>'nod_msg'</td>
+            <td>Used internally. This is the class you want to style if you want any specific styling</td>
+          </tr>
+          <tr>
+            <td>groupSelector</td>
+            <td>String</td>
+            <td>'.control-group'</td>
+            <td>Can't think of a reason to change this, but feel free.</td>
+          </tr>
+          <tr>
+            <td>disabledAttr</td>
+            <td>String</td>
+            <td>'disabled'</td>
+            <td>Things will surely break if you change this.</td>
+          </tr>
+        </tbody>
+      </table>
+      <h2 id="examples">Examples <small>Have a look at the source to understand them</small></h2>
+      <hr>
+      <!-- Checking for simple things-->
+      <form action="" id="a" class="form form-horizontal">
+        <div class="control-group">
+          <div class="control-label">
+            <label>Your age</label>
+          </div>
+          <div class="controls">
+            <input type="text" id="a_age">
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">
+            <label>Email</label>
+          </div>
+          <div class="controls">
+            <input type="text" id="a_email">
+          </div>
+        </div>
+        <div class="controls">
+          <button type="submit" class="btn">Go!</button>
+        </div>
+      </form>
+      <script>
+        // A list of all the fields we wish to validate
+        //
+        // Each sublist consists of three parts: selector, metrics, error msg
+        //
+        var a_metrics = [
+          [ '#a_age', 'integer', 'A number, please' ],
+          [ '#a_email', 'email', 'Not a valid email' ],
+          [ '#a [type=text]', 'presence', 'Cannot be empty' ]
+        ];
+        $('#a').nod( a_metrics );
+        
+        
+      </script>
+      <hr>
+      <form action="" id="b" class="form form-horizontal">
+        <div class="control-group">
+          <div class="control-label">
+            <label>Select something</label>
+          </div>
+          <div class="controls">
+            <select id="b_select">
+              <option value="">Select something please</option>
+              <option value="1">Pick this</option>
+              <option value="2">Or this</option>
+              <option value="3">But not this</option>
+              <option value="4">This is fine though</option>
+            </select>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">
+            <label>Your credit card num</label>
+          </div>
+          <div class="controls">
+            <input type="text" id="b_credit">
+          </div>
+        </div>
+        <div class="controls">
+          <button type="submit" class="btn">Go!</button>
+        </div>
+      </form>
+      <script>
+        var b_metrics = [
+          [ '#b_select', 'presence', 'Pick something' ],
+          [ '#b_select', 'not:3', 'I told you not to pick this one!' ],
+          [ '#b_credit', 'between:12:19', 'Must be between 12 and 19 digits' ]
+        ];
+        $('#b').nod( b_metrics );
+        
+      </script>
+      <hr>
+      <form action="" id="c" class="form form-horizontal">
+        <div class="control-group">
+          <div class="control-label">
+            <label>Say something</label>
+          </div>
+          <div class="controls">
+            <input type="text">
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">
+            <label>Select something</label>
+          </div>
+          <div class="controls">
+            <select id="c_select">
+              <option value="">Select something please</option>
+              <option value="1">Pick this</option>
+            </select>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="controls">
+            <label>
+              <input type="checkbox" id="c_checkbox">
+              <Check>this!</Check>
+            </label>
+          </div>
+        </div>
+        <div class="controls">
+          <button type="submit" class="btn">Go!</button>
+        </div>
+      </form>
+      <script>
+        var c_metrics = [
+          [ '#c input, #c select', 'presence', 'Can\'t be left blank' ]
+        ];
+        var c_options = {
+          'groupClass' : 'warning',       // changing the class to warning
+          'disableSubmitBtn': false       // not disabling the submit btn when errors exist
+        }
+        $('#c').nod( c_metrics , c_options );
+        
+        
+      </script>
+      <hr>
+      <form action="" id="d" class="form form-horizontal">
+        <div class="control-group">
+          <div class="control-label">
+            <label>Your price</label>
+          </div>
+          <div class="controls">
+            <div class="input-append">
+              <input type="text" id="d_price" class="span2"><span class="add-on">.00</span>
+            </div>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="control-label">
+            <label>Complicated matter</label>
+          </div>
+          <div class="controls">
+            <input type="text" id="d_complicated"><span class="help-inline">Some inline help text</span><span class="help-block">Some block help text</span>
+          </div>
+        </div>
+        <div class="controls">
+          <button type="submit" class="btn">Go!</button>
+        </div>
+      </form>
+      <script>
+        var d_metrics = [
+          [ '#d input', 'presence', 'Can\'t be left blank' ]
+        ];
+        $('#d').nod( d_metrics );
+        
+        
+      </script>
+      <h2 id="other">Other</h2>
+      <p>Easiest compiled with <code>coffee -wcj nod.js nod/*.coffee</code></p>
+    </div>
+  </body>
+</html>
