@@ -190,7 +190,6 @@
     Nod.prototype.toggleFormControls = function() {
       this.toggleGroupClass();
       if (this.submit && this.settings.disableSubmitBtn) {
-        console.log(this.settings.disableSubmitBtn);
         return this.toggleSubmitBtn();
       }
     };

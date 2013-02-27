@@ -84,7 +84,6 @@ class Nod
   toggleFormControls: =>
     @toggleGroupClass()
     if @submit and @settings.disableSubmitBtn
-      console.log @settings.disableSubmitBtn
       @toggleSubmitBtn()
       
 
