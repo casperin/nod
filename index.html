@@ -4,29 +4,92 @@
     <title>Nod!</title>
     <meta charset="utf-8">
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.css">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.js"></script>
+    <script>
+      // @prettify
+      !function ($) {
+        $(function(){
+        window.prettyPrint && prettyPrint()   
+        })
+      }(window.jQuery);
+    </script>
     <script src="nod.js"></script>
     <style>
       body {margin-bottom:100px}
+      .container {margin-top:20px}
+      h2 {margin-top:1.4em}
       .nod_msg {
         font-weight: bold;
       }
       .input-append, .input-prepend { font-size: 14px; } // bug in bootstrap?
+      
+      /* prettify */
+      .com { color: #93a1a1; }
+      .lit { color: #195f91; }
+      .pun, .opn, .clo { color: #93a1a1; }
+      .fun { color: #dc322f; }
+      .str, .atv { color: #D14; }
+      .kwd, .prettyprint .tag { color: #1e347b; }
+      .typ, .atn, .dec, .var { color: teal; }
+      .pln { color: #48484c; }
+      
+      .prettyprint {
+        padding: 8px;
+        background-color: #f7f7f9;
+        border: 1px solid #e1e1e8;
+      }
+      .prettyprint.linenums {
+        -webkit-box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
+           -moz-box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
+                box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
+      }
+      /* Specify class=linenums on a pre to get line numbering */
+      ol.linenums {
+        margin: 0 0 0 33px; /* IE indents via margin-left */
+      }
+      ol.linenums li {
+        padding-left: 12px;
+        color: #bebec5;
+        line-height: 20px;
+        text-shadow: 0 1px 0 #fff;
+      }
+      
+      
     </style>
   </head>
   <body>
     <div class="container"><a href="//github.com/casperin/nod" style="margin-top:10px;" class="btn btn-success pull-right"><i class="icon-circle-arrow-down icon-white"></i>&nbsp;Clone me on github</a>
-      <h1 id="top">nod for Twitter bootstrap <small>A frontend validation plugin for bootstrap.</small></h1>
+      <h1>Nod <small>A frontend validation plugin for Twitter Bootstrap</small></h1>
       <hr>
-      <p>The plugin is made as a jQuery plugin and is activated like this: <code>$("#form").nod( metrics );</code></p>
-      <p>The <code>metrics</code> is a lists that you build beforehand. It is basically a list of each selector and how you want it validated.</p>
+      <p>Writing frontend validation for forms is painfully boring. So I made this in the hopes that it will help make it a little less agonizing for you.</p>
+      <p>It's designed to</p>
+      <ul>
+        <li>Keep validation away from the fields to keep the html clean and simple</li>
+        <li>Work with selectors so you can target more fields with just one "rule"</li>
+        <li>Be flexible. You can easily define your own functions to validate for (and many other things)</li>
+        <li>Be extensible. If you look in the <a href="https://github.com/casperin/nod/tree/master/nod">source code</a>, it should be <a href="https://github.com/casperin/nod/blob/master/nod/nod.coffee#L130">fairly easy to add new rules</a> or remove/add functionality</li>
+      </ul>
+      <h2>Quick introduction</h2>
+      <p>
+         
+        The plugin is made as a jQuery plugin and is activated like this: <code class="prettyprint lang-js">$("#form").nod( metrics );</code> The <code class="prettyprint lang-js">metrics</code> is a list that you build beforehand. It is basically a list of each selector and how you want it validated.
+      </p>
       <p>Example:</p>
-      <pre>var metrics = [
+      <pre class="prettyprint lang-js linenums">var metrics = [
   [ '#foo', 'presence', 'Cannot be empty' ],
   [ '#bar', 'min-length:4', 'Must be at least 4 characters long' ]
-];</pre>
-      <p>First item is the selector (the validation will be applied to every field that the selector matches), second is what you wish to validate for, and last is the error message you wish to display.</p>
+];
+ 
+$(&quot;#form&quot;).nod( metrics );</pre>
+      <p>Each "sublist" consists of three parts:</p>
+      <ol>
+        <li>The selector (the validation will be applied to every field that the selector matches)</li>
+        <li>A string describing what you wish to validate for (see below for documentation)</li>
+        <li>The error message you wish to display on error</li>
+      </ol>
       <h2 id="metrics">Metrics [ ]</h2>
       <p>Here is a table with what you can currently validate for:</p>
       <table class="table table-bordered">
@@ -39,58 +102,69 @@
         <tbody>
           <tr>
             <td>presence</td>
-            <td><code>[ '#foo', 'presence', 'Cannot be empty' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'presence', 'Cannot be empty' ]</code></td>
           </tr>
           <tr>
             <td>max-length:<span class="muted">int</span></td>
-            <td><code>[ '#foo', 'max-length:4, 'No longer than 4 characters please' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'max-length:4', 'No longer than 4 characters please' ]</code></td>
           </tr>
           <tr>
             <td>min-length:<span class="muted">int</span></td>
-            <td><code>[ '#foo', 'min-length:4, 'At least 4 characters please' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'min-length:4', 'At least 4 characters please' ]</code></td>
           </tr>
           <tr>
             <td>exact:<span class="muted">string</span></td>
-            <td><code>[ '#foo', 'exact:bar', 'You have to write "bar"!' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'exact:bar', 'You have to write "bar"!' ]</code></td>
           </tr>
           <tr>
             <td>not:<span class="muted">string</span></td>
-            <td><code>[ '#foo', 'not:bar', 'Do not write "bar"!' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'not:bar', 'Do not write "bar"!' ]</code></td>
           </tr>
           <tr>
             <td>exact-length:<span class="muted">int</span></td>
-            <td><code>[ '#foo', 'exact-length:4', 'Must be exactly 4 characters' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'exact-length:4', 'Must be exactly 4 characters' ]</code></td>
           </tr>
           <tr>
             <td>between:<span class="muted">int</span>:<span class="muted">int</span></td>
-            <td><code>[ '#foo', 'between:2:4', 'Must be between 2 and 4 characters long' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'between:2:4', 'Must be between 2 and 4 characters long' ]</code></td>
           </tr>
           <tr>
             <td>integer</td>
-            <td><code>[ '#foo', 'integer', 'Must be a whole number' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'integer', 'Must be a whole number' ]</code></td>
           </tr>
           <tr>
             <td>float</td>
-            <td><code>[ '#foo', 'float', 'Must be a number (decimals are fine)' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'float', 'Must be a number (decimals are fine)' ]</code></td>
           </tr>
           <tr>
             <td>same-as:<span class="muted">selector</span></td>
-            <td><code>[ '#email_repeat', 'same-as:#email', 'Your emails does not match' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#email_repeat', 'same-as:#email', 'Your emails does not match' ]</code></td>
           </tr>
           <tr>
             <td>email</td>
-            <td><code>[ '#foo', 'email', 'Must be a valid email (RFC822)' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'email', 'Must be a valid email (RFC822)' ]</code></td>
           </tr>
         </tbody>
       </table>
+      <p>If none of the above fits your needs, then you can also just add your own function like this:</p>
+      <pre class="prettyprint lang-js linenums">var myValidationFn = function( x ) {
+  return x % 2 == 0;
+};
+ 
+var metrics = [
+  [ '#foo', myValidationFn, 'Must be divisible by two' ]
+];
+ 
+$(&quot;#form&quot;).nod( metrics );</pre>
+      <p><span class="label label-info">Notice</span> Everything typed into input fields are evaluated as text, so be smart about the automatic conversions you can do. Also notice that the above function will return true on an empty field.</p>
       <h2 id="options">Options { }</h2>
-      <p>You can also pass along an object: <code>$("#form").nod( metrics, options );</code></p>
+      <p>You can also pass along an object: <code class="prettyprint lang-js">$("#form").nod( metrics, options );</code></p>
       <p>Example:</p>
-      <pre>var options = {
+      <pre class="prettyprint lang-js linenums">var options = {
   'delay' : 200,
   'submitBtnSelector' : '#submit_btn'
 };</pre>
-      <p>Here is a table of everything you can change with the options object. <b>Note </b>that some of these values will straight up break the plugin unless you know exactly what you're doing.</p>
+      <p>Here is a table of everything you can change with the options object. </p>
       <table class="table table-bordered">
         <thead>
           <tr>
@@ -103,7 +177,7 @@
         <tbody>
           <tr>
             <td>delay</td>
-            <td>Int</td>
+            <td>Number</td>
             <td>700</td>
             <td>Delay on `keyup` before it runs a check</td>
           </tr>
@@ -139,7 +213,7 @@
           </tr>
           <tr>
             <td>errorPosClasses</td>
-            <td>List</td>
+            <td>Array</td>
             <td>['.help-inline', '.add-on']</td>
             <td>When placing the error message, nod will look for these elements and place it after these if they exist.</td>
           </tr>
@@ -163,6 +237,7 @@
           </tr>
         </tbody>
       </table>
+      <p><span class="label label-info">Notice </span> Some of these values will straight up break the plugin unless you know exactly what you're doing.</p>
       <h2 id="examples">Examples <small>Have a look at the source to understand them</small></h2>
       <hr>
       <!-- Checking for simple things-->
@@ -262,7 +337,7 @@
         <div class="control-group">
           <div class="controls">
             <label>
-              <input type="checkbox" id="c_checkbox">Check this!
+              <input type="checkbox" id="c_checkbox"> Check this!
             </label>
           </div>
         </div>
@@ -314,8 +389,8 @@
         
         
       </script>
-      <h2 id="other">Other</h2>
-      <p>Easiest compiled with <code>coffee -wcj nod.js nod/*.coffee</code></p>
+      <h2 id="compiling">Compiling</h2>
+      <p>It is written in coffeescript and so must be compiled in case you make changes. This is the command I use: <code class="prettyprint lang-sh">coffee -wcj nod.js nod/*.coffee</code></p>
     </div>
   </body>
 </html>
