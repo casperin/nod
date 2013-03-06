@@ -1,3 +1,11 @@
+# The mother ship. This creates listeners and messages, as well as creates the
+# functions for checking fields, etc.
+#
+# It also takes care of disabling the submit button on errors and checking that
+# we have the elements we need.
+#
+# This class also contains any variable that can be meaningfully changed.
+#
 class Nod
   constructor: (@form, @fields, options ) ->
 
@@ -6,7 +14,7 @@ class Nod
     # everything can be changed using the options object. I put the most likely
     # to be changed at the top.
     #
-    @settings = $.extend
+    @get = $.extend
       'delay'             : 700               # Keyup > delay(ms) > input check
       'disableSubmitBtn'  : true              # automatically disable submit btn
       'helpSpanDisplay'   : 'help-inline'     # Help-inline / help-block
@@ -19,167 +27,116 @@ class Nod
                             ]
       'errorClass'        : 'nod_msg'         # Your error msg gets this class
       'groupSelector'     : '.control-group'  # Should surround the field + msg
-      'disabledAttr'      : 'disabled'        # Attr for submit btn on error
       , options
 
 
-    @txt =                  # error msgs to throw at people
-      'isntThree'         : "Arguments for each field must have three parts: "
-      'missingForm'       : "Couldn't find any form: "
-      'missingSubmit'     : "Couldn't find any Submit button: "
-      'missingSelector'   : "I need a proper selector as an argument for use
-                              with 'same-as'"
-      'missingSecondArg'  : "I need a second argument when you use 'between'"
-      'nan'               : "I need a number to check against when you use that
-                              selector"
+    @err = [                                  # error msgs to throw at people
+      "Arguments for each field must have three parts: "
+      "Couldn't find any form: "
+      "Couldn't find any Submit button: "
+      "The selector in 'same-as' isn't working"
+      "I don't know "
+    ]
 
-    @fieldListeners = []
-    @createFieldListeners @fields, @fieldListeners
-
-    @submit = @form.find @settings.submitBtnSelector
+    @els    = @createEls()                    # creating all elements!
+    @submit = @form.find @get.submitBtnSelector   # our submit btn
     @checkIfElementsExist @form, @submit, @disableSubmitBtn
 
     @events()
 
 
-  createFieldListeners : ( fields, fieldListeners ) =>
-    for field in fields
-
-      # check if arguments provided by user meets the requirements
-      if field.length isnt 3
-        throw @txt.isntThree + field
-
-      nod     = @           # saving the 'this' to parse along to each fieldListener
-      els     = field[0]    # selector of field
-                            # metrics for validating
-      metrics = $.map( field[1].split(@settings.metricsSplitter) , $.trim )
-      msg     = field[2]    # error msg
-
-      $(els).each ->        # build FieldListeners and add them to the list
-        fieldListeners.push new FieldListener( $(this), metrics, msg, nod )
-
-
-  # check if a form and a submit btn was actually found
   checkIfElementsExist : ( form, submit, disableSubmitBtn ) ->
-    # if no form were specified, throw an error
-    unless form.selector and form.length
-      throw @txt.missingForm + form.selector
-    # check if they are both there and actual elements on the page
-    unless submit.length or !disableSubmitBtn
-      throw @txt.missingSubmit + submit
+    if !form.selector || !form.length     then throw @err[1] + form
+    if !submit.length && disableSubmitBtn then throw @err[2] + submit
 
 
-  events : =>             # events on fields are set in the FieldListener
-    @submit.on 'click', @runMassCheck
+  events : =>
+    @submit .on( 'click' , @massCheck )
+    $el     .on( 'toggle', @toggle    ) for $el in @els
 
 
-  runMassCheck : ( event ) =>
-    for listener in @fieldListeners
-      listener.runCheck()       # Run check on each FieldListener
-    if @findErrorMsgs().length  # If we find errors, we cancel the submit
-      event.preventDefault()
-    
-
-  # called by a fieldListener
-  toggleFormControls: =>
-    @toggleGroupClass()
-    if @submit and @settings.disableSubmitBtn
-      @toggleSubmitBtn()
-      
-
-  toggleGroupClass: =>
-    
-    # remove .error from all groups
-    $(@settings.groupSelector).removeClass @settings.groupClass
-
-    # look for error messages (created by the fieldListeners)
-    errorMsgs = @findErrorMsgs()
-    if errorMsgs.length
-
-      # find group of each error message, and add .error to it
-      #
-      # fails silently if the field doesn't have a group
-      for errorMsg in errorMsgs
-        $(errorMsg)
-          .parents( @settings.groupSelector )
-          .addClass( @settings.groupClass )
+  massCheck : ( ev ) =>
+    for $el in @els
+      $el.trigger( 'change' )
+      ev.preventDefault() if !$el.status
 
 
-  # returns a list with all the error messages
-  findErrorMsgs : =>
-    @form.find "."+@settings.errorClass
+  toggle: ( ev ) =>
+    @toggleGroupClass $ ev.currentTarget
+    @toggleSubmitBtn() if @get.disableSubmitBtn
+
+
+  toggleGroupClass: ( $target ) =>
+    $group = $target.parents @get.groupSelector
+    errCls = $group.find '.' + @get.errorClass
+
+    if errCls.length
+      $group.addClass @get.groupClass
+    else
+      $group.removeClass @get.groupClass
 
 
   toggleSubmitBtn : =>
-
-    # check all fieldlisteners if they return true. If not, set 
-    # enableBtn to false
-    #
-    state = 'enabled'
-    d = @settings.disabledAttr
-    for listener in @fieldListeners
-      state = d if listener.fieldCorrect isnt true
-    @btn[state]( @submit, d )
-    
-
-
-  # change attribute and class of a button
-  btn : 
-    enabled : ( btn, d ) =>
-      btn.removeClass( d ).removeAttr d
-    disabled : ( btn, d ) =>
-      btn.addClass( d ).attr d, d
+    d = 'disabled'
+    @submit.removeClass( d ).removeAttr( d )
+    for $el in @els
+      if !$el.status
+        @submit.addClass( d ).attr( d, d )
 
 
 
 
-  # called by a fieldListener
-  #
-  # returns false if an error was found. Otherwise true
-  #
-  # metrics = ['case' [, argument, argument]]
-  # eg. metrics = ['max-length', '4']
-  #     metrics = ['between', '2', '7']
-  #
-  # value is the value of the field
-  #
-  isCorrect : ( metrics, value ) ->
 
-    # useful functions and values
-    int = ( int ) ->
-      int = parseInt int, 10
-      if isNaN int
-        throw @txt.nan
-      int
-    len = value.length
-    tst = metrics[1] or ""        # the '8' in 'max-length:8'
+  createEls : =>
+    els = []                                  # Container for our elements
+    for field in @fields                      # field = ['#foo','float','bleh']
 
-    switch metrics[0]
-      when 'presence'
-        return true if value
-      when 'max-length'
-        return true if len <= int tst
-      when 'min-length'
-        return true if len >= int tst
-      when 'exact'
-        return true if value == tst
-      when 'not'
-        return true if value != tst
-      when 'exact-length'
-        return true if len == int tst
-      when 'between'
-        unless metrics[2] and metrics[2].length
-          throw @txt.missingSecondArg
-        return true if len >= int( tst ) and len <= int( metrics[2] )
-      when 'integer'
-        return true if !value or (/^\s*\d+\s*$/).test(value)
-      when 'float'
-        return true if !value or (/^[-+]?[0-9]+(\.[0-9]+)?$/).test(value)
-      when 'same-as'
-        _el = $ tst
-        unless _el.length is 1
-          throw @txt.missingSelector
-        return true if value is _el.val()
-      when 'email'
-        return true if !value or (/^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/).test(value) # RFC822
-    return false
+      if field.length != 3                    # Run a check if user did their
+        throw @err[0] + field                 # job properly
+
+      nodMsgVars = [                          # We parse the vars as a list to
+        field[2]                              # each Msg class and listener
+        @get.helpSpanDisplay                  # class.
+        @get.errorClass                       # field[2] is the msg from user
+        @get.errorPosClasses
+      ]
+
+      listenVars = [                          # For the listener
+        @makeChecker field[1]                 # A fn that performs check of val
+        @get.delay                            # int [700]
+      ]
+
+      for el in $ field[0]                    # The selector could hit more
+        $el = $ el                            # than one element
+        els.push $el                          # We want to save each element
+        new NodMsg        $el, nodMsgVars     # The actual error Msg
+        new FieldListener $el, listenVars     # The listener and checker
+    els                                       # Return the list to @els
+
+
+
+
+  makeChecker : ( m ) ->                      # m = 'max-length:8'
+
+    if typeof m is 'function'                 # If user passes a fn, then we
+      return (v) -> m v                       # just return that.
+                                              # If not, we need to define some
+                                              # variables from the metrics str.
+    [ type, arg, sec ] = $.map m.split(@get.metricsSplitter) , $.trim
+
+    if type=='same-as' && $(arg).length!=1    # Special case
+      throw new Error @err[3]
+
+    switch type
+      when 'presence'     then (v) -> !!v
+      when 'exact'        then (v) -> v == arg
+      when 'not'          then (v) -> v != arg
+      when 'same-as'      then (v) -> v == $(arg).val()
+      when 'min-length'   then (v) -> v.length >= arg   # Automatic conversion
+      when 'max-length'   then (v) -> v.length <= arg   # of arg to an int in
+      when 'exact-length' then (v) -> v.length == arg   # these cases.
+      when 'between'      then (v) -> v.length >= arg and v.length <= sec
+      when 'integer'      then (v) -> !v or (/^\s*\d+\s*$/).test v
+      when 'float'        then (v) -> !v or (/^[-+]?[0-9]+(\.[0-9]+)?$/).test v
+      when 'email'        then (v) -> !v or (/^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/).test v # RFC822
+      else throw @err[4] + type

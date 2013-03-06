@@ -1,71 +1,42 @@
+# One of these for every nod that is put on a field. One field can have more
+# than one nods, and one rule can also be applied to several fields (using
+# general selectors) so also here we get more nods: one for each field it
+# applies to.
+#
+# This basically listens for changes in the field, and changes its status
+# accordingly while broadcasting it via trigger()
+#
 class FieldListener
-  constructor: ( @el, @metrics, @msg, @nod ) ->
-    @errorMsg     = @createErrorMsg @msg, @nod.settings.helpSpanDisplay
-    @delayTime    = @nod.settings.delay
-    @delayId      = ""
-    @fieldCorrect = if @metrics[0] == 'presence' then null else true
-    @errorMsgPos  = @findErrorMsgPos(@el) # returns an element
-    @type         = @el.attr( 'type' ) or @el.prop( 'tagName' ).toLowerCase()
+
+  constructor: ( @$el, vars ) ->
+    [ @checker, @delay ] = vars              # A function and an int
+    @delayId  = ""                           # So we can cancel delayed checks
+    @getVal   = @createGetValue @$el         # We can build it from $el
     @events()
 
 
-  # create the error msg (creating doesn't show it anywhere)
-  #
-  # 'help-inline' is too generic, so we create our own to look for later
-  #
-  createErrorMsg: ( msg , displayType ) ->
-    $ '<span/>',
-      'html' : msg
-      'class' : @nod.settings.errorClass + ' ' + displayType
-    
-
-  # events each field listen for 
-  events: =>
-    @el.on 'keyup', @delayedCheck    # we delay the input check on keypresses
-    @el.on 'blur',  @runCheck        # on blur we run the check intantly
-    @el.on 'change', @runCheck       # for checkboxes and select fields
+  events : =>
+    @$el.on 'keyup',   @delayedCheck         # we delay the check on keypresses
+    @$el.on 'blur',    @runCheck             # On blur we run the check intantly
+    @$el.on 'change',  @runCheck             # For checkboxes and select fields
 
 
   delayedCheck: =>
-    clearTimeout @delayId            # cancel the previous delayed check
-    @delayId = setTimeout @runCheck, @delayTime    # create new setTimeout
-     
-
-  runCheck: =>                       # query the mother ship if value is okay
-    value = if @type is 'checkbox' then @el.is(':checked') else @el.val()
-    @toggleError @nod.isCorrect @metrics, value
+    clearTimeout @delayId                    # Cancel the previous delayed check
+    @delayId = setTimeout @runCheck, @delay  # Create new setTimeout
 
 
-  # Determines whether to toggle the error msg
-  #
-  # and calls mother to toggle group class (.error)
-  #
-  toggleError: ( isCorrect ) =>
-    # @fieldCorrect saves last state of field. If state changed, then continue
-    if isCorrect isnt @fieldCorrect
+  runCheck: =>
+    isCorrect = @checker @getVal()           # Bool
 
-      if isCorrect                          # remove error msg
-        @errorMsg.remove()
-      else                                  # show error msg
-        if @type is 'checkbox'
-          @el.parent().append @errorMsg
-        else
-          @errorMsgPos.after @errorMsg
-
-      @fieldCorrect = isCorrect             # toggle saved state
-      @nod.toggleFormControls()             # toggle group class (maybe)
+    if @$el.status != isCorrect              # Stop if nothing changed
+      @$el.status   = isCorrect              # Set the new status
+      @$el.trigger 'toggle'                  # Tell world that status changed
 
 
-  # find the element after which the errorMsg should be added
-  findErrorMsgPos : (el) ->
-    if @nextElHasClass el, @nod.settings.errorPosClasses
-      return @findErrorMsgPos el.next()     # call itself with the next element
-    el
-
-
-  # check if next element returns on any of the selectors in [selectors]
-  nextElHasClass : ( el, selectors ) ->
-    for s in selectors
-      return true if el.next(s).length
-      false
+  createGetValue : ( $el ) =>                # Returns a function
+    if $el.attr( 'type' ) is 'checkbox'      # If it's a checkbox we don't care
+      -> $el.is ':checked'                   # about the value
+    else
+      -> $.trim $el.val()                    # Text fields, etc, we want the val
 
