@@ -3,19 +3,11 @@
   <head>
     <title>Nod!</title>
     <meta charset="utf-8">
-    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css" rel="stylesheet">
-    <link href="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.css">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.js"></script>
-    <script>
-      // @prettify
-      !function ($) {
-        $(function(){
-        window.prettyPrint && prettyPrint()   
-        })
-      }(window.jQuery);
-    </script>
+    <link href="lib/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="lib/prettify.css">
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/bootstrap.min.js"></script>
+    <script src="lib/prettify.js"></script>
     <script src="nod.js"></script>
     <style>
       body {margin-bottom:100px}
@@ -101,62 +93,59 @@ $(&quot;#form&quot;).nod( metrics );</pre>
         </thead>
         <tbody>
           <tr>
-            <td>presence</td>
+            <td>'presence'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'presence', 'Cannot be empty' ]</code></td>
           </tr>
           <tr>
-            <td>max-length:<span class="muted">int</span></td>
+            <td>'max-length:<span class="muted">Number</span>'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'max-length:4', 'No longer than 4 characters please' ]</code></td>
           </tr>
           <tr>
-            <td>min-length:<span class="muted">int</span></td>
+            <td>'min-length:<span class="muted">Number</span>'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'min-length:4', 'At least 4 characters please' ]</code></td>
           </tr>
           <tr>
-            <td>exact:<span class="muted">string</span></td>
+            <td>'exact:<span class="muted">String</span>'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'exact:bar', 'You have to write "bar"!' ]</code></td>
           </tr>
           <tr>
-            <td>not:<span class="muted">string</span></td>
+            <td>'not:<span class="muted">String</span>'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'not:bar', 'Do not write "bar"!' ]</code></td>
           </tr>
           <tr>
-            <td>exact-length:<span class="muted">int</span></td>
+            <td>'exact-length:<span class="muted">Number</span>'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'exact-length:4', 'Must be exactly 4 characters' ]</code></td>
           </tr>
           <tr>
-            <td>between:<span class="muted">int</span>:<span class="muted">int</span></td>
+            <td>'between:<span class="muted">Number</span>:<span class="muted">Number</span>'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'between:2:4', 'Must be between 2 and 4 characters long' ]</code></td>
           </tr>
           <tr>
-            <td>integer</td>
+            <td>'integer'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'integer', 'Must be a whole number' ]</code></td>
           </tr>
           <tr>
-            <td>float</td>
+            <td>'float'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'float', 'Must be a number (decimals are fine)' ]</code></td>
           </tr>
           <tr>
-            <td>same-as:<span class="muted">selector</span></td>
+            <td>'same-as:<span class="muted">Selector</span>'</td>
             <td><code class="prettyprint lang-js">[ '#email_repeat', 'same-as:#email', 'Your emails does not match' ]</code></td>
           </tr>
           <tr>
-            <td>email</td>
-            <td><code class="prettyprint lang-js">[ '#foo', 'email', 'Must be a valid email (RFC822)' ]</code></td>
+            <td>'email'</td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'email', 'Must be a valid email (RFC 822)' ]</code></td>
+          </tr>
+          <tr>
+            <td class="muted">Function</td>
+            <td><code class="prettyprint lang-js">[ '#foo', ( function(x) { return x % 2 == 0; } ), 'Must be divisible by two' ]</code></td>
+          </tr>
+          <tr>
+            <td class="muted">RegExp</td>
+            <td><code class="prettyprint lang-js">[ '#foo', /Hello/, 'String must contain the world "Hello"' ]</code></td>
           </tr>
         </tbody>
       </table>
-      <p>If none of the above fits your needs, then you can also just add your own function like this:</p>
-      <pre class="prettyprint lang-js linenums">var myValidationFn = function( x ) {
-  return x % 2 == 0;
-};
- 
-var metrics = [
-  [ '#foo', myValidationFn, 'Must be divisible by two' ]
-];
- 
-$(&quot;#form&quot;).nod( metrics );</pre>
-      <p><span class="label label-info">Notice</span> Everything typed into input fields are evaluated as text, so be smart about the automatic conversions you can do. Also notice that the above function will return true on an empty field.</p>
       <h2 id="options">Options { }</h2>
       <p>You can also pass along an object: <code class="prettyprint lang-js">$("#form").nod( metrics, options );</code></p>
       <p>Example:</p>
@@ -392,5 +381,6 @@ $(&quot;#form&quot;).nod( metrics );</pre>
       <h2 id="compiling">Compiling</h2>
       <p>It is written in coffeescript and so must be compiled in case you make changes. This is the command I use: <code class="prettyprint lang-sh">coffee -wcj nod.js nod/*.coffee</code></p>
     </div>
+    <script>!function($) { $(function(){ window.prettyPrint && prettyPrint() }) }(window.jQuery);</script>
   </body>
 </html>

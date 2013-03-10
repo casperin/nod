@@ -84,9 +84,6 @@ class Nod
         @submit.addClass( d ).attr( d, d )
 
 
-
-
-
   createEls : =>
     els = []                                  # Container for our elements
     for field in @fields                      # field = ['#foo','float','bleh']
@@ -118,10 +115,12 @@ class Nod
 
   makeChecker : ( m ) ->                      # m = 'max-length:8'
 
-    if typeof m is 'function'                 # If user passes a fn, then we
-      return (v) -> m v                       # just return that.
-                                              # If not, we need to define some
-                                              # variables from the metrics str.
+    if !!(m && m.constructor && m.call && m.apply)  # If user passes a fn, then
+      return (v) -> m v                             # we just return that.
+
+    if m instanceof RegExp                    # If user passes a regexp, then
+      return (v) -> m.test v                  # we use that for testing.
+
     [ type, arg, sec ] = $.map m.split(@get.metricsSplitter) , $.trim
 
     if type=='same-as' && $(arg).length!=1    # Special case

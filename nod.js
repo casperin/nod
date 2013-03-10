@@ -196,9 +196,14 @@
 
     Nod.prototype.makeChecker = function(m) {
       var arg, sec, type, _ref;
-      if (typeof m === 'function') {
+      if (!!(m && m.constructor && m.call && m.apply)) {
         return function(v) {
           return m(v);
+        };
+      }
+      if (m instanceof RegExp) {
+        return function(v) {
+          return m.test(v);
         };
       }
       _ref = $.map(m.split(this.get.metricsSplitter), $.trim), type = _ref[0], arg = _ref[1], sec = _ref[2];
