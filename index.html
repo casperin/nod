@@ -210,7 +210,13 @@ $(&quot;#form&quot;).nod( metrics );</pre>
             <td>errorClass</td>
             <td>String</td>
             <td>'nod_msg'</td>
-            <td>Used internally. This is the class you want to style if you want any specific styling</td>
+            <td>Used internally. This is the class you want to style if you want any specific styling.</td>
+          </tr>
+          <tr>
+            <td>broadcastError</td>
+            <td>Bool</td>
+            <td>false</td>
+            <td>If set to <code>true</code>, nod will trigger an event on the window object. See example just below.</td>
           </tr>
           <tr>
             <td>groupSelector</td>
@@ -227,6 +233,15 @@ $(&quot;#form&quot;).nod( metrics );</pre>
         </tbody>
       </table>
       <p><span class="label label-info">Notice </span> Some of these values will straight up break the plugin unless you know exactly what you're doing.</p>
+      <h3 id="broadcast_example">Broadcasting</h3>
+      <p>Say you want to log to your server everytime users make errors in your fields, then set <code>broadcastError : true</code> in your options object and listen <code>nod_error_fired</code> on the window oject, like this:</p>
+      <pre class="prettyprint lang-js linenums">var log_error = function( event, data ) {
+  console.log( data.el );
+  console.log( data.msg );
+}
+ 
+$( window ).on( 'nod_error_fired', log_error );</pre>
+      <p>As you can see, you'll get an object with the element (actually the <code>$(el)</code>) and one with the error message.</p>
       <h2 id="examples">Examples <small>Have a look at the source to understand them</small></h2>
       <hr>
       <!-- Checking for simple things-->

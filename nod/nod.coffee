@@ -25,6 +25,7 @@ class Nod
                               '.help-inline'  # input field or after one of
                               '.add-on'       # these classes
                             ]
+      'broadcastError'    : false             # True to trigger event on error
       'errorClass'        : 'nod_msg'         # Your error msg gets this class
       'groupSelector'     : '.control-group'  # Should surround the field + msg
       , options
@@ -96,6 +97,7 @@ class Nod
         @get.helpSpanDisplay                  # class.
         @get.errorClass                       # field[2] is the msg from user
         @get.errorPosClasses
+        @get.broadcastError                   # Bool
       ]
 
       listenVars = [                          # For the listener

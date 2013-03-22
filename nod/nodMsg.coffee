@@ -11,10 +11,10 @@ class NodMsg
       msgArg.display                      # .help-inline
       msgArg.cls                          # .nod_msg
       @pos_classes                        # ['add-on','help-inline']
-    ]         = vars
+      @broadcastError                    # if true, this will broadcast errors
+    ] = vars
     @$msg = @createMsg msgArg             # create the element
-    @showMsg  = @createShowMsg()          # Create fn to show @$msg
-
+    @showMsg = @createShowMsg()           # Create fn to show @$msg
     @events()
 
 
@@ -34,6 +34,7 @@ class NodMsg
       @$msg.remove()
     else
       @showMsg()
+      @broadcast() if @broadcastError
 
 
   createShowMsg : =>                      # Returns a fn that shows @$msg
@@ -57,3 +58,8 @@ class NodMsg
     false                                 # return true and do it again
 
 
+  broadcast : ->
+    data =
+      'el'  : @$el
+      'msg' : @$msg.html()
+    $(window).trigger 'nod_error_fired', data
