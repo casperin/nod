@@ -16,7 +16,7 @@
       .nod_msg {
         font-weight: bold;
       }
-      .input-append, .input-prepend { font-size: 14px; } // bug in bootstrap?
+      .input-append, .input-prepend { font-size: 14px; } /* bug in bootstrap? */
       
       /* prettify */
       .com { color: #93a1a1; }
@@ -53,8 +53,8 @@
     </style>
   </head>
   <body>
-    <div class="container"><a href="//github.com/casperin/nod" style="margin-top:10px;" class="btn btn-success pull-right"><i class="icon-circle-arrow-down icon-white"></i>&nbsp;Clone me on github</a>
-      <h1>Nod <small>A frontend validation plugin for Twitter Bootstrap</small></h1>
+    <div class="container"><a href="//github.com/casperin/nod" style="margin-top:10px;" class="btn btn-success pull-right"><i class="icon-circle-arrow-down icon-white"></i>&nbsp;Clone me silly</a>
+      <h1>Nod <small>A frontend validation jQuery plugin</small></h1>
       <hr>
       <p>Writing frontend validation for forms is painfully boring. So I made this in the hopes that it will help make it a little less agonizing for you.</p>
       <p>It's designed to</p>
@@ -64,6 +64,8 @@
         <li>Be flexible. You can easily define your own functions to validate for (and many other things)</li>
         <li>Be extensible. If you look in the <a href="https://github.com/casperin/nod/tree/master/nod">source code</a>, it should be <a href="https://github.com/casperin/nod/blob/master/nod/nod.coffee#L130">fairly easy to add new rules</a> or remove/add functionality</li>
       </ul>
+      <p>While it isn't strictly Bootstrap dependent, it defaults to the structure that bootstrap uses for its forms. However it should be flexible enough to accomodate most any structure.</p>
+      <p>Comments, bugs, suggestions and ideas are all very much appreciated.</p>
       <h2>Quick introduction</h2>
       <p>
          
@@ -393,8 +395,10 @@ $( window ).on( 'nod_error_fired', log_error );</pre>
         
         
       </script>
+      <h2 id="download">Downloading</h2>
+      <p>Go to <a href="//github.com/casperin/nod">github.com/casperin/nod</a> and clone it. For just a quick plug and play you only need the <a href="https://github.com/casperin/nod/blob/master/nod.js">nod.js</a>.</p>
       <h2 id="compiling">Compiling</h2>
-      <p>It is written in coffeescript and so must be compiled in case you make changes. This is the command I use: <code class="prettyprint lang-sh">coffee -wcj nod.js nod/*.coffee</code></p>
+      <p>It is written in <a href="http://coffeescript.org">CoffeeScript</a> and so must be compiled in case you make changes. This is the command I use: <code class="prettyprint lang-sh">coffee -wcj nod.js nod/*.coffee</code></p>
     </div>
     <script>!function($) { $(function(){ window.prettyPrint && prettyPrint() }) }(window.jQuery);</script>
   </body>
