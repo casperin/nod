@@ -25,7 +25,8 @@ class Nod
                               '.help-inline'  # input field or after one of
                               '.add-on'       # these selectors
                               'button'
-                            ]
+                              '.input-append' # If parent has this class it
+                            ]                 # go up one and continue
       'broadcastError'    : false             # True to trigger event on error
       'errorClass'        : 'nod_msg'         # Your error msg gets this class
       'groupSelector'     : '.control-group'  # Should surround the field + msg

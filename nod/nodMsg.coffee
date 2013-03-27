@@ -45,15 +45,17 @@ class NodMsg
       -> pos.after @$msg
 
 
-  findPos : ( $el ) ->                    # Recursive fn <3
-    if @nextElHasClass $el                # If next el has one of pos class
+  findPos : ( $el ) ->                    # Double recursive fn <3
+    if @elHasClass 'parent', $el
+      return @findPos $el.parent()
+    if @elHasClass 'next', $el                # If next el has one of pos class
       return @findPos $el.next()          # then we run it again.
     $el                                   # Else, we just return the el
 
 
-  nextElHasClass : ( $el ) ->
+  elHasClass : ( dir, $el ) ->
     for s in @pos_classes
-      if $el.next( s ).length             # If the next el has one of the
+      if $el[ dir ]( s ).length             # If the next el has one of the
         return true                       # classes in @pos_classes, we
     false                                 # return true and do it again
 
