@@ -41,7 +41,8 @@ class Nod
       "I don't know "
     ]
 
-    @els    = @createEls()                    # creating all elements!
+    unless @fields then return                # Silent fail
+    @els    = @createEls()                    # Creating all elements!
     @submit = @form.find @get.submitBtnSelector   # our submit btn
     @checkIfElementsExist @form, @submit, @disableSubmitBtn
 

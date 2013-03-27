@@ -94,6 +94,9 @@
         'groupSelector': '.control-group'
       }, options);
       this.err = ["Arguments for each field must have three parts: ", "Couldn't find any form: ", "Couldn't find any Submit button: ", "The selector in 'same-as' isn't working", "I don't know "];
+      if (!this.fields) {
+        return;
+      }
       this.els = this.createEls();
       this.submit = this.form.find(this.get.submitBtnSelector);
       this.checkIfElementsExist(this.form, this.submit, this.disableSubmitBtn);
