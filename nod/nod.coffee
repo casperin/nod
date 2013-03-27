@@ -23,7 +23,8 @@ class Nod
       'metricsSplitter'   : ':'               # The ":" in "max-length:4"
       'errorPosClasses'   : [                 # Errors will show up after the
                               '.help-inline'  # input field or after one of
-                              '.add-on'       # these classes
+                              '.add-on'       # these selectors
+                              'button'
                             ]
       'broadcastError'    : false             # True to trigger event on error
       'errorClass'        : 'nod_msg'         # Your error msg gets this class

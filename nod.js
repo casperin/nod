@@ -88,7 +88,7 @@
         'groupClass': 'error',
         'submitBtnSelector': '[type=submit]',
         'metricsSplitter': ':',
-        'errorPosClasses': ['.help-inline', '.add-on'],
+        'errorPosClasses': ['.help-inline', '.add-on', 'button'],
         'broadcastError': false,
         'errorClass': 'nod_msg',
         'groupSelector': '.control-group'
