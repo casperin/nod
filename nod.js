@@ -114,7 +114,7 @@
 
     Nod.prototype.events = function() {
       var $el, _i, _len, _ref, _results;
-      this.submit.on('click', this.massCheck);
+      this.form.on('submit', this.massCheck);
       _ref = this.els;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {

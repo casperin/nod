@@ -55,8 +55,8 @@ class Nod
 
 
   events : =>
-    @submit .on( 'click' , @massCheck )
-    $el     .on( 'toggle', @toggle    ) for $el in @els
+    @form .on( 'submit', @massCheck )
+    $el   .on( 'toggle', @toggle    ) for $el in @els
 
 
   massCheck : ( ev ) =>
