@@ -19,6 +19,7 @@
       this.delayId = "";
       this.getVal = this.createGetValue(this.$el);
       this.events();
+      this.$el.status = true;
     }
 
     FieldListener.prototype.events = function() {

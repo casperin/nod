@@ -13,6 +13,7 @@ class FieldListener
     @delayId  = ""                           # So we can cancel delayed checks
     @getVal   = @createGetValue @$el         # We can build it from $el
     @events()
+    @$el.status = true                       # We assume field to be ok
 
 
   events : =>
