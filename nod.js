@@ -242,7 +242,7 @@
           };
         case 'exact-length':
           return function(v) {
-            return v.length === arg;
+            return v.length === Number(arg);
           };
         case 'between':
           return function(v) {
