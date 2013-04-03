@@ -14,7 +14,7 @@ class Nod
     # everything can be changed using the options object. I put the most likely
     # to be changed at the top.
     #
-    @get = $.extend
+    @get = jQuery.extend
       'delay'             : 700               # Keyup > delay(ms) > input check
       'disableSubmitBtn'  : true              # automatically disable submit btn
       'helpSpanDisplay'   : 'help-inline'     # Help-inline / help-block
@@ -55,8 +55,8 @@ class Nod
 
 
   events : =>
-    @form .on( 'submit', @massCheck )
-    $el   .on( 'toggle', @toggle    ) for $el in @els
+    @form .on( 'submit', @massCheck  )
+    $el   .on( 'nod_toggle', @toggle ) for $el in @els
 
 
   massCheck : ( ev ) =>
@@ -66,7 +66,7 @@ class Nod
 
 
   toggle: ( ev ) =>
-    @toggleGroupClass $ ev.currentTarget
+    @toggleGroupClass jQuery ev.currentTarget
     @toggleSubmitBtn() if @get.disableSubmitBtn
 
 
@@ -108,8 +108,8 @@ class Nod
         @get.delay                            # int [700]
       ]
 
-      for el in $ field[0]                    # The selector could hit more
-        $el = $ el                            # than one element
+      for el in jQuery field[0]               # The selector could hit more
+        $el = jQuery el                       # than one element
         els.push $el                          # We want to save each element
         new NodMsg        $el, nodMsgVars     # The actual error Msg
         new FieldListener $el, listenVars     # The listener and checker
@@ -126,16 +126,16 @@ class Nod
     if m instanceof RegExp                    # If user passes a regexp, then
       return (v) -> m.test v                  # we use that for testing.
 
-    [ type, arg, sec ] = $.map m.split(@get.metricsSplitter) , $.trim
+    [ type, arg, sec ] = jQuery.map m.split(@get.metricsSplitter) , jQuery.trim
 
-    if type=='same-as' && $(arg).length!=1    # Special case
+    if type=='same-as' && jQuery(arg).length!=1    # Special case
       throw new Error @err[3]
 
     switch type
       when 'presence'     then (v) -> !!v
       when 'exact'        then (v) -> v == arg
       when 'not'          then (v) -> v != arg
-      when 'same-as'      then (v) -> v == $(arg).val()
+      when 'same-as'      then (v) -> v == jQuery(arg).val()
       when 'min-length'   then (v) -> v.length >= arg   # Automatic conversion
       when 'max-length'   then (v) -> v.length <= arg   # of arg to an int in
       when 'exact-length' then (v) -> v.length == arg   # these cases.

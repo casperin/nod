@@ -38,7 +38,7 @@
       isCorrect = this.checker(this.getVal());
       if (this.$el.status !== isCorrect) {
         this.$el.status = isCorrect;
-        return this.$el.trigger('toggle');
+        return this.$el.trigger('nod_toggle');
       }
     };
 
@@ -49,7 +49,7 @@
         };
       } else {
         return function() {
-          return $.trim($el.val());
+          return jQuery.trim($el.val());
         };
       }
     };
@@ -82,7 +82,7 @@
 
       this.events = __bind(this.events, this);
 
-      this.get = $.extend({
+      this.get = jQuery.extend({
         'delay': 700,
         'disableSubmitBtn': true,
         'helpSpanDisplay': 'help-inline',
@@ -120,7 +120,7 @@
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         $el = _ref[_i];
-        _results.push($el.on('toggle', this.toggle));
+        _results.push($el.on('nod_toggle', this.toggle));
       }
       return _results;
     };
@@ -142,7 +142,7 @@
     };
 
     Nod.prototype.toggle = function(ev) {
-      this.toggleGroupClass($(ev.currentTarget));
+      this.toggleGroupClass(jQuery(ev.currentTarget));
       if (this.get.disableSubmitBtn) {
         return this.toggleSubmitBtn();
       }
@@ -187,10 +187,10 @@
         }
         nodMsgVars = [field[2], this.get.helpSpanDisplay, this.get.errorClass, this.get.errorPosClasses, this.get.broadcastError];
         listenVars = [this.makeChecker(field[1]), this.get.delay];
-        _ref1 = $(field[0]);
+        _ref1 = jQuery(field[0]);
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           el = _ref1[_j];
-          $el = $(el);
+          $el = jQuery(el);
           els.push($el);
           new NodMsg($el, nodMsgVars);
           new FieldListener($el, listenVars);
@@ -211,8 +211,8 @@
           return m.test(v);
         };
       }
-      _ref = $.map(m.split(this.get.metricsSplitter), $.trim), type = _ref[0], arg = _ref[1], sec = _ref[2];
-      if (type === 'same-as' && $(arg).length !== 1) {
+      _ref = jQuery.map(m.split(this.get.metricsSplitter), jQuery.trim), type = _ref[0], arg = _ref[1], sec = _ref[2];
+      if (type === 'same-as' && jQuery(arg).length !== 1) {
         throw new Error(this.err[3]);
       }
       switch (type) {
@@ -230,7 +230,7 @@
           };
         case 'same-as':
           return function(v) {
-            return v === $(arg).val();
+            return v === jQuery(arg).val();
           };
         case 'min-length':
           return function(v) {
@@ -288,11 +288,11 @@
     }
 
     NodMsg.prototype.events = function() {
-      return this.$el.on('toggle', this.toggle);
+      return this.$el.on('nod_toggle', this.toggle);
     };
 
     NodMsg.prototype.createMsg = function(arg) {
-      return $('<span/>', {
+      return jQuery('<span/>', {
         'html': arg.msg,
         'class': arg.display + ' ' + arg.cls
       });
@@ -351,7 +351,7 @@
         'el': this.$el,
         'msg': this.$msg.html()
       };
-      return $(window).trigger('nod_error_fired', data);
+      return jQuery(window).trigger('nod_error_fired', data);
     };
 
     return NodMsg;

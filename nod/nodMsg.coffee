@@ -11,7 +11,7 @@ class NodMsg
       msgArg.display                      # .help-inline
       msgArg.cls                          # .nod_msg
       @pos_classes                        # ['add-on','help-inline']
-      @broadcastError                    # if true, this will broadcast errors
+      @broadcastError                     # if true, this will broadcast errors
     ] = vars
     @$msg = @createMsg msgArg             # create the element
     @showMsg = @createShowMsg()           # Create fn to show @$msg
@@ -19,11 +19,11 @@ class NodMsg
 
 
   events : =>
-    @$el.on 'toggle', @toggle             # The only outside trigger
+    @$el.on 'nod_toggle', @toggle         # The only outside trigger
 
 
   createMsg : ( arg ) ->                  # Returns the el we toggle
-    $ '<span/>',
+    jQuery '<span/>',
       'html'  : arg.msg
       'class' : arg.display + ' ' + arg.cls
 
@@ -48,14 +48,14 @@ class NodMsg
   findPos : ( $el ) ->                    # Double recursive fn <3
     if @elHasClass 'parent', $el
       return @findPos $el.parent()
-    if @elHasClass 'next', $el                # If next el has one of pos class
+    if @elHasClass 'next', $el            # If next el has one of pos class
       return @findPos $el.next()          # then we run it again.
     $el                                   # Else, we just return the el
 
 
   elHasClass : ( dir, $el ) ->
     for s in @pos_classes
-      if $el[ dir ]( s ).length             # If the next el has one of the
+      if $el[ dir ]( s ).length           # If the next el has one of the
         return true                       # classes in @pos_classes, we
     false                                 # return true and do it again
 
@@ -64,4 +64,4 @@ class NodMsg
     data =
       'el'  : @$el
       'msg' : @$msg.html()
-    $(window).trigger 'nod_error_fired', data
+    jQuery(window).trigger 'nod_error_fired', data

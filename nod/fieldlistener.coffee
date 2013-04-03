@@ -32,12 +32,12 @@ class FieldListener
 
     if @$el.status != isCorrect              # Stop if nothing changed
       @$el.status   = isCorrect              # Set the new status
-      @$el.trigger 'toggle'                  # Tell world that status changed
+      @$el.trigger 'nod_toggle'              # Tell world that status changed
 
 
   createGetValue : ( $el ) =>                # Returns a function
     if $el.attr( 'type' ) is 'checkbox'      # If it's a checkbox we don't care
       -> $el.is ':checked'                   # about the value
     else
-      -> $.trim $el.val()                    # Text fields, etc, we want the val
+      -> jQuery.trim $el.val()               # Text fields, etc, we want the val
 
