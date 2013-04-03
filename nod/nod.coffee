@@ -138,7 +138,7 @@ class Nod
       when 'same-as'      then (v) -> v == jQuery(arg).val()
       when 'min-length'   then (v) -> v.length >= arg   # Automatic conversion
       when 'max-length'   then (v) -> v.length <= arg   # of arg to an int in
-      when 'exact-length' then (v) -> v.length == arg   # these cases.
+      when 'exact-length' then (v) -> v.length == Number(arg)   # these cases.
       when 'between'      then (v) -> v.length >= arg and v.length <= sec
       when 'integer'      then (v) -> !v or (/^\s*\d+\s*$/).test v
       when 'float'        then (v) -> !v or (/^[-+]?[0-9]+(\.[0-9]+)?$/).test v
