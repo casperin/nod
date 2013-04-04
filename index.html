@@ -99,14 +99,6 @@ $(&quot;#form&quot;).nod( metrics );</pre>
             <td><code class="prettyprint lang-js">[ '#foo', 'presence', 'Cannot be empty' ]</code></td>
           </tr>
           <tr>
-            <td>'max-length:<span class="muted">Number</span>'</td>
-            <td><code class="prettyprint lang-js">[ '#foo', 'max-length:4', 'No longer than 4 characters please' ]</code></td>
-          </tr>
-          <tr>
-            <td>'min-length:<span class="muted">Number</span>'</td>
-            <td><code class="prettyprint lang-js">[ '#foo', 'min-length:4', 'At least 4 characters please' ]</code></td>
-          </tr>
-          <tr>
             <td>'exact:<span class="muted">String</span>'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'exact:bar', 'You have to write "bar"!' ]</code></td>
           </tr>
@@ -115,12 +107,32 @@ $(&quot;#form&quot;).nod( metrics );</pre>
             <td><code class="prettyprint lang-js">[ '#foo', 'not:bar', 'Do not write "bar"!' ]</code></td>
           </tr>
           <tr>
+            <td>'max-length:<span class="muted">Number</span>'</td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'max-length:4', 'No longer than 4 characters please' ]</code></td>
+          </tr>
+          <tr>
+            <td>'min-length:<span class="muted">Number</span>'</td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'min-length:4', 'At least 4 characters please' ]</code></td>
+          </tr>
+          <tr>
             <td>'exact-length:<span class="muted">Number</span>'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'exact-length:4', 'Must be exactly 4 characters' ]</code></td>
           </tr>
           <tr>
             <td>'between:<span class="muted">Number</span>:<span class="muted">Number</span>'</td>
             <td><code class="prettyprint lang-js">[ '#foo', 'between:2:4', 'Must be between 2 and 4 characters long' ]</code></td>
+          </tr>
+          <tr>
+            <td>'max-num:<span class="muted">Number</span>'</td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'max-num:4', 'Type in a number that is at smaller than 5' ]</code></td>
+          </tr>
+          <tr>
+            <td>'min-num:<span class="muted">Number</span>'</td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'min-num:4', 'Type in a number that is bigger than 3' ]</code></td>
+          </tr>
+          <tr>
+            <td>'between-num:<span class="muted">Number</span>:<span class="muted">Number</span>'</td>
+            <td><code class="prettyprint lang-js">[ '#foo', 'between-num:2:4', 'Type in a number between 2 and 4' ]</code></td>
           </tr>
           <tr>
             <td>'integer'</td>

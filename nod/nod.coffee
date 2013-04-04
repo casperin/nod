@@ -136,10 +136,13 @@ class Nod
       when 'exact'        then (v) -> v == arg
       when 'not'          then (v) -> v != arg
       when 'same-as'      then (v) -> v == jQuery(arg).val()
-      when 'min-length'   then (v) -> v.length >= arg   # Automatic conversion
-      when 'max-length'   then (v) -> v.length <= arg   # of arg to an int in
-      when 'exact-length' then (v) -> v.length == Number(arg)   # these cases.
-      when 'between'      then (v) -> v.length >= arg and v.length <= sec
+      when 'min-num'      then (v) -> +v >= +arg
+      when 'max-num'      then (v) -> +v <= +arg
+      when 'between-num'  then (v) -> +v >= +arg and +v <= +sec
+      when 'min-length'   then (v) -> v.length >= +arg
+      when 'max-length'   then (v) -> v.length <= +arg
+      when 'exact-length' then (v) -> v.length == +arg
+      when 'between'      then (v) -> v.length >= +arg and v.length <= +sec
       when 'integer'      then (v) -> !v or (/^\s*\d+\s*$/).test v
       when 'float'        then (v) -> !v or (/^[-+]?[0-9]+(\.[0-9]+)?$/).test v
       when 'email'        then (v) -> !v or (/^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/).test v # RFC822

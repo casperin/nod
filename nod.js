@@ -232,21 +232,33 @@
           return function(v) {
             return v === jQuery(arg).val();
           };
+        case 'min-num':
+          return function(v) {
+            return +v >= +arg;
+          };
+        case 'max-num':
+          return function(v) {
+            return +v <= +arg;
+          };
+        case 'between-num':
+          return function(v) {
+            return +v >= +arg && +v <= +sec;
+          };
         case 'min-length':
           return function(v) {
-            return v.length >= arg;
+            return v.length >= +arg;
           };
         case 'max-length':
           return function(v) {
-            return v.length <= arg;
+            return v.length <= +arg;
           };
         case 'exact-length':
           return function(v) {
-            return v.length === Number(arg);
+            return v.length === +arg;
           };
         case 'between':
           return function(v) {
-            return v.length >= arg && v.length <= sec;
+            return v.length >= +arg && v.length <= +sec;
           };
         case 'integer':
           return function(v) {
