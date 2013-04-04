@@ -136,6 +136,8 @@ class Nod
       when 'exact'        then (v) -> v == arg
       when 'not'          then (v) -> v != arg
       when 'same-as'      then (v) -> v == $(arg).val()
+      when 'min'          then (v) -> v >= arg   # Automatic conversion
+      when 'max'          then (v) -> v <= arg   # of arg to an int in
       when 'min-length'   then (v) -> v.length >= arg   # Automatic conversion
       when 'max-length'   then (v) -> v.length <= arg   # of arg to an int in
       when 'exact-length' then (v) -> v.length == Number(arg)   # these cases.
