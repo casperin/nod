@@ -229,11 +229,11 @@
           };
         case 'min':
           return function(v) {
-            return v >= arg;
+            return Number(v) >= Number(arg);
           };
         case 'max':
           return function(v) {
-            return v <= arg;
+            return Number(v) <= Number(arg);
           };
         case 'min-length':
           return function(v) {
