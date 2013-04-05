@@ -222,43 +222,43 @@
           };
         case 'exact':
           return function(v) {
-            return v === arg;
+            return !v || v === arg;
           };
         case 'not':
           return function(v) {
-            return v !== arg;
+            return !v || v !== arg;
           };
         case 'same-as':
           return function(v) {
-            return v === jQuery(arg).val();
+            return !v || v === jQuery(arg).val();
           };
         case 'min-num':
           return function(v) {
-            return +v >= +arg;
+            return !v || +v >= +arg;
           };
         case 'max-num':
           return function(v) {
-            return +v <= +arg;
+            return !v || +v <= +arg;
           };
         case 'between-num':
           return function(v) {
-            return +v >= +arg && +v <= +sec;
+            return !v || +v >= +arg && +v <= +sec;
           };
         case 'min-length':
           return function(v) {
-            return v.length >= +arg;
+            return !v || v.length >= +arg;
           };
         case 'max-length':
           return function(v) {
-            return v.length <= +arg;
+            return !v || v.length <= +arg;
           };
         case 'exact-length':
           return function(v) {
-            return v.length === +arg;
+            return !v || v.length === +arg;
           };
         case 'between':
           return function(v) {
-            return v.length >= +arg && v.length <= +sec;
+            return !v || v.length >= +arg && v.length <= +sec;
           };
         case 'integer':
           return function(v) {
