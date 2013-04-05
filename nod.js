@@ -127,7 +127,11 @@
 
     Nod.prototype.events = function() {
       var $el, _i, _len, _ref, _results;
-      this.form.on('submit', this.massCheck);
+      if (this.submit.length) {
+        this.submit.on('click', this.massCheck);
+      } else {
+        this.form.on('submit', this.massCheck);
+      }
       _ref = this.els;
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -172,20 +176,14 @@
     };
 
     Nod.prototype.toggleSubmitBtn = function() {
-      var $el, d, _i, _len, _ref, _results;
+      var d;
       d = 'disabled';
       this.submit.removeClass(d).removeAttr(d);
-      _ref = this.els;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        $el = _ref[_i];
-        if (!$el.status) {
-          _results.push(this.submit.addClass(d).attr(d, d));
-        } else {
-          _results.push(void 0);
-        }
+      if ((jQuery(this.els).filter(function() {
+        return !this.status;
+      })).length) {
+        return this.submit.addClass(d).attr(d, d);
       }
-      return _results;
     };
 
     Nod.prototype.createEls = function() {

@@ -55,8 +55,11 @@ class Nod
 
 
   events : =>
-    @form .on( 'submit', @massCheck  )
-    $el   .on( 'nod_toggle', @toggle ) for $el in @els
+    if @submit.length
+      @submit.on 'click', @massCheck
+    else
+      @form.on 'submit', @massCheck
+    $el.on( 'nod_toggle', @toggle ) for $el in @els
 
 
   massCheck : ( ev ) =>
@@ -83,9 +86,8 @@ class Nod
   toggleSubmitBtn : =>
     d = 'disabled'
     @submit.removeClass( d ).removeAttr( d )
-    for $el in @els
-      if !$el.status
-        @submit.addClass( d ).attr( d, d )
+    if ( jQuery( @els ).filter -> !@status ).length
+      @submit.addClass( d ).attr( d, d )
 
 
   createEls : =>
