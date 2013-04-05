@@ -1,9 +1,15 @@
-Nod
-===
+Nod v.1.0.0
+===========
 
 Frontend validation jQuery plugin
 
 [Documentation and examples](http://casperin.github.com/nod "nod") -- or you can just clone this and open index.html :)
+
+
+Dependencies
+------------
+
+* jQuery, version 1.8 or above
 
 
 License
