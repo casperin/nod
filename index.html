@@ -199,7 +199,7 @@ $(&quot;#form&quot;).nod( metrics );</pre>
             <td>delay</td>
             <td>Number</td>
             <td>700</td>
-            <td>Delay on <code>keyup</code> before it runs a check. Set it to <code>-1</code> to disable</td>
+            <td>Delay on <code>keyup</code> before it runs a check. Set it to <code>false</code> to disable completely</td>
           </tr>
           <tr>
             <td>disableSubmitBtn</td>
@@ -217,13 +217,13 @@ $(&quot;#form&quot;).nod( metrics );</pre>
             <td>groupClass</td>
             <td>String</td>
             <td>'error'</td>
-            <td>The <code>.control-group</code> will get this class if an error is found. Can be set to anything like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap :)</td>
+            <td>The <code>.control-group</code> will get this class if an error is found. Can be set to anything you like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap</td>
           </tr>
           <tr>
             <td>submitBtnSelector</td>
             <td>String</td>
             <td>'[type=submit]'</td>
-            <td>Selector to find the submit button</td>
+            <td>Selector to find the submit button. If the form is submitted with a button that is not a member of this selector, then the form will be submitted regardless of errors</td>
           </tr>
           <tr>
             <td>metricsSplitter</td>

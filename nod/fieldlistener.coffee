@@ -23,7 +23,8 @@ class FieldListener
     else
       @$el.on 'change', @runCheck            # For checkboxes and select fields
       @$el.on 'blur',   @runCheck            # On blur we run the check intantly
-      @$el.on 'keyup',  @delayedCheck if @delay >= 0 # delayed check on keypress
+      unless @delay is false
+        @$el.on 'keyup',  @delayedCheck      # delayed check on keypress 
 
 
   delayedCheck: =>

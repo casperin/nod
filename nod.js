@@ -29,7 +29,7 @@
       } else {
         this.$el.on('change', this.runCheck);
         this.$el.on('blur', this.runCheck);
-        if (this.delay >= 0) {
+        if (this.delay !== false) {
           return this.$el.on('keyup', this.delayedCheck);
         }
       }
