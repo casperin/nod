@@ -21,9 +21,9 @@ class FieldListener
     if @type is 'radio'                      # Listen to all with same name
       jQuery( '[name='+@$el.attr("name")+']' ).on 'change', @runCheck
     else
-      @$el.on 'change',  @runCheck           # For checkboxes and select fields
-      @$el.on 'keyup',   @delayedCheck       # we delay the check on keypresses
-      @$el.on 'blur',    @runCheck           # On blur we run the check intantly
+      @$el.on 'change', @runCheck            # For checkboxes and select fields
+      @$el.on 'blur',   @runCheck            # On blur we run the check intantly
+      @$el.on 'keyup',  @delayedCheck if @delay >= 0 # delayed check on keypress
 
 
   delayedCheck: =>

@@ -28,8 +28,10 @@
         return jQuery('[name=' + this.$el.attr("name") + ']').on('change', this.runCheck);
       } else {
         this.$el.on('change', this.runCheck);
-        this.$el.on('keyup', this.delayedCheck);
-        return this.$el.on('blur', this.runCheck);
+        this.$el.on('blur', this.runCheck);
+        if (this.delay >= 0) {
+          return this.$el.on('keyup', this.delayedCheck);
+        }
       }
     };
 
