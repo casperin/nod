@@ -79,7 +79,7 @@
         <li>Keep validation away from the fields to keep the html clean and simple</li>
         <li>Work with selectors so you can target more fields with just one "rule"</li>
         <li>Be flexible. You can easily define your own functions to validate for (and many other things)</li>
-        <li>Be extensible. If you look in the <a href="https://github.com/casperin/nod/tree/master/nod">source code</a>, it should be <a href="https://github.com/casperin/nod/blob/master/nod/nod.coffee#L130">fairly easy to add new rules</a> or remove/add functionality</li>
+        <li>Be extensible. If you look in the <a href="https://github.com/casperin/nod/tree/master/nod">source code</a>, it should be <a href="https://github.com/casperin/nod/blob/master/nod/nod.coffee#L134">fairly easy to add new rules</a> or remove/add functionality</li>
       </ul>
       <p>While it isn't strictly Bootstrap dependent, it defaults to the structure that bootstrap uses for its forms. However it should be flexible enough to accomodate most any structure.</p>
       <p>Comments, bugs, suggestions and ideas are all very much appreciated.</p>
@@ -199,7 +199,7 @@ $(&quot;#form&quot;).nod( metrics );</pre>
             <td>delay</td>
             <td>Number</td>
             <td>700</td>
-            <td>Delay on `keyup` before it runs a check</td>
+            <td>Delay on <code>keyup</code> before it runs a check. Set it to <code>-1</code> to disable</td>
           </tr>
           <tr>
             <td>disableSubmitBtn</td>
@@ -211,13 +211,13 @@ $(&quot;#form&quot;).nod( metrics );</pre>
             <td>helpSpanDisplay</td>
             <td>String</td>
             <td>'help-inline'</td>
-            <td>Set this to 'help-block' if you want error messages to be shown on next line</td>
+            <td>Set this to <code>help-block</code> if you want error messages to be shown on next line</td>
           </tr>
           <tr>
             <td>groupClass</td>
             <td>String</td>
             <td>'error'</td>
-            <td>The .control-group will get this class if an error is found. Can be set to anything like, but 'error', 'info', 'warning', or 'success' makes the most sense with bootstrap :)</td>
+            <td>The <code>.control-group</code> will get this class if an error is found. Can be set to anything like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap :)</td>
           </tr>
           <tr>
             <td>submitBtnSelector</td>
@@ -229,7 +229,7 @@ $(&quot;#form&quot;).nod( metrics );</pre>
             <td>metricsSplitter</td>
             <td>String</td>
             <td>':'</td>
-            <td>The ":" in "max-length:4"</td>
+            <td>The <code>:</code> in <code>max-length:4</code></td>
           </tr>
           <tr>
             <td>errorPosClasses</td>
