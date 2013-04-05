@@ -11,6 +11,8 @@ Dependencies
 
 * jQuery, version 1.8 or above
 
+Although not strictly a dependency, nod.js was built with Bootstrap in mind.
+
 
 License
 -------
