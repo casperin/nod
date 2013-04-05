@@ -11,15 +11,19 @@ class FieldListener
   constructor: ( @$el, vars ) ->
     [ @checker, @delay ] = vars              # A function and an int
     @delayId  = ""                           # So we can cancel delayed checks
-    @getVal   = @createGetValue @$el         # We can build it from $el
+    @$el.status = true                       # We assume field to be okname
+    @type = @$el.attr 'type'
+    @checkField = @createChecker @$el        # We can build it from $el
     @events()
-    @$el.status = true                       # We assume field to be ok
 
 
   events : =>
-    @$el.on 'keyup',   @delayedCheck         # we delay the check on keypresses
-    @$el.on 'blur',    @runCheck             # On blur we run the check intantly
-    @$el.on 'change',  @runCheck             # For checkboxes and select fields
+    if @type is 'radio'                      # Listen to all with same name
+      jQuery( '[name='+@$el.attr("name")+']' ).on 'change', @runCheck
+    else
+      @$el.on 'change',  @runCheck           # For checkboxes and select fields
+      @$el.on 'keyup',   @delayedCheck       # we delay the check on keypresses
+      @$el.on 'blur',    @runCheck           # On blur we run the check intantly
 
 
   delayedCheck: =>
@@ -28,16 +32,18 @@ class FieldListener
 
 
   runCheck: =>
-    isCorrect = @checker @getVal()           # Bool
+    isCorrect = @checkField()                # Bool
+    if @$el.status == isCorrect then return  # Stop if nothing changed
+    @$el.status = isCorrect                  # Set the new status
+    @$el.trigger 'nod_toggle'                # Tell world that status changed
 
-    if @$el.status != isCorrect              # Stop if nothing changed
-      @$el.status   = isCorrect              # Set the new status
-      @$el.trigger 'nod_toggle'              # Tell world that status changed
 
-
-  createGetValue : ( $el ) =>                # Returns a function
-    if $el.attr( 'type' ) is 'checkbox'      # If it's a checkbox we don't care
-      -> $el.is ':checked'                   # about the value
+  createChecker : ( $el ) =>                 # Returns a function
+    if @type is 'checkbox'                   # If it's a checkbox we don't care
+      -> @checker $el.is ':checked'          # about the value.
+    else if @type is 'radio'                 # Radio we ignore it if it isn't
+      -> !$el.is( ':checked' ) or            # checked.
+          $el.is( ':checked' ) is @checker $el.val()      # Else we check it
     else
-      -> jQuery.trim $el.val()               # Text fields, etc, we want the val
+      -> @checker jQuery.trim $el.val()      # Text fields, etc, we want the val
 

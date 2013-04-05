@@ -38,7 +38,8 @@ class NodMsg
 
 
   createShowMsg : =>                      # Returns a fn that shows @$msg
-    if @$el.attr( 'type' ) is 'checkbox'
+    type = @$el.attr( 'type' )
+    if type is 'checkbox' or type is 'radio'
       -> @$el.parent().append @$msg       # If checkbox, append to parent
     else
       pos = @findPos @$el                 # Returns el before our @$msg
