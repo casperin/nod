@@ -108,7 +108,7 @@ class Nod
         @get.delay                            # int [700]
       ]
 
-      for el in jQuery field[0]               # The selector could hit more
+      for el in @form.find field[0]               # The selector could hit more
         $el = jQuery el                       # than one element
         els.push $el                          # We want to save each element
         new NodMsg        $el, nodMsgVars     # The actual error Msg

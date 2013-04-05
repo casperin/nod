@@ -11,6 +11,8 @@
     <script src="nod.js"></script>
     <style>
       body {margin-bottom:100px}
+      .code { display: none }
+      .nod_msg { background: #fcc; display: inline-block; padding: 2px 5px; margin-left: 5px; border-radius: 5px; }
       .container {margin-top:20px}
       h2 {margin-top:1.4em}
       .nod_msg {
@@ -49,8 +51,23 @@
         text-shadow: 0 1px 0 #fff;
       }
       
-      
     </style>
+    <script>
+      $(document).ready(function(){
+        var see_code = $('<button/>', 
+            {html:"See code", class:"btn btn-mini see-code" }
+        ).on( 'click', function() {
+            $(this).next('.code').trigger('tgl');
+        });
+        $( 'form' ).on( 'submit', submitForm = function( e ) { e.preventDefault(); } ).after( see_code );
+        $( '.code' ).on( 'tgl', function() {
+          el = $(this);
+          el.is(':visible') ? el.slideUp() : el.slideDown();
+        });
+      });
+      
+      
+    </script>
   </head>
   <body>
     <div class="container"><a href="//github.com/casperin/nod" style="margin-top:10px;" class="btn btn-success pull-right"><i class="icon-circle-arrow-down icon-white"></i>&nbsp;Clone me silly</a>
@@ -256,52 +273,89 @@ $(&quot;#form&quot;).nod( metrics );</pre>
  
 $( window ).on( 'nod_error_fired', log_error );</pre>
       <p>As you can see, you'll get an object with the element (actually the <code>$(el)</code>) and one with the error message.</p>
-      <h2 id="examples">Examples <small>Have a look at the source to understand them</small></h2>
-      <hr>
-      <!-- Checking for simple things-->
-      <form action="" id="a" class="form form-horizontal">
+      <h2 id="download">Downloading</h2>
+      <p>Go to <a href="//github.com/casperin/nod">github.com/casperin/nod</a> and clone it. For just a quick plug and play you only need the <a href="https://github.com/casperin/nod/blob/master/nod.js">nod.js</a>.</p>
+      <h2 id="compiling">Compiling</h2>
+      <p>It is written in <a href="http://coffeescript.org">CoffeeScript</a> and so must be compiled in case you make changes. This is the command I use: <code class="prettyprint lang-sh">coffee -wcj nod.js nod/*.coffee</code></p>
+      <h2 id="examples">Examples</h2>
+      <hr id="example1">
+      <form id="ex1" class="form-horizontal">
         <div class="control-group">
-          <div class="control-label">
-            <label>Your age</label>
-          </div>
+          <label class="control-label">Mandatory field</label>
           <div class="controls">
-            <input type="text" id="a_age">
-          </div>
-        </div>
-        <div class="control-group">
-          <div class="control-label">
-            <label>Email</label>
-          </div>
-          <div class="controls">
-            <input type="text" id="a_email">
+            <input type="text">
           </div>
         </div>
         <div class="controls">
-          <button type="submit" class="btn">Go!</button>
+          <button type="submit" class="btn">Submit</button>
         </div>
+        <script>
+          var metrics = [
+            [ 'input', 'presence', 'Cannot be empty' ]
+          ];
+          $("#ex1").nod( metrics );
+        </script>
       </form>
-      <script>
-        // A list of all the fields we wish to validate
-        //
-        // Each sublist consists of three parts: selector, metrics, error msg
-        //
-        var a_metrics = [
-          [ '#a_age', 'integer', 'A number, please' ],
-          [ '#a_email', 'email', 'Not a valid email' ],
-          [ '#a [type=text]', 'presence', 'Cannot be empty' ]
-        ];
-        $('#a').nod( a_metrics );
-        
-        
-      </script>
-      <hr>
-      <form action="" id="b" class="form form-horizontal">
+      <div class="code">
+        <pre class="prettyprint lang-html">&lt;form id=&quot;ex1&quot; class=&quot;form-horizontal&quot;&gt;
+  &lt;div class=&quot;control-group&quot;&gt;
+     &lt;label class=&quot;control-label&quot;&gt;Mandatory field&lt;/label&gt;
+     &lt;div class=&quot;controls&quot;&gt;
+       &lt;input type=&quot;text&quot;&gt;
+     &lt;/div&gt;
+   &lt;/div&gt;
+   &lt;div class=&quot;controls&quot;&gt;
+     &lt;button type=&quot;submit&quot; class=&quot;btn&quot;&gt;Submit&lt;/button&gt;
+   &lt;/div&gt;
+ &lt;/form&gt;</pre>
+        <pre class="prettyprint lang-js">var metrics = [
+  [ 'input', 'presence', 'Cannot be empty' ]
+];
+$(&quot;#ex1&quot;).nod( metrics );</pre>
+      </div>
+      <hr id="example2">
+      <form id="ex2" class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label">Search for number</label>
+          <div class="controls">
+            <input type="text" placeholder="type a number and hit enter" class="search_field">
+          </div>
+        </div>
+        <script>
+          var metrics = [
+            [ '.search_field', 'integer', 'Must be a number' ]
+          ];
+          $("#ex2").nod( metrics );
+        </script>
+      </form>
+      <div class="code">
+        <pre class="prettyprint lang-html">&lt;form id=&quot;ex2&quot; class=&quot;form-horizontal&quot;&gt;
+  &lt;div class=&quot;control-group&quot;&gt;
+     &lt;label class=&quot;control-label&quot;&gt;Search for number&lt;/label&gt;
+     &lt;div class=&quot;controls&quot;&gt;
+       &lt;input type=&quot;text&quot; class=&quot;search_field&quot; placeholder=&quot;type a number and hit enter&quot;&gt;
+     &lt;/div&gt;
+   &lt;/div&gt;
+ &lt;/form&gt;</pre>
+        <pre class="prettyprint lang-js">var metrics = [
+  [ '.search_field', 'integer', 'Must be a number' ]
+];
+$(&quot;#ex2&quot;).nod( metrics );</pre>
+      </div>
+      <hr id="example3">
+      <form id="ex3" class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label">Type "foo"</label>
+          <div class="controls">
+            <input type="text" class="ex3a">
+          </div>
+        </div>
         <div class="control-group">
           <div class="control-label">
             <label>Select something</label>
           </div>
           <div class="controls">
-            <select id="b_select">
+            <select id="ex3select">
               <option value="">Select something please</option>
               <option value="1">Pick this</option>
               <option value="2">Or this</option>
@@ -310,107 +364,56 @@ $( window ).on( 'nod_error_fired', log_error );</pre>
             </select>
           </div>
         </div>
-        <div class="control-group">
-          <div class="control-label">
-            <label>Your credit card num</label>
-          </div>
-          <div class="controls">
-            <input type="text" id="b_credit">
-          </div>
-        </div>
         <div class="controls">
-          <button type="submit" class="btn">Go!</button>
+          <button type="submit" class="btn">Submit</button>
         </div>
+        <script>
+          var metrics = [
+            [ '.ex3a', 'exact:foo', 'I told you to type "foo"!' ],
+            [ '#ex3select', 'presence', 'Pick something' ],
+            [ '#ex3select', 'not:3', 'I told you not to pick this one!' ],
+          ];
+          var options = {
+            'groupClass' : 'warning',
+          };
+          $("#ex3").nod( metrics, options );
+        </script>
       </form>
-      <script>
-        var b_metrics = [
-          [ '#b_select', 'presence', 'Pick something' ],
-          [ '#b_select', 'not:3', 'I told you not to pick this one!' ],
-          [ '#b_credit', 'between:12:19', 'Must be between 12 and 19 digits' ]
-        ];
-        $('#b').nod( b_metrics );
-        
-      </script>
-      <hr>
-      <form action="" id="c" class="form form-horizontal">
-        <div class="control-group">
-          <div class="control-label">
-            <label>Say something</label>
-          </div>
-          <div class="controls">
-            <input type="text">
-          </div>
-        </div>
-        <div class="control-group">
-          <div class="control-label">
-            <label>Select something</label>
-          </div>
-          <div class="controls">
-            <select id="c_select">
-              <option value="">Select something please</option>
-              <option value="1">Pick this</option>
-            </select>
-          </div>
-        </div>
-        <div class="control-group">
-          <div class="controls">
-            <label>
-              <input type="checkbox" id="c_checkbox"> Check this!
-            </label>
-          </div>
-        </div>
-        <div class="controls">
-          <button type="submit" class="btn">Go!</button>
-        </div>
-      </form>
-      <script>
-        var c_metrics = [
-          [ '#c input, #c select', 'presence', 'Can\'t be left blank' ]
-        ];
-        var c_options = {
-          'groupClass' : 'warning',       // changing the class to warning
-          'disableSubmitBtn': false       // not disabling the submit btn when errors exist
-        }
-        $('#c').nod( c_metrics , c_options );
-        
-        
-      </script>
-      <hr>
-      <form action="" id="d" class="form form-horizontal">
-        <div class="control-group">
-          <div class="control-label">
-            <label>Your price</label>
-          </div>
-          <div class="controls">
-            <div class="input-append">
-              <input type="text" id="d_price" class="span2"><span class="add-on">.00</span>
-            </div>
-          </div>
-        </div>
-        <div class="control-group">
-          <div class="control-label">
-            <label>Complicated matter</label>
-          </div>
-          <div class="controls">
-            <input type="text" id="d_complicated"><span class="help-inline">Some inline help text</span><span class="help-block">Some block help text</span>
-          </div>
-        </div>
-        <div class="controls">
-          <button type="submit" class="btn">Go!</button>
-        </div>
-      </form>
-      <script>
-        var d_metrics = [
-          [ '#d input', 'presence', 'Can\'t be left blank' ]
-        ];
-        $('#d').nod( d_metrics );
-        
-        
-      </script>
-      <h2 id="download">Downloading</h2>
-      <p>Go to <a href="//github.com/casperin/nod">github.com/casperin/nod</a> and clone it. For just a quick plug and play you only need the <a href="https://github.com/casperin/nod/blob/master/nod.js">nod.js</a>.</p>
-      <h2 id="compiling">Compiling</h2>
-      <p>It is written in <a href="http://coffeescript.org">CoffeeScript</a> and so must be compiled in case you make changes. This is the command I use: <code class="prettyprint lang-sh">coffee -wcj nod.js nod/*.coffee</code></p>
+      <div class="code">
+        <pre class="prettyprint lang-html">&lt;form id=&quot;ex3&quot; class=&quot;form-horizontal&quot;&gt;
+&lt;div class=&quot;control-group&quot;&gt;
+  &lt;label class=&quot;control-label&quot;&gt;Type &quot;foo&quot;&lt;/label&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;input type=&quot;text&quot; class=&quot;ex3a&quot;&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;control-group&quot;&gt;
+  &lt;div class=&quot;control-label&quot;&gt;
+    &lt;label&gt;Select something&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;select id=&quot;ex3select&quot;&gt;
+      &lt;option value=&quot;&quot;&gt;Select something please&lt;/option&gt;
+      &lt;option value=&quot;1&quot;&gt;Pick this&lt;/option&gt;
+      &lt;option value=&quot;2&quot;&gt;Or this&lt;/option&gt;
+      &lt;option value=&quot;3&quot;&gt;But not this&lt;/option&gt;
+      &lt;option value=&quot;4&quot;&gt;This is fine though&lt;/option&gt;
+    &lt;/select&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;controls&quot;&gt;
+  &lt;button type=&quot;submit&quot; class=&quot;btn&quot;&gt;Submit&lt;/button&gt;
+&lt;/div&gt;</pre>
+        <pre class="prettyprint lang-js">var metrics = [
+  [ '.ex3a', 'exact:foo', 'I told you to type &quot;foo&quot;!' ],
+  [ '#ex3select', 'presence', 'Pick something' ],
+  [ '#ex3select', 'not:3', 'I told you not to pick this one!' ],
+];
+var options = {
+  'groupClass' : 'warning',
+};
+$(&quot;#ex3&quot;).nod( metrics, options );</pre>
+      </div>
     </div>
     <script>!function($) { $(function(){ window.prettyPrint && prettyPrint() }) }(window.jQuery);</script>
   </body>

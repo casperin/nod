@@ -197,7 +197,7 @@
         }
         nodMsgVars = [field[2], this.get.helpSpanDisplay, this.get.errorClass, this.get.errorPosClasses, this.get.broadcastError];
         listenVars = [this.makeChecker(field[1]), this.get.delay];
-        _ref1 = jQuery(field[0]);
+        _ref1 = this.form.find(field[0]);
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           el = _ref1[_j];
           $el = jQuery(el);
