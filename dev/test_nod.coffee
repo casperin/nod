@@ -8,10 +8,9 @@ jQuery ->
   regex = /357/
   
   metrics = [
-    [ '[name=rad]', 'not:2', 'must be radioed' ]
-    [ '#radio2', 'presence', 'prs' ]
-    [ '#one', 'email', 'must be present' ]
-    [ '#two', 'integer', 'must be present' ]
+    [ '#one', 'presence', 'presence' ]
+    [ '#one', 'email', 'email' ]
+    [ '#two', 'integer', 'int' ]
   ]
 
   options = {
