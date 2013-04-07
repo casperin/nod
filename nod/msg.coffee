@@ -2,7 +2,7 @@
 # directly by its listener (1 to 1 relationship), and either shows or hides the
 # message depending on the status passed along.
 #
-class NodMsg
+class Msg
 
   constructor: ( @$el, @get, msg ) ->
     @$msg = @createMsg msg                    # create the element

@@ -8,7 +8,7 @@ class Listener
     @delayId  = ""                            # So we can cancel delayed checks
     @status   = true                          # We assume field to be ok
     @check    = new Checker @$el, metric      # Run this to check a field
-    @msg      = new NodMsg  @$el, @get, msg   # Toggles showing/hiding msgs
+    @msg      = new Msg     @$el, @get, msg   # Toggles showing/hiding msgs
     @events()                                 # Listen for changes on element
 
 
