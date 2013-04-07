@@ -1,0 +1,322 @@
+!!! 5
+html
+  head
+    title Nod!
+    meta(charset="utf-8")
+    link(href="lib/bootstrap-combined.min.css",rel="stylesheet")
+    link(href="lib/prettify.css")
+    script(src="lib/jquery.min.js")
+    script(src="lib/bootstrap.min.js")
+    script(src="lib/prettify.js")
+    script(src="nod.js")
+    style
+      body {margin-bottom:100px}
+      .code { display: none }
+      .nod_msg { background: #fcc; display: inline-block; padding: 2px 5px; margin-left: 5px; border-radius: 5px; }
+      .container {margin-top:20px}
+      h2 {margin-top:1.4em}
+      .nod_msg {
+        font-weight: bold;
+      }
+      .input-append, .input-prepend { font-size: 14px; } /* bug in bootstrap? */
+
+      /* prettify */
+      .com { color: #93a1a1; }
+      .lit { color: #195f91; }
+      .pun, .opn, .clo { color: #93a1a1; }
+      .fun { color: #dc322f; }
+      .str, .atv { color: #D14; }
+      .kwd, .prettyprint .tag { color: #1e347b; }
+      .typ, .atn, .dec, .var { color: teal; }
+      .pln { color: #48484c; }
+
+      .prettyprint {
+        padding: 8px;
+        background-color: #f7f7f9;
+        border: 1px solid #e1e1e8;
+      }
+      .prettyprint.linenums {
+        -webkit-box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
+           -moz-box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
+                box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
+      }
+      /* Specify class=linenums on a pre to get line numbering */
+      ol.linenums {
+        margin: 0 0 0 33px; /* IE indents via margin-left */
+      }
+      ol.linenums li {
+        padding-left: 12px;
+        color: #bebec5;
+        line-height: 20px;
+        text-shadow: 0 1px 0 #fff;
+      }
+
+    script
+      $(document).ready(function(){
+        var see_code = $('<button/>', 
+            {html:"See code", class:"btn btn-mini see-code" }
+          ).on( 'click', function() {
+            $(this).next('.code').trigger('tgl');
+          });
+        $( 'form' ).on( 'submit', submitForm = function( e ) { e.preventDefault(); } ).after( see_code );
+        $( '.code' ).on( 'tgl', function() {
+          el = $(this);
+          el.is(':visible') ? el.slideUp() : el.slideDown();
+        });
+      });
+
+
+  body
+
+    .container
+
+      a(href="//github.com/casperin/nod",style="margin-top:10px;").btn.btn-success.pull-right
+        i.icon-circle-arrow-down.icon-white
+        | &nbsp;Clone me silly
+
+      h1 Nod 
+        small A frontend validation jQuery plugin
+      hr
+      p Writing frontend validation for forms is painfully boring. So I made this in the hopes that it will help make it a little less agonizing for you.
+      p It's designed to
+      ul
+        li Keep validation away from the fields to keep the html clean and simple
+        li Work with selectors so you can target more fields with just one "rule"
+        li Be flexible. You can easily define your own functions to validate for (and many other things)
+        li Be extensible. If you look in the <a href="https://github.com/casperin/nod/tree/master/nod">source code</a>, it should be <a href="https://github.com/casperin/nod/blob/master/nod/nod.coffee#L134">fairly easy to add new rules</a> or remove/add functionality
+      p While it isn't strictly Bootstrap dependent, it defaults to the structure that bootstrap uses for its forms. However it should be flexible enough to accomodate most any structure.
+      p Comments, bugs, suggestions and ideas are all very much appreciated.
+
+      h2 Quick introduction
+      p 
+        |The plugin is made as a jQuery plugin and is activated like this: 
+        code.prettyprint.lang-js $("#form").nod( metrics );
+        |  The <code class="prettyprint lang-js">metrics</code> is a list that you build beforehand. It is basically a list of each selector and how you want it validated.
+      p Example:
+      pre.prettyprint.lang-js.linenums
+        | var metrics = [
+        |   [ '#foo', 'presence', 'Cannot be empty' ],
+        |   [ '#bar', 'min-length:4', 'Must be at least 4 characters long' ]
+        | ];
+        | 
+        | $("#form").nod( metrics );
+      
+      p Each "sublist" consists of three parts:
+      ol
+        li The selector (the validation will be applied to every field that the selector matches)
+        li A string describing what you wish to validate for (see below for documentation)
+        li The error message you wish to display on error
+
+
+      h2#metrics Metrics [ ]
+      p Here is a table with what you can currently validate for:
+      table.table.table-bordered
+        thead
+          tr
+            th Name
+            th Example
+        tbody
+          tr
+            td 'presence'
+            td
+              code.prettyprint.lang-js [ '#foo', 'presence', 'Cannot be empty' ]
+          tr
+            td 'exact:
+              span.muted String
+              | '
+            td
+              code.prettyprint.lang-js [ '#foo', 'exact:bar', 'You have to write "bar"!' ]
+          tr
+            td 'not:
+              span.muted String
+              | '
+            td
+              code.prettyprint.lang-js [ '#foo', 'not:bar', 'Do not write "bar"!' ]
+          tr
+            td 'max-length:
+              span.muted Number
+              | '
+            td
+              code.prettyprint.lang-js [ '#foo', 'max-length:4', 'No longer than 4 characters please' ]
+          tr
+            td 'min-length:
+              span.muted Number
+              | '
+            td
+              code.prettyprint.lang-js [ '#foo', 'min-length:4', 'At least 4 characters please' ]
+          tr
+            td 'exact-length:
+              span.muted Number
+              | '
+            td
+              code.prettyprint.lang-js [ '#foo', 'exact-length:4', 'Must be exactly 4 characters' ]
+          tr
+            td 'between:
+              span.muted Number
+              | :
+              span.muted Number
+              | '
+            td
+              code.prettyprint.lang-js [ '#foo', 'between:2:4', 'Must be between 2 and 4 characters long' ]
+          tr
+            td 'max-num:
+              span.muted Number
+              | '
+            td
+              code.prettyprint.lang-js [ '#foo', 'max-num:4', 'Type in a number that is at smaller than 5' ]
+          tr
+            td 'min-num:
+              span.muted Number
+              | '
+            td
+              code.prettyprint.lang-js [ '#foo', 'min-num:4', 'Type in a number that is bigger than 3' ]
+          tr
+            td 'between-num:
+              span.muted Number
+              | :
+              span.muted Number
+              | '
+            td
+              code.prettyprint.lang-js [ '#foo', 'between-num:2:4', 'Type in a number between 2 and 4' ]
+          tr
+            td 'integer'
+            td
+              code.prettyprint.lang-js [ '#foo', 'integer', 'Must be a whole number' ]
+          tr
+            td 'float'
+            td
+              code.prettyprint.lang-js [ '#foo', 'float', 'Must be a number (decimals are fine)' ]
+          tr
+            td 'same-as:
+              span.muted Selector
+              | '
+            td
+              code.prettyprint.lang-js [ '#email_repeat', 'same-as:#email', 'Your emails does not match' ]
+          tr
+            td 'email'
+            td
+              code.prettyprint.lang-js [ '#foo', 'email', 'Must be a valid email (RFC 822)' ]
+          tr
+            td.muted Function
+            td
+              code.prettyprint.lang-js [ '#foo', ( function(x) { return x % 2 == 0; } ), 'Must be divisible by two' ]
+          tr
+            td.muted RegExp
+            td
+              code.prettyprint.lang-js [ '#foo', /Hello/, 'String must contain the world "Hello"' ]
+
+
+
+      h2#options Options { }
+      p You can also pass along an object: 
+        code.prettyprint.lang-js $("#form").nod( metrics, options );
+
+      p Example:
+      pre.prettyprint.lang-js.linenums
+        | var options = {
+        |   'delay' : 200,
+        |   'submitBtnSelector' : '#submit_btn'
+        | };
+
+      p Here is a table of everything you can change with the options object. 
+      table.table.table-bordered
+        thead
+          tr
+            th Name
+            th Type
+            th Default value
+            th Description
+        tbody
+          tr
+            td delay
+            td Number
+            td 700
+            td Delay on <code>keyup</code> before it runs a check. Set it to <code>false</code> to disable completely
+          tr
+            td disableSubmitBtn
+            td Bool
+            td true
+            td Set to false if you don't want the submit button to be disabled
+          tr
+            td helpSpanDisplay
+            td String
+            td 'help-inline'
+            td Set this to <code>help-block</code> if you want error messages to be shown on next line
+          tr
+            td groupClass
+            td String
+            td 'error'
+            td The <code>.control-group</code> will get this class if an error is found. Can be set to anything you like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap
+          tr
+            td submitBtnSelector
+            td String
+            td '[type=submit]'
+            td Selector to find the submit button. If the form is submitted with a button that is not a member of this selector, then the form will be submitted regardless of errors
+          tr
+            td metricsSplitter
+            td String
+            td ':'
+            td The <code>:</code> in <code>max-length:4</code>
+          tr
+            td errorPosClasses
+            td Array
+            td ['.help-inline', '.add-on', button, '.input-append']
+            td When placing the error message, nod will look for these elements (after and above) and place it after these if they exist.
+          tr
+            td errorClass
+            td String
+            td 'nod_msg'
+            td Used internally. This is the class you want to style if you want any specific styling.
+          tr
+            td broadcastError
+            td Bool
+            td false
+            td If set to <code>true</code>, nod will trigger an event on the window object. See example just below.
+          tr
+            td groupSelector
+            td String
+            td '.control-group'
+            td Can't think of a reason to change this, but feel free.
+          tr
+            td disabledAttr
+            td String
+            td 'disabled'
+            td Things will surely break if you change this.
+
+      p
+        span.label.label-info Notice 
+        |  Some of these values will straight up break the plugin unless you know exactly what you're doing.
+
+      h3#broadcast_example Broadcasting
+      p Say you want to log to your server everytime users make errors in your fields, then set <code>broadcastError : true</code> in your options object and listen <code>nod_error_fired</code> on the window oject, like this:
+      pre.prettyprint.lang-js.linenums
+        | var log_error = function( event, data ) {
+        |   console.log( data.el );
+        |   console.log( data.msg );
+        | }
+        |  
+        | $( window ).on( 'nod_error_fired', log_error );
+      p As you can see, you'll get an object with the element (actually the <code>$(el)</code>) and one with the error message.
+
+
+      h2#download Downloading
+      p Go to 
+        a(href="//github.com/casperin/nod") github.com/casperin/nod
+        |  and clone it. For just a quick plug and play you only need the 
+        a(href="https://github.com/casperin/nod/blob/master/nod.js") nod.js
+        | .
+      
+
+      h2#compiling Compiling
+      p It is written in 
+        a(href='http://coffeescript.org') CoffeeScript
+        |  and so must be compiled in case you make changes. This is the command I use: 
+        code.prettyprint.lang-sh coffee -wcj nod.js nod/*.coffee
+
+
+      h2#examples Examples
+      include examples/ex1
+      include examples/ex2
+      include examples/ex3
+
+    script !function($) { $(function(){ window.prettyPrint && prettyPrint() }) }(window.jQuery);

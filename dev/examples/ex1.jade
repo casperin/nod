@@ -1,0 +1,30 @@
+hr#example1
+form#ex1.form-horizontal
+  .control-group
+    label.control-label Mandatory field
+    .controls
+      input(type='text')
+  .controls
+    button(type='submit').btn Submit
+  script
+    var metrics = [
+      [ 'input', 'presence', 'Cannot be empty' ]
+    ];
+    $("#ex1").nod( metrics );
+.code
+  pre.prettyprint.lang-html &lt;form id=&quot;ex1&quot; class=&quot;form-horizontal&quot;&gt;
+    |   &lt;div class=&quot;control-group&quot;&gt;
+    |      &lt;label class=&quot;control-label&quot;&gt;Mandatory field&lt;/label&gt;
+    |      &lt;div class=&quot;controls&quot;&gt;
+    |        &lt;input type=&quot;text&quot;&gt;
+    |      &lt;/div&gt;
+    |    &lt;/div&gt;
+    |    &lt;div class=&quot;controls&quot;&gt;
+    |      &lt;button type=&quot;submit&quot; class=&quot;btn&quot;&gt;Submit&lt;/button&gt;
+    |    &lt;/div&gt;
+    |  &lt;/form&gt;
+  pre.prettyprint.lang-js
+    | var metrics = [
+    |   [ 'input', 'presence', 'Cannot be empty' ]
+    | ];
+    | $("#ex1").nod( metrics );
