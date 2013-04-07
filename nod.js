@@ -122,6 +122,8 @@
 
     function Listener(el, get, metric, msg) {
       this.get = get;
+      this.change_status = __bind(this.change_status, this);
+
       this.runCheck = __bind(this.runCheck, this);
 
       this.delayedCheck = __bind(this.delayedCheck, this);
@@ -154,8 +156,19 @@
     };
 
     Listener.prototype.runCheck = function() {
+      var chk, defer,
+        _this = this;
+      defer = jQuery.Deferred();
+      chk = defer.then(function() {
+        return _this.check();
+      });
+      defer.resolve();
+      return chk.done(this.change_status);
+    };
+
+    Listener.prototype.change_status = function(status) {
       var isCorrect;
-      isCorrect = this.check();
+      isCorrect = !!status;
       if (this.status === isCorrect) {
         return;
       }

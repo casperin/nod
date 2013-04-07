@@ -5,12 +5,14 @@ jQuery ->
     if v == "" then return false
     v % 2 == 0
 
+  g = (v) -> jQuery.get 'resp.txt', v
+
   regex = /357/
   
   metrics = [
     [ '#one', 'presence', 'presence' ]
     [ '#one', 'email', 'email' ]
-    [ '#two', 'integer', 'int' ]
+    [ '#two', g, 'get' ]
   ]
 
   options = {

@@ -22,12 +22,21 @@ class Listener
 
 
   delayedCheck: =>
-    clearTimeout @delayId                     # Cancel the previous delayed check
+    clearTimeout @delayId                     # Cancel the previous delay check
     @delayId = setTimeout @runCheck, @get.delay  # Create new setTimeout
 
 
   runCheck: =>
-    isCorrect = @check()                      # Bool
+    # Uses method described at http://api.jquery.com/deferred.then/ to 
+    # accomodate ajax callbacks
+    defer = jQuery.Deferred()
+    chk   = defer.then => @check()
+    defer.resolve()
+    chk.done @change_status
+
+
+  change_status : ( status ) =>
+    isCorrect = !!status                      # Bool, kthx
     if @status is isCorrect then return       # Stop if nothing changed
     @status = isCorrect                       # Set the new status
     @msg.toggle @status                       # toggle msg with new status
