@@ -1,68 +1,53 @@
-# This class handles building, showing, and hiding the error message. It
-# listens for changes in the toggle (by fieldlistener), checks status and
-# either shows or hides the message
+# This class handles building, showing, and hiding the error message. It is run
+# directly by its listener (1 to 1 relationship), and either shows or hides the
+# message depending on the status passed along.
 #
 class NodMsg
 
-  constructor: ( @$el, vars ) ->
-    msgArg = {}
-    [
-      msgArg.msg                          # Msg passed from user
-      msgArg.display                      # .help-inline
-      msgArg.cls                          # .nod_msg
-      @pos_classes                        # ['add-on','help-inline']
-      @broadcastError                     # if true, this will broadcast errors
-    ] = vars
-    @$msg = @createMsg msgArg             # create the element
-    @showMsg = @createShowMsg()           # Create fn to show @$msg
-    @events()
+  constructor: ( @$el, @get, msg ) ->
+    @$msg = @createMsg msg                    # create the element
+    @showMsg = @createShowMsg()               # Create fn to show @$msg
 
 
-  events : =>
-    @$el.on 'nod_toggle', @toggle         # The only outside trigger
-
-
-  createMsg : ( arg ) ->                  # Returns the el we toggle
+  createMsg : ( msg ) =>                      # Returns the el we toggle
     jQuery '<span/>',
-      'html'  : arg.msg
-      'class' : arg.display + ' ' + arg.cls
+      'html'  : msg
+      'class' : @get.helpSpanDisplay + ' ' + @get.errorClass
 
 
-
-  toggle : =>
-    if @$el.status
+  toggle : ( status ) =>                      # Called from it listener
+    if status                                 # No errors
       @$msg.remove()
-    else
+    else                                      # Errors
       @showMsg()
-      @broadcast() if @broadcastError
+      @broadcast() if @broadcastError         # Not used internally
 
 
-  createShowMsg : =>                      # Returns a fn that shows @$msg
+  createShowMsg : =>                          # Returns a fn that shows @$msg
     type = @$el.attr( 'type' )
     if type is 'checkbox' or type is 'radio'
-      -> @$el.parent().append @$msg       # If checkbox, append to parent
+      -> @$el.parent().append @$msg           # If checkbox, append to parent
     else
-      pos = @findPos @$el                 # Returns el before our @$msg
+      pos = @findPos @$el                     # Returns el before our @$msg
       -> pos.after @$msg
 
 
-  findPos : ( $el ) ->                    # Double recursive fn <3
+  findPos : ( $el ) ->                        # Double recursive fn <3
     if @elHasClass 'parent', $el
       return @findPos $el.parent()
-    if @elHasClass 'next', $el            # If next el has one of pos class
-      return @findPos $el.next()          # then we run it again.
-    $el                                   # Else, we just return the el
+    if @elHasClass 'next', $el                # If next el has one of pos class
+      return @findPos $el.next()              # then we run it again.
+    $el                                       # Else, we just return the el
 
 
   elHasClass : ( dir, $el ) ->
-    for s in @pos_classes
-      if $el[ dir ]( s ).length           # If the next el has one of the
-        return true                       # classes in @pos_classes, we
-    false                                 # return true and do it again
+    for s in @get.errorPosClasses
+      if $el[ dir ]( s ).length               # If the next el has one of the
+        return true                           # classes in @pos_classes, we
+    false                                     # return true and do it again
 
 
-  broadcast : ->
-    data =
-      'el'  : @$el
-      'msg' : @$msg.html()
-    jQuery(window).trigger 'nod_error_fired', data
+  broadcast : ->                              # Not used internally at all
+    jQuery( window ).trigger 'nod_error_fired',
+      el  : @$el
+      msg : @$msg.html()
