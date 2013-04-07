@@ -5,15 +5,18 @@
   $ = 'boo';
 
   jQuery(function() {
-    var fn, metrics, options, regex;
+    var fn, g, metrics, options, regex;
     fn = function(v) {
       if (v === "") {
         return false;
       }
       return v % 2 === 0;
     };
+    g = function(v) {
+      return jQuery.get('resp.txt', v);
+    };
     regex = /357/;
-    metrics = [['[name=rad]', 'not:2', 'must be radioed'], ['#radio2', 'presence', 'prs'], ['#one', 'email', 'must be present'], ['#two', 'integer', 'must be present']];
+    metrics = [['#one', 'presence', 'presence'], ['#one', 'email', 'email'], ['#two', g, 'get']];
     options = {
       'submitBtnSelector': '#submit_btn'
     };
