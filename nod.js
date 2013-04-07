@@ -6,28 +6,33 @@
   Checker = (function() {
 
     function Checker($el, metric) {
-      var makeChecker, validator,
-        _this = this;
-      validator = this.makeValidator(metric);
-      makeChecker = function($el) {
-        var type;
-        type = $el.attr('type');
-        if (type === 'checkbox') {
-          return function() {
-            return validator($el.is(':checked'));
-          };
-        } else if (type === 'radio') {
-          return function() {
-            return !$el.is(':checked') || $el.is(':checked') === validator($el.val());
-          };
-        } else {
-          return function() {
-            return validator(jQuery.trim($el.val()));
-          };
-        }
-      };
-      return makeChecker($el);
+      this.makeChecker = __bind(this.makeChecker, this);
+
+      this.run = __bind(this.run, this);
+      this.checker = this.makeChecker($el, this.makeValidator(metric));
     }
+
+    Checker.prototype.run = function(fn) {
+      return fn(this.checker());
+    };
+
+    Checker.prototype.makeChecker = function($el, validator) {
+      var type;
+      type = $el.attr('type');
+      if (type === 'checkbox') {
+        return function() {
+          return validator($el.is(':checked'));
+        };
+      } else if (type === 'radio') {
+        return function() {
+          return !$el.is(':checked') || $el.is(':checked') === validator($el.val());
+        };
+      } else {
+        return function() {
+          return validator(jQuery.trim($el.val()));
+        };
+      }
+    };
 
     Checker.prototype.makeValidator = function(m) {
       var arg, sec, type, _ref;
@@ -133,7 +138,7 @@
       this.$el = jQuery(el);
       this.delayId = "";
       this.status = true;
-      this.check = new Checker(this.$el, metric);
+      this.checker = new Checker(this.$el, metric);
       this.msg = new Msg(this.$el, this.get, msg);
       this.events();
     }
@@ -156,14 +161,7 @@
     };
 
     Listener.prototype.runCheck = function() {
-      var chk, defer,
-        _this = this;
-      defer = jQuery.Deferred();
-      chk = defer.then(function() {
-        return _this.check();
-      });
-      defer.resolve();
-      return chk.done(this.change_status);
+      return jQuery.Deferred().done(this.checker.run).resolve(this.change_status);
     };
 
     Listener.prototype.change_status = function(status) {
@@ -334,15 +332,20 @@
     };
 
     Nod.prototype.massCheck = function(event) {
-      var l, _i, _len, _ref;
+      var checks, l, _i, _len, _ref,
+        _this = this;
+      event.preventDefault();
+      checks = [];
       _ref = this.listeners;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         l = _ref[_i];
-        l.runCheck();
+        checks.push(l.runCheck);
       }
-      if (this.errorsExist()) {
-        return event.preventDefault();
-      }
+      return jQuery.Deferred().done(checks).done(function() {
+        if (!_this.errorsExist()) {
+          return _this.form.submit();
+        }
+      }).resolve();
     };
 
     Nod.prototype.toggle_status = function(event) {

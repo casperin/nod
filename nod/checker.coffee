@@ -4,20 +4,23 @@
 class Checker
   constructor : ( $el, metric ) ->
 
-    validator = @makeValidator metric
+    @checker = @makeChecker $el, @makeValidator metric
 
-    makeChecker = ( $el ) =>                 # Returns a function
-      type = $el.attr 'type'
-      if type is 'checkbox'                   # If it's a checkbox we don't care
-        -> validator $el.is ':checked'          # about the value.
-      else if type is 'radio'                 # Radio we ignore it if it isn't
-        -> !$el.is( ':checked' ) or            # checked.
-            $el.is( ':checked' ) is validator $el.val()      # Else we check it
-      else
-        -> validator jQuery.trim $el.val()      # Text fields, etc, we want the val
 
-    return makeChecker $el
+  run : ( fn) =>
+    fn @checker()
 
+
+
+  makeChecker : ( $el, validator ) =>                 # Returns a function
+    type = $el.attr 'type'
+    if type is 'checkbox'                   # If it's a checkbox we don't care
+      -> validator $el.is ':checked'          # about the value.
+    else if type is 'radio'                 # Radio we ignore it if it isn't
+      -> !$el.is( ':checked' ) or            # checked.
+          $el.is( ':checked' ) is validator $el.val()      # Else we check it
+    else
+      -> validator jQuery.trim $el.val()      # Text fields, etc, we want the val
 
 
   makeValidator : ( m ) ->                      # m = 'max-length:8'

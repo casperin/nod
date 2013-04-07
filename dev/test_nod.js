@@ -16,7 +16,7 @@
       return jQuery.get('resp.txt', v);
     };
     regex = /357/;
-    metrics = [['#one', 'presence', 'presence'], ['#one', 'email', 'email'], ['#two', g, 'get']];
+    metrics = [['#two', g, 'get']];
     options = {
       'submitBtnSelector': '#submit_btn'
     };

@@ -10,8 +10,8 @@ jQuery ->
   regex = /357/
   
   metrics = [
-    [ '#one', 'presence', 'presence' ]
-    [ '#one', 'email', 'email' ]
+    # [ '#one', 'presence', 'presence' ]
+    # [ '#one', 'email', 'email' ]
     [ '#two', g, 'get' ]
   ]
 

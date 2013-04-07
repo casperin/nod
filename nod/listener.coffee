@@ -7,7 +7,7 @@ class Listener
     @$el      = jQuery el
     @delayId  = ""                            # So we can cancel delayed checks
     @status   = true                          # We assume field to be ok
-    @check    = new Checker @$el, metric      # Run this to check a field
+    @checker  = new Checker @$el, metric      # Run this to check a field
     @msg      = new Msg     @$el, @get, msg   # Toggles showing/hiding msgs
     @events()                                 # Listen for changes on element
 
@@ -29,10 +29,9 @@ class Listener
   runCheck: =>
     # Uses method described at http://api.jquery.com/deferred.then/ to 
     # accomodate ajax callbacks
-    defer = jQuery.Deferred()
-    chk   = defer.then => @check()
-    defer.resolve()
-    chk.done @change_status
+    jQuery.Deferred()
+      .done( @checker.run )
+      .resolve( @change_status )
 
 
   change_status : ( status ) =>
