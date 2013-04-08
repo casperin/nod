@@ -8,62 +8,27 @@ html
     script
       $ = 'yo'
     script(src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js")
-    script(src="../nod.js")
-    script(src="test_nod.js")
+    script(src="nod.js")
+    script(src="dev/test_nod.js")
     style
       body {margin-bottom:100px}
       .nod_msg {
         font-weight: bold;
         margin-left: 5px;
       }
-      .input-append, .input-prepend { font-size: 14px; } /* bug in bootstrap? */
 
-    //
-      body { font: 14px/1.4 myriad pro, sans-serif; margin: 100px; }
-      ol { list-style: none; margin: 0; padding: 0; width: 400px}
-      li { padding: 5px 10px; }
-      .error { background: #fcc; color: #c00 }
   body
 
     
-    //
-      form(action="")#bro
-        ol
-          li
-            label Yo bro
-            input(type='text')#em
-
-
 
    
     .container
 
-      // .input-append <input type='text' id='zero' class='span2'><button class='btn'>One</button><button class='btn'>Two</button>
 
       fieldset
         legend The testing facility
         form(action="foo.html")#form.form.form-horizontal
 
-          //
-
-            .control-group
-              .controls
-                label
-                  input(type="checkbox")#check
-                  |  Check box
-
-
-            .control-group
-              .controls
-                label.radio
-                  input(type='radio',name='rad',value='1')#radio1
-                  | Some radio button
-                label.radio
-                  input(type='radio',name='rad',value='2')#radio2
-                  | Other radio button
-                label.radio
-                  input(type='radio',name='rad',value='3')#radio3
-                  | Thrd radio button!
 
           .control-group
             .control-label

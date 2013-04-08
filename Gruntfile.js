@@ -10,6 +10,8 @@ module.exports = function (grunt) {
 
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
+    grunt.loadNpmTasks('grunt-coffeelint');
+
     var nodConfig = {
         app: '.',
         dist: 'dist'
@@ -111,9 +113,11 @@ module.exports = function (grunt) {
                 options: {
                     pretty: true
                 },
-                files: {
+                files: [{
                   ".tmp/index.html": ["dev/index.jade"]
-                }
+                },{
+                  ".tmp/test.html": ['dev/test.jade']
+                }]
             }
         },
         coffee: {
@@ -134,6 +138,9 @@ module.exports = function (grunt) {
                         'nod/nod.coffee'
                     ],
                     dest: '.tmp/nod.js',
+                },{
+                    src: 'dev/test_nod.coffee',
+                    dest: 'dev/test_nod.js'
                 }]
             },
             test: {
@@ -175,6 +182,9 @@ module.exports = function (grunt) {
             all: {
                 rjsConfig: '<%= nod.app %>/scripts/main.js'
             }
+        },
+        coffeelint: {
+          foo : ['nod/*.coffee']
         }
     });
 
@@ -210,6 +220,10 @@ module.exports = function (grunt) {
         'coffee',
         'jade',
         'copy',
+    ]);
+
+    grunt.registerTask('lint', [
+      'coffeelint'
     ]);
 
     grunt.registerTask('default', [

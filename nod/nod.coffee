@@ -83,7 +83,7 @@ class Nod
 
   checkIfElementsExist : ( form, submit, disableSubmitBtn ) ->     # Helper fn
     if !form.selector or !form.length then @throw 'form'  , form   # check form
-    if !submit.length and disableSbmt then @throw 'submit', submit # check sbmt
+    if !submit.length and disableSubmitBtn then @throw 'submit', submit
 
 
   throw : ( type, el ) ->                     # Helper to throw errors

@@ -10,7 +10,7 @@ jQuery ->
   regex = /357/
   
   metrics = [
-    # [ '#one', 'presence', 'presence' ]
+    [ '#one', 'presence', 'presence' ]
     # [ '#one', 'email', 'email' ]
     [ '#two', g, 'get' ]
   ]
@@ -20,7 +20,7 @@ jQuery ->
     # 'disableSubmitBtn' : false
     # 'broadcastError' : true
     # 'delay' : 0
-    'submitBtnSelector' : '#submit_btn'
+    # 'submitBtnSelector' : '#submit_btn'
   }
 
 
