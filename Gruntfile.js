@@ -132,10 +132,10 @@ module.exports = function (grunt) {
                     join: true,
                     src: [
                         'nod/checker.coffee',
-                        'nod/init.coffee',
                         'nod/listener.coffee',
                         'nod/msg.coffee',
-                        'nod/nod.coffee'
+                        'nod/nod.coffee',
+                        'nod/init.coffee'
                     ],
                     dest: '.tmp/nod.js',
                 },{
@@ -184,7 +184,7 @@ module.exports = function (grunt) {
             }
         },
         coffeelint: {
-          foo : ['nod/*.coffee']
+          runtest : ['nod/*.coffee']
         }
     });
 
