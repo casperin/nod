@@ -54,11 +54,10 @@ class Nod
   massCheck : ( event ) =>
     event.preventDefault()
     checks = []
-    checks.push l.runCheck for l in @listeners
-    jQuery.Deferred()
-      .done( checks )
-      .done( => @form.submit() unless @errorsExist() )
-      .resolve()
+    checks.push l.runCheck() for l in @listeners
+    jQuery
+      .when.apply( window, checks )
+      .then( => @form.submit() unless @errorsExist() )
 
 
   toggle_status: ( event ) =>                 # Status on single el has changed

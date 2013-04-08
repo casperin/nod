@@ -7,9 +7,7 @@ class Checker
     @checker = @makeChecker $el, @makeValidator metric
 
 
-  run : ( fn ) =>                           # fn should accept one bool arg
-    fn @checker()
-
+  run : => @checker() 
 
 
   makeChecker : ( $el, validator ) =>       # Returns a function

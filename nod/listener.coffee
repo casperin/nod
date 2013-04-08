@@ -29,9 +29,9 @@ class Listener
   runCheck: =>
     # Uses method described at http://api.jquery.com/deferred.then/ to
     # accomodate ajax callbacks
-    jQuery.Deferred()
-      .done( @checker.run )
-      .resolve( @change_status )
+    jQuery
+      .when( @checker.run() )
+      .then( @change_status )
 
 
   change_status : ( status ) =>

@@ -11,7 +11,7 @@ jQuery(function() {
     return v % 2 === 0;
   };
   g = function(v) {
-    return jQuery.get('resp.txt', v);
+    return jQuery.get('dev/resp.txt', v);
   };
   regex = /357/;
   metrics = [['#one', 'presence', 'presence'], ['#two', g, 'get']];

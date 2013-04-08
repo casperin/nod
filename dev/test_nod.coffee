@@ -5,7 +5,7 @@ jQuery ->
     if v == "" then return false
     v % 2 == 0
 
-  g = (v) -> jQuery.get 'resp.txt', v
+  g = (v) -> jQuery.get 'dev/resp.txt', v
 
   regex = /357/
   
