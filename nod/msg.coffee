@@ -15,7 +15,9 @@ class Msg
       'class' : @get.helpSpanDisplay + ' ' + @get.errorClass
 
 
-  toggle : ( status ) =>                      # Called from it listener
+  # Called from its listener whenever the status changes.
+  # status == true, means no errors.
+  toggle : ( status ) =>
     if status                                 # No errors
       @$msg.remove()
     else                                      # Errors
@@ -23,30 +25,41 @@ class Msg
       @broadcast() if @broadcastError         # Not used internally
 
 
+  # We need to know the type of the input field before we know where to place
+  # the error message.
   createShowMsg : =>                          # Returns a fn that shows @$msg
     type = @$el.attr( 'type' )
     if type is 'checkbox' or type is 'radio'
       -> @$el.parent().append @$msg           # If checkbox, append to parent
     else
+      # We need to find the element immediately before where we want our error
+      # message to be. For instance we want to skip over add-ons,
+      # .help-inline's, buttons, etc.
       pos = @findPos @$el                     # Returns el before our @$msg
       -> pos.after @$msg
 
 
-  findPos : ( $el ) ->                        # Double recursive fn <3
-    if @elHasClass 'parent', $el
-      return @findPos $el.parent()
+  findPos : ( $el ) ->
+    if @elHasClass 'parent', $el              # Check if we should go up the
+      return @findPos $el.parent()            # dom tree.
     if @elHasClass 'next', $el                # If next el has one of pos class
       return @findPos $el.next()              # then we run it again.
-    $el                                       # Else, we just return the el
+    return $el                                # Else, we just return the el
 
 
-  elHasClass : ( dir, $el ) ->
-    for s in @get.errorPosClasses
-      if $el[ dir ]( s ).length               # If the next el has one of the
-        return true                           # classes in @pos_classes, we
-    false                                     # return true and do it again
+  # Helper fn used but findPos(), to determine if a parent or next element hs
+  # has one of the classes defined in @get.errorPosClasses.
+  # Returns a boolean.
+  elHasClass : ( dir, $el ) ->                # dir = 'parent' or 'next'
+    for sel in @get.errorPosClasses
+      if $el[ dir ]( sel ).length
+        return true                           # if el matches a selector
+    return false                              # if no el matches the selectors
 
 
+  # This can be turned on by the user to listen for errors if they want to log
+  # them, etc. It triggers an event on the window with an object describing
+  # the nature of the error.
   broadcast : ->                              # Not used internally at all
     jQuery( window ).trigger 'nod_error_fired',
       el  : @$el

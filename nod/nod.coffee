@@ -4,8 +4,11 @@
 #
 class Nod
   constructor: (@form, fields, options ) ->
-    unless fields then return                 # Silent fail
 
+    # Silent fail if no fields where passed in.
+    unless fields then return
+
+    # Defining variables used throughout the plugin.
     @get = jQuery.extend
       'delay'             : 700               # Keyup > delay(ms) > input check
       'disableSubmitBtn'  : true              # automatically disable submit btn
@@ -24,70 +27,124 @@ class Nod
       'groupSelector'     : '.control-group'  # Should surround the field + msg
       , options
 
+    # First we create all the listeners. One listener per rule per selector.
+    @listeners = @createListeners fields
 
-    @listeners = @createListeners fields      # Creating all elements!
-    @submit    = @form.find @get.submitBtnSelector # our submit btn
+    # Find the submit button. It may not always be defined, which is okay as
+    # long as @get.disableSubmitBtn isn't set to true. (This might change in
+    # future).
+    @submit = @form.find @get.submitBtnSelector
+
+    # Check if the form actually exists, and if the submit button does.
+    # This is mainly to help the user in case they made an error.
     @checkIfElementsExist @form, @submit, @get.disableSubmitBtn
+
+    # Set up events
     @events()
 
 
+  # Returns a list of all the listeners.
   createListeners : ( fields ) =>
-    listeners = []                            # Container for our listeners
-    for field in fields                       # field = ['#foo','float','msg']
-      if field.length isnt 3 then @throw 'field', field   # help for users
-      [ selector, metric, msg ] = field
+    listeners = []      # Container for our listeners
+
+    for field in fields     # this is the metrics list
+
+      # Every field must be have exactly three parts, so we check to see if
+      # user did their job properly.
+      if field.length isnt 3 then @throw 'field', field
+
+      [ selector, metric, msg ] = field     # field = ['#foo','float','msg']
+
+      # Selectors might be general in their scope and return more than one
+      # element. We want to apply one listener to each of the elements.
+      # Notice that one element can easily end up with more than one listener.
       for el in @form.find selector
         listeners.push new Listener el, @get, metric, msg
-    listeners
+
+    return listeners
 
 
   events : =>
-                                              # Listen for toggles on every el
-    jQuery( l ).on( 'nod_toggle', @toggle_status ) for l in @listeners
+                       
+    for l in @listeners     # Listen for toggles on every listener
+      jQuery( l ).on 'nod_toggle', @toggle_status
 
+    # If the form has submit buttons (as defined in the options{}), then they
+    # will be the ones triggering the mass check (and they, in return, will be
+    # triggered by [enter].
+    # This way of doing things, allows you to have submit buttons that are not
+    # defined in the options{}, and thus will completely skip the validation
+    # and submit the form regardless of errors.
     if @submit.length
-      @submit.on 'click', @massCheck          # [enter] will trigger this too
+      @submit.on 'click', @massCheck      # [enter] will trigger this too
     else
-      @form.on 'submit', @massCheck           # For forms w/o submit btn
+      @form.on 'submit', @massCheck       # For forms w/o submit btn
 
 
+  # This function is run whenever the form is submitted.
   massCheck : ( event ) =>
-    event.preventDefault()
+    event.preventDefault()      # Prevent form from being submitted
+
+    # Push all the checks for each listener into an array.
     checks = []
     checks.push l.runCheck() for l in @listeners
+
+    # We use $.deferred in case user has ajax checks.
     jQuery
+      # .when() only accepts a comma seperate list, so we use apply as
+      # descriped here: http://stackoverflow.com/questions/5573165/raising-
+      # jquery-deferred-then-once-all-deferred-objects-have-been-resolved
       .when.apply( window, checks )
-      .then( => @form.submit() unless @errorsExist() )
+      # When all checks has been run we submit the form unless there are errors
+      .then( => @form.submit() if @formIsErrorFree() )
 
 
-  toggle_status: ( event ) =>                 # Status on single el has changed
+  # This is run whenever a listener changes its status.
+  # It toggles the group class (if necessary) of that element, and in case the
+  # form has errors it disables the submit button.
+  toggle_status: ( event ) =>     # Status on single el has changed
     @toggleGroupClass event.target.$el.parents @get.groupSelector
     @toggleSubmitBtn() if @get.disableSubmitBtn
 
 
   toggleGroupClass: ( $group ) =>             # Runs on a specific group
-    act = if $group.find( '.'+@get.errorClass ).length then 'add' else 'remove'
-    $group[act+'Class'] @get.groupClass       # add or remove Class of group
+    # if we find errors within this group then we add the .error to it (or
+    # whatever the user has defined as the error class).
+    if $group.find( '.'+@get.errorClass ).length
+      $group.addClass @get.groupClass
+    else      # Else we remove it (in case it was already there).
+      $group.removeClass @get.groupClass
 
 
-  toggleSubmitBtn : =>                        # Disables submit btn if errors
-    d = 'disabled'
-    @submit.removeClass( d ).removeAttr( d )
-    @submit.addClass( d ).attr( d, d ) if @errorsExist()
+  # Looks for errors in the form, and enables/disables the submit button as
+  # needed.
+  toggleSubmitBtn : =>
+    if @formIsErrorFree()
+      @submit.removeClass( 'disabled' ).removeAttr( 'disabled' )
+    else
+      @submit.addClass( 'disabled' ).attr( 'disabled', 'disabled' )
 
 
-  errorsExist : =>                            # Helper to search for errors
-    !!jQuery( @listeners ).filter( -> !@status ).length
+  # Helper to check if the form is free of errors. Returns a boolean.
+  formIsErrorFree : =>
+    !jQuery( @listeners ).filter( -> !@status ).length
 
 
-  checkIfElementsExist : ( form, submit, disableSubmitBtn ) ->     # Helper fn
-    if !form.selector or !form.length then @throw 'form'  , form   # check form
-    if !submit.length and disableSubmitBtn then @throw 'submit', submit
+  # Helper fn used in the constructor to see if both the form and the submit
+  # button is there. It will throw errors at the user in case something is
+  # wrong with their config.
+  checkIfElementsExist : ( form, submit, disableSubmitBtn ) ->
+    if !form.selector or !form.length         # No form
+      @throw 'form', form
+    if !submit.length and disableSubmitBtn    # No submit button
+      @throw 'submit', submit
 
 
-  throw : ( type, el ) ->                     # Helper to throw errors
+  # Helper fn to throw errors at the user
+  throw : ( type, el ) ->
     switch type
       when 'form'   then txt = 'Couldn\'t find form: '
       when 'submit' then txt = 'Couldn\'t find submit button: '
       when 'field'  then txt = 'Metrics for each field must have three parts: '
     throw new Error txt + el
+

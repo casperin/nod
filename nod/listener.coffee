@@ -18,7 +18,8 @@ class Listener
     else
       @$el.on 'change', @runCheck             # For checkboxes and select fields
       @$el.on 'blur'  , @runCheck             # On blur we run the check
-      @$el.on 'keyup' , @delayedCheck if @get.delay # delayed check on keypress
+      if @get.delay
+        @$el.on 'keyup' , @delayedCheck       # delayed check on keypress
 
 
   delayedCheck: =>
@@ -35,8 +36,9 @@ class Listener
 
 
   change_status : ( status ) =>
-    isCorrect = !!status                      # Bool, kthx
-    if @status is isCorrect then return       # Stop if nothing changed
+    isCorrect = !!status                      # Bool
+    return if @status is isCorrect            # Stop if nothing changed
     @status = isCorrect                       # Set the new status
     @msg.toggle @status                       # toggle msg with new status
-    jQuery( @ ).trigger 'nod_toggle'          # for Nod
+    jQuery( @ ).trigger 'nod_toggle'          # Triggers check on submit btn
+                                              # and .control-group
