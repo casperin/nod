@@ -24,7 +24,7 @@ class FieldListener
       @$el.on 'change', @runCheck            # For checkboxes and select fields
       @$el.on 'blur',   @runCheck            # On blur we run the check intantly
       unless @delay is false
-        @$el.on 'keyup',  @delayedCheck      # delayed check on keypress 
+        @$el.on 'keyup',  @delayedCheck      # delayed check on keypress
 
 
   delayedCheck: =>
@@ -42,9 +42,12 @@ class FieldListener
   createChecker : ( $el ) =>                 # Returns a function
     if @type is 'checkbox'                   # If it's a checkbox we don't care
       -> @checker $el.is ':checked'          # about the value.
-    else if @type is 'radio'                 # Radio we ignore it if it isn't
-      -> !$el.is( ':checked' ) or            # checked.
-          $el.is( ':checked' ) is @checker $el.val()      # Else we check it
+    else if @type is 'radio'                 # Radio
+      if $el.attr("name") isnt ""             # if the radio button has a name
+        -> @checker jQuery( '[name='+@$el.attr("name")+']:checked' ).val()  # Check if any radio button in its group is
+      else
+        -> !$el.is( ':checked' ) or          # we ignore it if it isn't checked.
+            $el.is( ':checked' ) is @checker $el.val()      # Else we check it
     else
       -> @checker jQuery.trim $el.val()      # Text fields, etc, we want the val
 
