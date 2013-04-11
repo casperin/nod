@@ -10,7 +10,7 @@ class Checker
   run : => @checker()
 
 
-  makeChecker : ( $el, validator ) =>      # Returns a function
+  makeChecker : ( $el, validator ) =>       # Returns a function
     type = $el.attr 'type'
     if type is 'checkbox'                   # If it's a checkbox we don't care
       -> validator $el.is ':checked'        # about the value.
