@@ -1,3 +1,6 @@
+(function($){
+
+
 var Checker,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -7,11 +10,12 @@ Checker = (function() {
     this.makeChecker = __bind(this.makeChecker, this);
 
     this.run = __bind(this.run, this);
+    console.log('asd');
     this.checker = this.makeChecker($el, this.makeValidator(metric));
   }
 
-  Checker.prototype.run = function(fn) {
-    return fn(this.checker());
+  Checker.prototype.run = function() {
+    return this.checker();
   };
 
   Checker.prototype.makeChecker = function($el, validator) {
@@ -106,21 +110,13 @@ Checker = (function() {
           return !v || /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test(v);
         };
       default:
-        throw 'I don\'t know ' + type + ', sorry.';
+        throw new Error('I don\'t know ' + type + ', sorry.');
     }
   };
 
   return Checker;
 
 })();
-
-
-(function($) {
-  return $.fn.nod = function(fields, settings) {
-    new Nod(this, fields, settings);
-    return this;
-  };
-})(jQuery);
 
 var Listener,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -163,7 +159,7 @@ Listener = (function() {
   };
 
   Listener.prototype.runCheck = function() {
-    return jQuery.Deferred().done(this.checker.run).resolve(this.change_status);
+    return jQuery.when(this.checker.run()).then(this.change_status);
   };
 
   Listener.prototype.change_status = function(status) {
@@ -243,11 +239,11 @@ Msg = (function() {
   };
 
   Msg.prototype.elHasClass = function(dir, $el) {
-    var s, _i, _len, _ref;
+    var sel, _i, _len, _ref;
     _ref = this.get.errorPosClasses;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      s = _ref[_i];
-      if ($el[dir](s).length) {
+      sel = _ref[_i];
+      if ($el[dir](sel).length) {
         return true;
       }
     }
@@ -272,7 +268,7 @@ Nod = (function() {
 
   function Nod(form, fields, options) {
     this.form = form;
-    this.errorsExist = __bind(this.errorsExist, this);
+    this.formIsErrorFree = __bind(this.formIsErrorFree, this);
 
     this.toggleSubmitBtn = __bind(this.toggleSubmitBtn, this);
 
@@ -347,13 +343,13 @@ Nod = (function() {
     _ref = this.listeners;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       l = _ref[_i];
-      checks.push(l.runCheck);
+      checks.push(l.runCheck());
     }
-    return jQuery.Deferred().done(checks).done(function() {
-      if (!_this.errorsExist()) {
+    return jQuery.when.apply(window, checks).then(function() {
+      if (_this.formIsErrorFree()) {
         return _this.form.submit();
       }
-    }).resolve();
+    });
   };
 
   Nod.prototype.toggle_status = function(event) {
@@ -364,22 +360,23 @@ Nod = (function() {
   };
 
   Nod.prototype.toggleGroupClass = function($group) {
-    var act;
-    act = $group.find('.' + this.get.errorClass).length ? 'add' : 'remove';
-    return $group[act + 'Class'](this.get.groupClass);
-  };
-
-  Nod.prototype.toggleSubmitBtn = function() {
-    var d;
-    d = 'disabled';
-    this.submit.removeClass(d).removeAttr(d);
-    if (this.errorsExist()) {
-      return this.submit.addClass(d).attr(d, d);
+    if ($group.find('.' + this.get.errorClass).length) {
+      return $group.addClass(this.get.groupClass);
+    } else {
+      return $group.removeClass(this.get.groupClass);
     }
   };
 
-  Nod.prototype.errorsExist = function() {
-    return !!jQuery(this.listeners).filter(function() {
+  Nod.prototype.toggleSubmitBtn = function() {
+    if (this.formIsErrorFree()) {
+      return this.submit.removeClass('disabled').removeAttr('disabled');
+    } else {
+      return this.submit.addClass('disabled').attr('disabled', 'disabled');
+    }
+  };
+
+  Nod.prototype.formIsErrorFree = function() {
+    return !jQuery(this.listeners).filter(function() {
       return !this.status;
     }).length;
   };
@@ -388,7 +385,7 @@ Nod = (function() {
     if (!form.selector || !form.length) {
       this["throw"]('form', form);
     }
-    if (!submit.length && disableSbmt) {
+    if (!submit.length && disableSubmitBtn) {
       return this["throw"]('submit', submit);
     }
   };
@@ -411,3 +408,11 @@ Nod = (function() {
   return Nod;
 
 })();
+
+
+$.fn.nod = function(fields, settings) {
+  new Nod(this, fields, settings);
+  return this;
+};
+
+})(jQuery);

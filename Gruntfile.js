@@ -13,8 +13,14 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-coffeelint');
 
     var nodConfig = {
+        name: 'jquery-nod',
         app: '.',
-        dist: 'dist'
+        dist: 'dist',
+        version: '1.0.1',
+        banner: '/* jquery-nod - v<%= nod.version %> - ' +
+          '<%= grunt.template.today("yyyy-mm-dd") %> \n' +
+          ' * https://github.com/casperin/nod \n' +
+          ' * Gorm Casper: Licensed MIT\n */\n'
     };
 
     grunt.initConfig({
@@ -35,6 +41,7 @@ module.exports = function (grunt) {
             livereload: {
                 files: [
                     '.tmp/*.html',
+                    '.tmp/*.js',
                     'nod.js',
                     '{.tmp,<%= nod.app %>/lib/{,*/}*.css',
                     '{.tmp,<%= nod.app %>/lib/{,*/}*.js',
@@ -123,25 +130,29 @@ module.exports = function (grunt) {
         coffee: {
             dist: {
                 options: {
-                    join: true,
                     bare: true
                 },
-                files: [{
-                    // rather than compiling multiple files here you should
-                    // require them into your main .coffee file
-                    join: true,
-                    src: [
-                        'nod/checker.coffee',
-                        'nod/listener.coffee',
-                        'nod/msg.coffee',
-                        'nod/nod.coffee',
-                        'nod/init.coffee'
-                    ],
-                    dest: '.tmp/nod.js',
-                },{
+                files: [
+                  {
+                    src: 'nod/checker.coffee',
+                    dest: '.tmp/checker.js'
+                  },{
+                    src: 'nod/listener.coffee',
+                    dest: '.tmp/listener.js'
+                  },{
+                    src: 'nod/msg.coffee',
+                    dest: '.tmp/msg.js'
+                  },{
+                    src: 'nod/nod.coffee',
+                    dest: '.tmp/nod.js'
+                  },{
+                    src: 'nod/init.coffee',
+                    dest: '.tmp/init.js'
+                  },{
                     src: 'dev/test_nod.coffee',
                     dest: 'dev/test_nod.js'
-                }]
+                  }
+                ]
             },
             test: {
                 files: [{
@@ -151,6 +162,29 @@ module.exports = function (grunt) {
                     dest: 'test/spec'
                 }]
             }
+        },
+        concat: {
+          dist: {
+            src: [
+              'dev/head.js',
+              '.tmp/checker.js',
+              '.tmp/listener.js',
+              '.tmp/msg.js',
+              '.tmp/nod.js',
+              '.tmp/init.js',
+              'dev/tail.js'
+            ],
+            dest: 'nod.js'
+          }
+        },
+        uglify: {
+          options: {
+            banner: '<%= nod.banner %>'
+          },
+          dist: {
+            src: ['nod.js'],
+            dest: 'nod.min.js'
+          }
         },
         useminPrepare: {
             html: '.tmp/index.html',
@@ -224,6 +258,15 @@ module.exports = function (grunt) {
 
     grunt.registerTask('lint', [
       'coffeelint'
+    ]);
+
+    grunt.registerTask('prep', [
+      'concat',
+      'uglify'
+    ]);
+
+    grunt.registerTask('min', [
+      'uglify'
     ]);
 
     grunt.registerTask('default', [
