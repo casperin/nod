@@ -10,7 +10,6 @@ Checker = (function() {
     this.makeChecker = __bind(this.makeChecker, this);
 
     this.run = __bind(this.run, this);
-    console.log('asd');
     this.checker = this.makeChecker($el, this.makeValidator(metric));
   }
 
