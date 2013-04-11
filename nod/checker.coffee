@@ -7,16 +7,19 @@ class Checker
     @checker = @makeChecker $el, @makeValidator metric
 
 
-  run : => @checker() 
+  run : => @checker()
 
 
   makeChecker : ( $el, validator ) =>       # Returns a function
     type = $el.attr 'type'
     if type is 'checkbox'                   # If it's a checkbox we don't care
       -> validator $el.is ':checked'        # about the value.
-    else if type is 'radio'                 # Radio we ignore it if it isn't
-      -> !$el.is( ':checked' ) or           # checked.
-          $el.is( ':checked' ) is validator $el.val()      # Else we check it
+    else if type is 'radio'                 # Radio
+      if $el.attr("name") isnt ""           # if the radio button has a name
+        -> validator jQuery( '[name='+$el.attr("name")+']:checked' ).val()  # Check if any radio button in its group is checked and run the validations
+      else                                  # if it doesn't have a name
+        -> !$el.is( ':checked' ) or         # we ignore it if it isn't checked.
+            $el.is( ':checked' ) is validator $el.val()      # Else we check it
     else
       -> validator jQuery.trim $el.val()    # Text fields, etc, we want the val
 
