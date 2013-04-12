@@ -6,7 +6,6 @@ class Checker
 
     @getVal = @makeGetVal $el
 
-
   # Called from outside. This function returns a boolean
   run : =>
     @verify @metric, @getVal()
@@ -14,14 +13,25 @@ class Checker
 
   makeGetVal : ( $el ) ->
     type = $el.attr 'type'
-    if type is 'checkbox'         # If it's a checkbox we don't care
-      -> $el.is ':checked'        # about the value.
+    if type is 'checkbox'                   # If it's a checkbox we don't care
+      -> $el.is ':checked'                  # about the value.
+    else if type is 'radio'
+      if $el.attr("name") isnt ""           # if the radio button has a name
+        sel = '[name='+$el.attr('name')+']'
+        group = jQuery( sel )               # gather all buttons in its group
+        if group.size() > 1                 # if there is a group
+          checked = group.filter ':checked'
+          return -> checked.val() || ""     # validate checked radios in group
+
+      ->                                    # fallback in case of improper use
+        if $el.is ':checked' then $el.val()
+        else ""
     else
       -> jQuery.trim $el.val()
 
 
   verify : ( m , v ) ->     # metric, value
-    
+
     if !!(m && m.constructor && m.call && m.apply)  # If user passes a fn, then
       return m v                                    # we just return that.
 
