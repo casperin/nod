@@ -13,20 +13,15 @@ class Checker
 
   makeGetVal : ( $el ) ->
     type = $el.attr 'type'
-    if type is 'checkbox'                   # If it's a checkbox we don't care
-      -> $el.is ':checked'                  # about the value.
+    if type is 'checkbox'
+      -> $el.is ':checked'
     else if type is 'radio'
-      if $el.attr("name") isnt ""           # if the radio button has a name
-        sel = '[name='+$el.attr('name')+']'
-        group = jQuery( sel )               # gather all buttons in its group
-        if group.size() > 1                 # if there is a group
-          checked = group.filter ':checked'
-          return -> checked.val() || ""     # validate checked radios in group
-
-      ->                                    # fallback in case of improper use
-        if $el.is ':checked' then $el.val()
-        else ""
+      # assign name once, so we don't query for it every time the check is run
+      name = $el.attr 'name'
+      # fn that returns the value of whichever radio with same name is checked
+      -> jQuery( '[name=' +name+ ']' ).filter( ':checked' ).val()
     else
+      # text fields and select boxes (untested for multiple select)
       -> jQuery.trim $el.val()
 
 
