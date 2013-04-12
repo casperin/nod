@@ -36,7 +36,7 @@ Checker = (function() {
   };
 
   Checker.prototype.makeValidator = function(m) {
-    var arg, sec, type, _ref;
+    var arg, check_email, sec, type, _ref;
     if (!!(m && m.constructor && m.call && m.apply)) {
       return function(v) {
         return m(v);
@@ -53,64 +53,83 @@ Checker = (function() {
     }
     switch (type) {
       case 'presence':
-        return function(v) {
+        (function(v) {
           return !!v;
-        };
+        });
+        break;
       case 'exact':
-        return function(v) {
+        (function(v) {
           return !v || v === arg;
-        };
+        });
+        break;
       case 'not':
-        return function(v) {
+        (function(v) {
           return !v || v !== arg;
-        };
+        });
+        break;
       case 'same-as':
-        return function(v) {
+        (function(v) {
           return !v || v === jQuery(arg).val();
-        };
+        });
+        break;
       case 'min-num':
-        return function(v) {
+        (function(v) {
           return !v || +v >= +arg;
-        };
+        });
+        break;
       case 'max-num':
-        return function(v) {
+        (function(v) {
           return !v || +v <= +arg;
-        };
+        });
+        break;
       case 'between-num':
-        return function(v) {
+        (function(v) {
           return !v || +v >= +arg && +v <= +sec;
-        };
+        });
+        break;
       case 'min-length':
-        return function(v) {
+        (function(v) {
           return !v || v.length >= +arg;
-        };
+        });
+        break;
       case 'max-length':
-        return function(v) {
+        (function(v) {
           return !v || v.length <= +arg;
-        };
+        });
+        break;
       case 'exact-length':
-        return function(v) {
+        (function(v) {
           return !v || v.length === +arg;
-        };
+        });
+        break;
       case 'between':
-        return function(v) {
+        (function(v) {
           return !v || v.length >= +arg && v.length <= +sec;
-        };
+        });
+        break;
       case 'integer':
-        return function(v) {
+        (function(v) {
           return !v || /^\s*\d+\s*$/.test(v);
-        };
+        });
+        break;
       case 'float':
-        return function(v) {
+        (function(v) {
           return !v || /^[-+]?[0-9]+(\.[0-9]+)?$/.test(v);
-        };
+        });
+        break;
       case 'email':
-        return function(v) {
-          return !v || /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test(v);
-        };
+        (function(v) {
+          return !v || check_email(v);
+        });
+        break;
       default:
         throw new Error('I don\'t know ' + type + ', sorry.');
     }
+    return check_email = function(v) {
+      var RFC822;
+      RFC822 = /^(([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$\/)/;
+      return RFC822.test(v);
+    };
   };
 
   return Checker;

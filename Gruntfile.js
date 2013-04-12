@@ -261,6 +261,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('prep', [
+      'lint',
       'concat',
       'uglify'
     ]);

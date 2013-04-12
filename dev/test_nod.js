@@ -13,8 +13,8 @@ jQuery(function() {
   g = function(v) {
     return jQuery.get('dev/resp.txt', v);
   };
-  regex = /357/;
-  metrics = [['#one', 'presence', 'presence'], ['#two', g, 'get']];
+  regex = /foo/;
+  metrics = [['#one', 'email', 'regexp'], ['#two', g, 'get']];
   options = {};
   return jQuery("#form").nod(metrics, options);
 });
