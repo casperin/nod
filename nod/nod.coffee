@@ -89,6 +89,12 @@ class Nod
     checks = []
     checks.push l.runCheck() for l in @listeners
 
+    # This toggles the text of the submit button to that of its
+    # data-loading-text attribute if it is set (kind of inline with bootstrap)
+    # The text is swapped back as soon as checks are done (regardless of
+    # errors).
+    @toggleSubmitBtnText()
+
     # We use $.deferred in case user has ajax checks.
     jQuery
       # .when() only accepts a comma seperate list, so we use apply as
@@ -97,6 +103,7 @@ class Nod
       .when.apply( window, checks )
       # When all checks has been run we submit the form unless there are errors
       .then( => @form.submit() if @formIsErrorFree() )
+      .then( @toggleSubmitBtnText )     # Swap text back to its original
 
 
   # This is run whenever a listener changes its status.
@@ -123,6 +130,15 @@ class Nod
       @submit.removeClass( 'disabled' ).removeAttr( 'disabled' )
     else
       @submit.addClass( 'disabled' ).attr( 'disabled', 'disabled' )
+
+
+  # When called it will check for attr: data-loading-text and swap it with its
+  # visible button text.
+  toggleSubmitBtnText : =>
+    tmp = @submit.attr 'data-loading-text'
+    if tmp
+      @submit.attr 'data-loading-text',  @submit.html()
+      @submit.html tmp
 
 
   # Helper to check if the form is free of errors. Returns a boolean.

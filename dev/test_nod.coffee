@@ -7,12 +7,12 @@ jQuery ->
 
   g = (v) -> jQuery.get 'dev/resp.txt', v
 
-  regex = /357/
+  regex = /foo/
   
   metrics = [
-    [ '#one', 'presence', 'presence' ]
+    # [ '#one', 'presence', 'pre' ]
     # [ '#one', 'email', 'email' ]
-    [ '#two', g, 'get' ]
+    [ '#two', 'presence', 'em' ]
   ]
 
   options = {
