@@ -10,9 +10,9 @@ jQuery ->
   regex = /foo/
   
   metrics = [
-    [ '#one', 'presence', 'pre' ]
+    # [ '#one', 'presence', 'pre' ]
     # [ '#one', 'email', 'email' ]
-    [ '#two', 'email', 'em' ]
+    [ '#two', 'presence', 'em' ]
   ]
 
   options = {
