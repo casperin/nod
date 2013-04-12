@@ -35,24 +35,27 @@ class Checker
 
     [ type, arg, sec ] = jQuery.map m.split( ':' ) , jQuery.trim
 
-    if type == 'same-as' && jQuery( arg ).length != 1    # Special case
+    if type == 'same-as' and jQuery( arg ).length isnt 1    # Special case
       throw new Error 'same-as selector must target one and only one element'
+
+    if !v and type isnt 'presence'      # Unless we're checking for presence
+      return true                       # return true if no value
 
     switch type
       when 'presence'     then !!v
-      when 'exact'        then !v or v == arg
-      when 'not'          then !v or v != arg
-      when 'same-as'      then !v or v == jQuery( arg ).val()
-      when 'min-num'      then !v or +v >= +arg
-      when 'max-num'      then !v or +v <= +arg
-      when 'between-num'  then !v or +v >= +arg and +v <= +sec
-      when 'min-length'   then !v or v.length >= +arg
-      when 'max-length'   then !v or v.length <= +arg
-      when 'exact-length' then !v or v.length == +arg
-      when 'between'      then !v or v.length >= +arg and v.length<=+sec
-      when 'integer'      then !v or ( /^\s*\d+\s*$/ ).test v
-      when 'float'        then !v or ( /^[-+]?[0-9]+(\.[0-9]+)?$/ ).test v
-      when 'email'        then !v or @email v
+      when 'exact'        then v == arg
+      when 'not'          then v != arg
+      when 'same-as'      then v == jQuery( arg ).val()
+      when 'min-num'      then +v >= +arg
+      when 'max-num'      then +v <= +arg
+      when 'between-num'  then +v >= +arg and +v <= +sec
+      when 'min-length'   then v.length >= +arg
+      when 'max-length'   then v.length <= +arg
+      when 'exact-length' then v.length == +arg
+      when 'between'      then v.length >= +arg and v.length <= +sec
+      when 'integer'      then ( /^\s*\d+\s*$/ ).test v
+      when 'float'        then ( /^[-+]?[0-9]+(\.[0-9]+)?$/ ).test v
+      when 'email'        then @email v
       else throw new Error 'I don\'t know ' + type + ', sorry.'
 
   email : ( v ) ->

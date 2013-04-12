@@ -10,10 +10,10 @@ jQuery ->
   regex = /foo/
   
   metrics = [
-    [ '[name=a]', 'presence', 'pres err' ]
+    # [ '[name=a]', 'presence', 'pres err' ]
     # [ '#bar', 'exact:a1', 'exact err' ]
     # [ '#one', 'presence', 'pre' ]
-    # [ '#one', 'email', 'email' ]
+    [ '#one', 'email', 'email' ]
     [ '#two', 'presence', 'em' ]
   ]
 

@@ -48,35 +48,38 @@ Checker = (function() {
     if (type === 'same-as' && jQuery(arg).length !== 1) {
       throw new Error('same-as selector must target one and only one element');
     }
+    if (!v && type !== 'presence') {
+      return true;
+    }
     switch (type) {
       case 'presence':
         return !!v;
       case 'exact':
-        return !v || v === arg;
+        return v === arg;
       case 'not':
-        return !v || v !== arg;
+        return v !== arg;
       case 'same-as':
-        return !v || v === jQuery(arg).val();
+        return v === jQuery(arg).val();
       case 'min-num':
-        return !v || +v >= +arg;
+        return +v >= +arg;
       case 'max-num':
-        return !v || +v <= +arg;
+        return +v <= +arg;
       case 'between-num':
-        return !v || +v >= +arg && +v <= +sec;
+        return +v >= +arg && +v <= +sec;
       case 'min-length':
-        return !v || v.length >= +arg;
+        return v.length >= +arg;
       case 'max-length':
-        return !v || v.length <= +arg;
+        return v.length <= +arg;
       case 'exact-length':
-        return !v || v.length === +arg;
+        return v.length === +arg;
       case 'between':
-        return !v || v.length >= +arg && v.length <= +sec;
+        return v.length >= +arg && v.length <= +sec;
       case 'integer':
-        return !v || /^\s*\d+\s*$/.test(v);
+        return /^\s*\d+\s*$/.test(v);
       case 'float':
-        return !v || /^[-+]?[0-9]+(\.[0-9]+)?$/.test(v);
+        return /^[-+]?[0-9]+(\.[0-9]+)?$/.test(v);
       case 'email':
-        return !v || this.email(v);
+        return this.email(v);
       default:
         throw new Error('I don\'t know ' + type + ', sorry.');
     }

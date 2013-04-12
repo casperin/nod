@@ -14,7 +14,7 @@ jQuery(function() {
     return jQuery.get('dev/resp.txt', v);
   };
   regex = /foo/;
-  metrics = [['[name=a]', 'presence', 'pres err'], ['#two', 'presence', 'em']];
+  metrics = [['#one', 'email', 'email'], ['#two', 'presence', 'em']];
   options = {};
   return jQuery("#form").nod(metrics, options);
 });
