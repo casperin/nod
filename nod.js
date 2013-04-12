@@ -7,45 +7,37 @@ var Checker,
 Checker = (function() {
 
   function Checker($el, metric) {
-    this.makeChecker = __bind(this.makeChecker, this);
-
+    this.metric = metric;
     this.run = __bind(this.run, this);
-    this.checker = this.makeChecker($el, this.makeValidator(metric));
+
+    this.getVal = this.makeGetVal($el);
   }
 
   Checker.prototype.run = function() {
-    return this.checker();
+    return this.verify(this.metric, this.getVal());
   };
 
-  Checker.prototype.makeChecker = function($el, validator) {
+  Checker.prototype.makeGetVal = function($el) {
     var type;
     type = $el.attr('type');
     if (type === 'checkbox') {
       return function() {
-        return validator($el.is(':checked'));
-      };
-    } else if (type === 'radio') {
-      return function() {
-        return !$el.is(':checked') || $el.is(':checked') === validator($el.val());
+        return $el.is(':checked');
       };
     } else {
       return function() {
-        return validator(jQuery.trim($el.val()));
+        return jQuery.trim($el.val());
       };
     }
   };
 
-  Checker.prototype.makeValidator = function(m) {
-    var arg, check_email, sec, type, _ref;
+  Checker.prototype.verify = function(m, v) {
+    var arg, sec, type, _ref;
     if (!!(m && m.constructor && m.call && m.apply)) {
-      return function(v) {
-        return m(v);
-      };
+      return m(v);
     }
     if (m instanceof RegExp) {
-      return function(v) {
-        return m.test(v);
-      };
+      return m.test(v);
     }
     _ref = jQuery.map(m.split(':'), jQuery.trim), type = _ref[0], arg = _ref[1], sec = _ref[2];
     if (type === 'same-as' && jQuery(arg).length !== 1) {
@@ -53,83 +45,42 @@ Checker = (function() {
     }
     switch (type) {
       case 'presence':
-        (function(v) {
-          return !!v;
-        });
-        break;
+        return !!v;
       case 'exact':
-        (function(v) {
-          return !v || v === arg;
-        });
-        break;
+        return !v || v === arg;
       case 'not':
-        (function(v) {
-          return !v || v !== arg;
-        });
-        break;
+        return !v || v !== arg;
       case 'same-as':
-        (function(v) {
-          return !v || v === jQuery(arg).val();
-        });
-        break;
+        return !v || v === jQuery(arg).val();
       case 'min-num':
-        (function(v) {
-          return !v || +v >= +arg;
-        });
-        break;
+        return !v || +v >= +arg;
       case 'max-num':
-        (function(v) {
-          return !v || +v <= +arg;
-        });
-        break;
+        return !v || +v <= +arg;
       case 'between-num':
-        (function(v) {
-          return !v || +v >= +arg && +v <= +sec;
-        });
-        break;
+        return !v || +v >= +arg && +v <= +sec;
       case 'min-length':
-        (function(v) {
-          return !v || v.length >= +arg;
-        });
-        break;
+        return !v || v.length >= +arg;
       case 'max-length':
-        (function(v) {
-          return !v || v.length <= +arg;
-        });
-        break;
+        return !v || v.length <= +arg;
       case 'exact-length':
-        (function(v) {
-          return !v || v.length === +arg;
-        });
-        break;
+        return !v || v.length === +arg;
       case 'between':
-        (function(v) {
-          return !v || v.length >= +arg && v.length <= +sec;
-        });
-        break;
+        return !v || v.length >= +arg && v.length <= +sec;
       case 'integer':
-        (function(v) {
-          return !v || /^\s*\d+\s*$/.test(v);
-        });
-        break;
+        return !v || /^\s*\d+\s*$/.test(v);
       case 'float':
-        (function(v) {
-          return !v || /^[-+]?[0-9]+(\.[0-9]+)?$/.test(v);
-        });
-        break;
+        return !v || /^[-+]?[0-9]+(\.[0-9]+)?$/.test(v);
       case 'email':
-        (function(v) {
-          return !v || check_email(v);
-        });
-        break;
+        return !v || this.email(v);
       default:
         throw new Error('I don\'t know ' + type + ', sorry.');
     }
-    return check_email = function(v) {
-      var RFC822;
-      RFC822 = /^(([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$\/)/;
-      return RFC822.test(v);
-    };
+  };
+
+  Checker.prototype.email = function(v) {
+    var RFC822;
+    RFC822 = /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/;
+    return RFC822.test(v);
   };
 
   return Checker;
