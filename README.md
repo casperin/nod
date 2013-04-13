@@ -1,4 +1,4 @@
-Nod v.1.0.0
+Nod v.1.0.1
 ===========
 
 Frontend validation jQuery plugin
@@ -53,5 +53,6 @@ Updates
 * **v.1.0.1**
   * Support for ajax checking added
   * Radio button support
+  * Restructuring code
   * Moved to yeoman and gruntjs
-  * Removed redundant stuff from options{}
+  * Removed redundant stuff from options
