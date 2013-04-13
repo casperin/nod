@@ -38,7 +38,7 @@ changes with live reload
 Once you have complete your changes you can build it and move the files to the
 root with.
 
-    grunt prep
+    grunt build
 
 
 License

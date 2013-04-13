@@ -300,13 +300,13 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
 &lt;!-- ... --&gt;
 &lt;button data-loading-text=&quot;loading...&quot; type=&quot;submit&quot; class=&quot;btn btn-success&quot;&gt;Submit form&lt;/button&gt;</pre>
       <p>Pretty standard html. Notice the <code>#bar</code> on line 4 though. To validate for presence on these fields, we don't need the <code>#bar</code>, we just do</p>
-      <pre class="prettyprint lang-js linenums">var metric = [
+      <pre class="prettyprint lang-js linenums">var metrics = [
     ['[name=a]', 'presence', 'You must click on at least one radio button']
 ];
  
 $( &quot;#form&quot; ).nod( metrics );</pre>
       <p>However if we want people to specifically click on a particular radio button, we do (line 2 is still important)</p>
-      <pre class="prettyprint lang-js linenums">var metric = [
+      <pre class="prettyprint lang-js linenums">var metrics = [
     ['[name=a]', 'presence', 'You must click on at least one radio button'],
     ['#bar', 'exact:a1', 'You must click on *this* radio button']
 ];
@@ -316,12 +316,12 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
       <p><span class="label label-info">Notice</span> <code>name</code> attribute is mandatory on the input fields for all of these.</p>
       <h3 id="ajax">Ajax checking</h3>
       <p>Yes, it works. Here's some code:</p>
-      <pre class="prettyprint lang-js linenums">var g = function( value ) {
+      <pre class="prettyprint lang-js linenums">var getFn = function( value ) {
     $.get('check_email.php', value);
 };
  
 var metrics = [
-    ['#email', g, 'This email is already in use']
+    ['#email', getFn, 'This email is already in use']
 ];
  
 $( &quot;#form&quot; ).nod( metrics );</pre>

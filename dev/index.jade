@@ -329,14 +329,14 @@ html
         | <button data-loading-text="loading..." type="submit" class="btn btn-success">Submit form</button>
       p Pretty standard html. Notice the <code>#bar</code> on line 4 though. To validate for presence on these fields, we don't need the <code>#bar</code>, we just do
       pre.prettyprint.lang-js.linenums
-        | var metric = [
+        | var metrics = [
         |     ['[name=a]', 'presence', 'You must click on at least one radio button']
         | ];
         | 
         | $( "#form" ).nod( metrics );
       p However if we want people to specifically click on a particular radio button, we do (line 2 is still important)
       pre.prettyprint.lang-js.linenums
-        | var metric = [
+        | var metrics = [
         |     ['[name=a]', 'presence', 'You must click on at least one radio button'],
         |     ['#bar', 'exact:a1', 'You must click on *this* radio button']
         | ];
@@ -352,12 +352,12 @@ html
       h3#ajax Ajax checking
       p Yes, it works. Here's some code:
       pre.prettyprint.lang-js.linenums
-        | var g = function( value ) {
+        | var getFn = function( value ) {
         |     $.get('check_email.php', value);
         | };
         | 
         | var metrics = [
-        |     ['#email', g, 'This email is already in use']
+        |     ['#email', getFn, 'This email is already in use']
         | ];
         | 
         | $( "#form" ).nod( metrics );
