@@ -120,12 +120,12 @@ module.exports = function (grunt) {
                 options: {
                     pretty: true
                 },
-                files: [{
-                  ".tmp/index.html": ["dev/index.jade"]
-                },{
-                  ".tmp/test.html": ['dev/test.jade']
-                }]
+                files: {
+                    "./index.html": ["dev/index.jade"],
+                    ".tmp/test.html": ['dev/test.jade']
+                }
             }
+
         },
         coffee: {
             dist: {
