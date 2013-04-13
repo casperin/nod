@@ -257,6 +257,8 @@ Nod = (function() {
 
     this.massCheck = __bind(this.massCheck, this);
 
+    this.listenForEnter = __bind(this.listenForEnter, this);
+
     this.events = __bind(this.events, this);
 
     this.createListeners = __bind(this.createListeners, this);
@@ -310,14 +312,22 @@ Nod = (function() {
     if (this.submit.length) {
       return this.submit.on('click', this.massCheck);
     } else {
-      return this.form.on('submit', this.massCheck);
+      return this.form.on('keyup', this.listenForEnter);
+    }
+  };
+
+  Nod.prototype.listenForEnter = function(event) {
+    if (event.keyCode === 13) {
+      return this.massCheck();
     }
   };
 
   Nod.prototype.massCheck = function(event) {
     var checks, l, _i, _len, _ref,
       _this = this;
-    event.preventDefault();
+    if (event != null) {
+      event.preventDefault();
+    }
     checks = [];
     _ref = this.listeners;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
