@@ -8,7 +8,10 @@ form#ex2.form-horizontal
     var metrics = [
       [ '.search_field', 'integer', 'Must be a number' ]
     ];
-    $("#ex2").nod( metrics );
+    var options = {
+      disableSubmitBtn : false
+    }
+    $("#ex2").nod( metrics, options );
 .code
   pre.prettyprint.lang-html &lt;form id=&quot;ex2&quot; class=&quot;form-horizontal&quot;&gt;
     |   &lt;div class=&quot;control-group&quot;&gt;
@@ -22,4 +25,9 @@ form#ex2.form-horizontal
     | var metrics = [
     |   [ '.search_field', 'integer', 'Must be a number' ]
     | ];
-    | $("#ex2").nod( metrics );
+    | 
+    | var options = {
+    |   disableSubmitBtn : false
+    | }
+    | 
+    | $("#ex2").nod( metrics, options );

@@ -8,7 +8,7 @@
     <script src="lib/jquery.min.js"></script>
     <script src="lib/bootstrap.min.js"></script>
     <script src="lib/prettify.js"></script>
-    <script src="nod.js"></script>
+    <script src="nod.min.js"></script>
     <style>
       body {margin-bottom:100px}
       .code { display: none }
@@ -70,8 +70,8 @@
     </script>
   </head>
   <body>
-    <div class="container"><a href="//github.com/casperin/nod" style="margin-top:10px;" class="btn btn-success pull-right"><i class="icon-circle-arrow-down icon-white"></i>&nbsp;Clone me silly</a>
-      <h1>Nod <small>A frontend validation jQuery plugin</small></h1>
+    <div class="container"><a href="//github.com/casperin/nod" style="margin-top:10px;" class="btn btn-success pull-right"><i class="icon-heart icon-white"></i>&nbsp;Clone me loverboy</a>
+      <h1>Nod v.1.0.1 <small>A frontend validation jQuery plugin</small></h1>
       <hr>
       <p>Writing frontend validation for forms is painfully boring. So I made this in the hopes that it will help make it a little less agonizing for you.</p>
       <p>It's designed to</p>
@@ -79,7 +79,7 @@
         <li>Keep validation away from the fields to keep the html clean and simple</li>
         <li>Work with selectors so you can target more fields with just one "rule"</li>
         <li>Be flexible. You can easily define your own functions to validate for (and many other things)</li>
-        <li>Be extensible. If you look in the <a href="https://github.com/casperin/nod/tree/master/nod">source code</a>, it should be <a href="https://github.com/casperin/nod/blob/master/nod/nod.coffee#L134">fairly easy to add new rules</a> or remove/add functionality</li>
+        <li>Be extensible. If you look in the <a href="https://github.com/casperin/nod/tree/master/nod">source code</a>, it should be <a href="https://github.com/casperin/nod/blob/master/nod/checker.coffee">fairly easy to add new rules</a> or remove/add functionality</li>
       </ul>
       <p>While it isn't strictly Bootstrap dependent, it defaults to the structure that bootstrap uses for its forms. However it should be flexible enough to accomodate most any structure.</p>
       <p>Comments, bugs, suggestions and ideas are all very much appreciated.</p>
@@ -94,7 +94,7 @@
   [ '#bar', 'min-length:4', 'Must be at least 4 characters long' ]
 ];
  
-$(&quot;#form&quot;).nod( metrics );</pre>
+$( &quot;#form&quot; ).nod( metrics );</pre>
       <p>Each "sublist" consists of three parts:</p>
       <ol>
         <li>The selector (the validation will be applied to every field that the selector matches)</li>
@@ -161,10 +161,10 @@ $(&quot;#form&quot;).nod( metrics );</pre>
           </tr>
           <tr>
             <td>'same-as:<span class="muted">Selector</span>'</td>
-            <td><code class="prettyprint lang-js">[ '#email_repeat', 'same-as:#email', 'Your emails does not match' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#email_repeat', 'same-as:#email', 'Your emails do not match' ]</code></td>
           </tr>
           <tr>
-            <td>'email'</td>
+            <td>'email' <small>(<a href="#email">read this</a>)</small></td>
             <td><code class="prettyprint lang-js">[ '#foo', 'email', 'Must be a valid email (RFC 822)' ]</code></td>
           </tr>
           <tr>
@@ -173,10 +173,11 @@ $(&quot;#form&quot;).nod( metrics );</pre>
           </tr>
           <tr>
             <td class="muted">RegExp</td>
-            <td><code class="prettyprint lang-js">[ '#foo', /Hello/, 'String must contain the world "Hello"' ]</code></td>
+            <td><code class="prettyprint lang-js">[ '#foo', /Hello/, 'String must contain the word "Hello"' ]</code></td>
           </tr>
         </tbody>
       </table>
+      <p>If there is something not on the list that you think others would benefit from, then feel free to <a href="https://github.com/casperin/nod/issues">create a new issue </a>and let me know.</p>
       <h2 id="options">Options { }</h2>
       <p>You can also pass along an object: <code class="prettyprint lang-js">$("#form").nod( metrics, options );</code></p>
       <p>Example:</p>
@@ -199,37 +200,45 @@ $(&quot;#form&quot;).nod( metrics );</pre>
             <td>delay</td>
             <td>Number</td>
             <td>700</td>
-            <td>Delay on <code>keyup</code> before it runs a check. Set it to <code>false</code> to disable completely</td>
+            <td>Delay on <code>keyup</code> before it runs a check. Set it to <code>false</code> to disable completely.</td>
           </tr>
           <tr>
             <td>disableSubmitBtn</td>
             <td>Bool</td>
             <td>true</td>
-            <td>Set to false if you don't want the submit button to be disabled</td>
+            <td>Set to false if you don't want the submit button to be disabled.</td>
           </tr>
           <tr>
             <td>helpSpanDisplay</td>
             <td>String</td>
             <td>'help-inline'</td>
-            <td>Set this to <code>help-block</code> if you want error messages to be shown on next line</td>
+            <td>Set this to <code>help-block</code> if you want error messages to be shown on next line.</td>
           </tr>
           <tr>
             <td>groupClass</td>
             <td>String</td>
             <td>'error'</td>
-            <td>The <code>.control-group</code> will get this class if an error is found. Can be set to anything you like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap</td>
+            <td>The <code>.control-group</code> will get this class if an error is found. Can be set to anything you like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap.</td>
           </tr>
           <tr>
             <td>submitBtnSelector</td>
             <td>String</td>
             <td>'[type=submit]'</td>
-            <td>Selector to find the submit button. If the form is submitted with a button that is not a member of this selector, then the form will be submitted regardless of errors</td>
+            <td>Selector to find the submit button. If the form is submitted with a button that is not a member of this selector, then the form will be submitted regardless of errors.</td>
           </tr>
-          <tr>
-            <td>metricsSplitter</td>
-            <td>String</td>
-            <td>':'</td>
-            <td>The <code>:</code> in <code>max-length:4</code></td>
+          <tr class="muted">
+            <td>
+              <del>metricsSplitter</del>
+            </td>
+            <td>
+              <del>String</del>
+            </td>
+            <td>
+              <del>':'</del>
+            </td>
+            <td>
+              <del>The <code>:</code> in <code>max-length:4</code></del> <span class="label">Gone in 1.0.1</span>
+            </td>
           </tr>
           <tr>
             <td>errorPosClasses</td>
@@ -247,25 +256,80 @@ $(&quot;#form&quot;).nod( metrics );</pre>
             <td>broadcastError</td>
             <td>Bool</td>
             <td>false</td>
-            <td>If set to <code>true</code>, nod will trigger an event on the window object. See example just below.</td>
+            <td>If set to <code>true</code>, nod will trigger an event on the window object. (<a href="#broadcast">Read more</a>)</td>
           </tr>
           <tr>
             <td>groupSelector</td>
             <td>String</td>
             <td>'.control-group'</td>
-            <td>Can't think of a reason to change this, but feel free.</td>
+            <td>The selector for something surrounding your input elements. Like <code>.control-group</code> in bootstrap forms.</td>
           </tr>
-          <tr>
-            <td>disabledAttr</td>
-            <td>String</td>
-            <td>'disabled'</td>
-            <td>Things will surely break if you change this.</td>
+          <tr class="muted">
+            <td> 
+              <del>disabledAttr</del>
+            </td>
+            <td> 
+              <del>String</del>
+            </td>
+            <td> 
+              <del>'disabled'</del>
+            </td>
+            <td> 
+              <del>Things will surely break if you change this.</del> <span class="label">Gone in 1.0.1</span>
+            </td>
           </tr>
         </tbody>
       </table>
       <p><span class="label label-info">Notice </span> Some of these values will straight up break the plugin unless you know exactly what you're doing.</p>
-      <h3 id="broadcast_example">Broadcasting</h3>
-      <p>Say you want to log to your server everytime users make errors in your fields, then set <code>broadcastError : true</code> in your options object and listen <code>nod_error_fired</code> on the window oject, like this:</p>
+      <h2 id="notes">Notes</h2>
+      <h3 id="radio">Radio buttons</h3>
+      <p>These can be a bit tricky to validate, so here's an example.</p>
+      <pre class="prettyprint lang-html linenums">&lt;div class=&quot;control-group&quot;&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;label class=&quot;radio&quot;&gt;
+      &lt;input type=&quot;radio&quot; name=&quot;a&quot; value=&quot;a1&quot; id=&quot;bar&quot;&gt; First
+    &lt;/label&gt;
+    &lt;label class=&quot;radio&quot;&gt;
+      &lt;input type=&quot;radio&quot; name=&quot;a&quot; value=&quot;a2&quot;&gt; Second
+    &lt;/label&gt;
+    &lt;label class=&quot;radio&quot;&gt;
+      &lt;input type=&quot;radio&quot; name=&quot;a&quot; value=&quot;a3&quot;&gt; Third
+    &lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- ... --&gt;
+&lt;button data-loading-text=&quot;loading...&quot; type=&quot;submit&quot; class=&quot;btn btn-success&quot;&gt;Submit form&lt;/button&gt;</pre>
+      <p>Pretty standard html. Notice the <code>#bar</code> on line 4 though. To validate for presence on these fields, we don't need the <code>#bar</code>, we just do</p>
+      <pre class="prettyprint lang-js linenums">var metric = [
+    ['[name=a]', 'presence', 'You must click on at least one radio button']
+];
+ 
+$( &quot;#form&quot; ).nod( metrics );</pre>
+      <p>However if we want people to specifically click on a particular radio button, we do (line 2 is still important)</p>
+      <pre class="prettyprint lang-js linenums">var metric = [
+    ['[name=a]', 'presence', 'You must click on at least one radio button'],
+    ['#bar', 'exact:a1', 'You must click on *this* radio button']
+];
+ 
+$( &quot;#form&quot; ).nod( metrics );</pre>
+      <p>Conversely we can use the keyword <code>not</code> instead of <code>exact</code>.</p>
+      <p><span class="label label-info">Notice</span> <code>name</code> attribute is mandatory on the input fields for all of these.</p>
+      <h3 id="ajax">Ajax checking</h3>
+      <p>Yes, it works. Here's some code:</p>
+      <pre class="prettyprint lang-js linenums">var g = function( value ) {
+    $.get('check_email.php', value);
+};
+ 
+var metrics = [
+    ['#email', g, 'This email is already in use']
+];
+ 
+$( &quot;#form&quot; ).nod( metrics );</pre>
+      <p>Nod.js will take whatever response it gets from the server and evaluate it to a boolean and use that as an indicator for whether the input is valid.  Further, if your submit button has <code>data-loading-text</code>, this will be swapped while the check is going on (and swapped back when done, regardless of errors).</p>
+      <h3 id="email">Email validation</h3>
+      <p>Don't use this. Validating emails should be done backend (by sending an email) and not frontend. I've used the most lax regex for checking emails that I could find (RFC822) so as to err on the side of letting too many emails through rather than rejecting valid emails; but really, you ought not to use frontend email validation at all.</p>
+      <h3 id="broadcast">Broadcasting</h3>
+      <p>Say you want to log to your server everytime users make errors in your fields, then set <code>broadcastError : true</code> in your options object and listen for <code>nod_error_fired</code> on the window oject, like this:</p>
       <pre class="prettyprint lang-js linenums">var log_error = function( event, data ) {
   console.log( data.el );
   console.log( data.msg );
@@ -274,9 +338,18 @@ $(&quot;#form&quot;).nod( metrics );</pre>
 $( window ).on( 'nod_error_fired', log_error );</pre>
       <p>As you can see, you'll get an object with the element (actually the <code>$(el)</code>) and one with the error message.</p>
       <h2 id="download">Downloading</h2>
-      <p>Go to <a href="//github.com/casperin/nod">github.com/casperin/nod</a> and clone it. For just a quick plug and play you only need the <a href="https://github.com/casperin/nod/blob/master/nod.js">nod.js</a>.</p>
-      <h2 id="compiling">Compiling</h2>
-      <p>It is written in <a href="http://coffeescript.org">CoffeeScript</a> and so must be compiled in case you make changes. This is the command I use: <code class="prettyprint lang-sh">coffee -wcj nod.js nod/*.coffee</code></p>
+      <p>Go to <a href="//github.com/casperin/nod">github.com/casperin/nod</a> and clone it. For just a quick plug and play you only need the <a href="https://github.com/casperin/nod/blob/master/nod.js">nod.js</a>or <a href="https://github.com/casperin/nod/blob/master/nod.min.js">nod.min.js</a>.</p>
+      <p id="bower"><strong>Bower: </strong><code>jquery-nod</code></p>
+      <h2 id="contribute">Contributing</h2>
+      <p>This project is still young so there is plenty of room for improvements, so clone the development branch (we use git flow) and hack away. Nod.js is written in <a href="http://coffeescript.org/">CoffeeScript</a>. Check out <a href="https://github.com/casperin/nod/tree/develop/nod">the source here</a>. I tried my best to comment the code to make it easy to dive in, but in case you have questions I'd be happy to elaborate. Right now we're (slowly) moving to using Yeoman and Gruntjs, so you will probably want to use that too. It's a bit messy though; but you can "CoffeeLint" your code with <code>grunt lint</code>, and concat and minify a version with <code>grunt prep</code> (this will also run the coffeelint). A server is run via <code>grunt server</code>, but (currently) doesn't update on changes to the test files.</p>
+      <p>If you don't have anything particular you want to contribute with, but just love nod.js so much that you still want to do something (wow, I love you too man!), then...</p>
+      <ol>
+        <li>Tests! There is currently not a single test unless you think of CoffeeLint as testing (this is one of the reasons why we're moving to yeoman)</li>
+        <li>Write examples (see below) and <a href="https://github.com/casperin/nod/tree/develop/dev/examples">look here</a> for current ones (written in jade).</li>
+        <li>Clean up gruntfile</li>
+        <li>Make it load on changes to test files</li>
+        <li><a href="https://github.com/casperin/nod/issues">Issues...</a></li>
+      </ol>
       <h2 id="examples">Examples</h2>
       <hr id="example1">
       <form id="ex1" class="form-horizontal">

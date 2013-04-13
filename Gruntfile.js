@@ -207,7 +207,7 @@ module.exports = function (grunt) {
                     cwd: '.tmp',
                     dest: '.',
                     src: [
-                        '*.{js,html}'
+                        '*.{html}'
                     ]
                 }]
             }
