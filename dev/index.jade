@@ -8,7 +8,7 @@ html
     script(src="lib/jquery.min.js")
     script(src="lib/bootstrap.min.js")
     script(src="lib/prettify.js")
-    script(src="nod.js")
+    script(src="nod.min.js")
     style
       body {margin-bottom:100px}
       .code { display: none }
@@ -71,10 +71,10 @@ html
     .container
 
       a(href="//github.com/casperin/nod",style="margin-top:10px;").btn.btn-success.pull-right
-        i.icon-circle-arrow-down.icon-white
-        | &nbsp;Clone me silly
+        i.icon-heart.icon-white
+        | &nbsp;Clone me loverboy
 
-      h1 Nod 
+      h1 Nod v.1.0.1 
         small A frontend validation jQuery plugin
       hr
       p Writing frontend validation for forms is painfully boring. So I made this in the hopes that it will help make it a little less agonizing for you.
@@ -83,7 +83,7 @@ html
         li Keep validation away from the fields to keep the html clean and simple
         li Work with selectors so you can target more fields with just one "rule"
         li Be flexible. You can easily define your own functions to validate for (and many other things)
-        li Be extensible. If you look in the <a href="https://github.com/casperin/nod/tree/master/nod">source code</a>, it should be <a href="https://github.com/casperin/nod/blob/master/nod/nod.coffee#L134">fairly easy to add new rules</a> or remove/add functionality
+        li Be extensible. If you look in the <a href="https://github.com/casperin/nod/tree/master/nod">source code</a>, it should be <a href="https://github.com/casperin/nod/blob/master/nod/checker.coffee">fairly easy to add new rules</a> or remove/add functionality
       p While it isn't strictly Bootstrap dependent, it defaults to the structure that bootstrap uses for its forms. However it should be flexible enough to accomodate most any structure.
       p Comments, bugs, suggestions and ideas are all very much appreciated.
 
@@ -99,7 +99,7 @@ html
         |   [ '#bar', 'min-length:4', 'Must be at least 4 characters long' ]
         | ];
         | 
-        | $("#form").nod( metrics );
+        | $( "#form" ).nod( metrics );
       
       p Each "sublist" consists of three parts:
       ol
@@ -191,9 +191,12 @@ html
               span.muted Selector
               | '
             td
-              code.prettyprint.lang-js [ '#email_repeat', 'same-as:#email', 'Your emails does not match' ]
+              code.prettyprint.lang-js [ '#email_repeat', 'same-as:#email', 'Your emails do not match' ]
           tr
-            td 'email'
+            td 'email' 
+              small (
+                a(href="#email") read this
+                | )
             td
               code.prettyprint.lang-js [ '#foo', 'email', 'Must be a valid email (RFC 822)' ]
           tr
@@ -203,7 +206,11 @@ html
           tr
             td.muted RegExp
             td
-              code.prettyprint.lang-js [ '#foo', /Hello/, 'String must contain the world "Hello"' ]
+              code.prettyprint.lang-js [ '#foo', /Hello/, 'String must contain the word "Hello"' ]
+
+      p If there is something not on the list that you think others would benefit from, then feel free to 
+        a(href="https://github.com/casperin/nod/issues") create a new issue 
+        | and let me know.
 
 
 
@@ -231,32 +238,38 @@ html
             td delay
             td Number
             td 700
-            td Delay on <code>keyup</code> before it runs a check. Set it to <code>false</code> to disable completely
+            td Delay on <code>keyup</code> before it runs a check. Set it to <code>false</code> to disable completely.
           tr
             td disableSubmitBtn
             td Bool
             td true
-            td Set to false if you don't want the submit button to be disabled
+            td Set to false if you don't want the submit button to be disabled.
           tr
             td helpSpanDisplay
             td String
             td 'help-inline'
-            td Set this to <code>help-block</code> if you want error messages to be shown on next line
+            td Set this to <code>help-block</code> if you want error messages to be shown on next line.
           tr
             td groupClass
             td String
             td 'error'
-            td The <code>.control-group</code> will get this class if an error is found. Can be set to anything you like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap
+            td The <code>.control-group</code> will get this class if an error is found. Can be set to anything you like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap.
           tr
             td submitBtnSelector
             td String
             td '[type=submit]'
-            td Selector to find the submit button. If the form is submitted with a button that is not a member of this selector, then the form will be submitted regardless of errors
-          tr
-            td metricsSplitter
-            td String
-            td ':'
-            td The <code>:</code> in <code>max-length:4</code>
+            td Selector to find the submit button. If the form is submitted with a button that is not a member of this selector, then the form will be submitted regardless of errors.
+          tr.muted
+            td
+              del metricsSplitter
+            td
+              del String
+            td
+              del ':'
+            td
+              del The <code>:</code> in <code>max-length:4</code>
+              | 
+              span.label Gone in 1.0.1
           tr
             td errorPosClasses
             td Array
@@ -271,24 +284,91 @@ html
             td broadcastError
             td Bool
             td false
-            td If set to <code>true</code>, nod will trigger an event on the window object. See example just below.
+            td If set to <code>true</code>, nod will trigger an event on the window object. (<a href="#broadcast">Read more</a>)
           tr
             td groupSelector
             td String
             td '.control-group'
-            td Can't think of a reason to change this, but feel free.
-          tr
-            td disabledAttr
-            td String
-            td 'disabled'
-            td Things will surely break if you change this.
+            td The selector for something surrounding your input elements. Like <code>.control-group</code> in bootstrap forms.
+          tr.muted
+            td 
+              del disabledAttr
+            td 
+              del String
+            td 
+              del 'disabled'
+            td 
+              del Things will surely break if you change this.
+              | 
+              span.label Gone in 1.0.1
 
       p
         span.label.label-info Notice 
         |  Some of these values will straight up break the plugin unless you know exactly what you're doing.
 
-      h3#broadcast_example Broadcasting
-      p Say you want to log to your server everytime users make errors in your fields, then set <code>broadcastError : true</code> in your options object and listen <code>nod_error_fired</code> on the window oject, like this:
+
+      h2#notes Notes
+
+      h3#radio Radio buttons
+      p These can be a bit tricky to validate, so here's an example.
+      pre.prettyprint.lang-html.linenums
+        | <div class="control-group">
+        |   <div class="controls">
+        |     <label class="radio">
+        |       <input type="radio" name="a" value="a1" id="bar"> First
+        |     </label>
+        |     <label class="radio">
+        |       <input type="radio" name="a" value="a2"> Second
+        |     </label>
+        |     <label class="radio">
+        |       <input type="radio" name="a" value="a3"> Third
+        |     </label>
+        |   </div>
+        | </div>
+        | <!-- ... -->
+        | <button data-loading-text="loading..." type="submit" class="btn btn-success">Submit form</button>
+      p Pretty standard html. Notice the <code>#bar</code> on line 4 though. To validate for presence on these fields, we don't need the <code>#bar</code>, we just do
+      pre.prettyprint.lang-js.linenums
+        | var metric = [
+        |     ['[name=a]', 'presence', 'You must click on at least one radio button']
+        | ];
+        | 
+        | $( "#form" ).nod( metrics );
+      p However if we want people to specifically click on a particular radio button, we do (line 2 is still important)
+      pre.prettyprint.lang-js.linenums
+        | var metric = [
+        |     ['[name=a]', 'presence', 'You must click on at least one radio button'],
+        |     ['#bar', 'exact:a1', 'You must click on *this* radio button']
+        | ];
+        | 
+        | $( "#form" ).nod( metrics );
+      p Conversely we can use the keyword <code>not</code> instead of <code>exact</code>.
+      p
+        span.label.label-info Notice
+        | 
+        code name
+        |  attribute is mandatory on the input fields for all of these.
+
+      h3#ajax Ajax checking
+      p Yes, it works. Here's some code:
+      pre.prettyprint.lang-js.linenums
+        | var g = function( value ) {
+        |     $.get('check_email.php', value);
+        | };
+        | 
+        | var metrics = [
+        |     ['#email', g, 'This email is already in use']
+        | ];
+        | 
+        | $( "#form" ).nod( metrics );
+      p Nod.js will take whatever response it gets from the server and evaluate it to a boolean and use that as an indicator for whether the input is valid.  Further, if your submit button has <code>data-loading-text</code>, this will be swapped while the check is going on (and swapped back when done, regardless of errors).
+
+
+      h3#email Email validation
+      p Don't use this. Validating emails should be done backend (by sending an email) and not frontend. I've used the most lax regex for checking emails that I could find (RFC822) so as to err on the side of letting too many emails through rather than rejecting valid emails; but really, you ought not to use frontend email validation at all.
+
+      h3#broadcast Broadcasting
+      p Say you want to log to your server everytime users make errors in your fields, then set <code>broadcastError : true</code> in your options object and listen for <code>nod_error_fired</code> on the window oject, like this:
       pre.prettyprint.lang-js.linenums
         | var log_error = function( event, data ) {
         |   console.log( data.el );
@@ -304,15 +384,25 @@ html
         a(href="//github.com/casperin/nod") github.com/casperin/nod
         |  and clone it. For just a quick plug and play you only need the 
         a(href="https://github.com/casperin/nod/blob/master/nod.js") nod.js
+        | or 
+        a(href="https://github.com/casperin/nod/blob/master/nod.min.js") nod.min.js
         | .
+
+      p#bower
+        strong Bower: 
+        code jquery-nod
+
+
+      h2#contribute Contributing
+      p This project is still young so there is plenty of room for improvements, so clone the development branch (we use git flow) and hack away. Nod.js is written in <a href="http://coffeescript.org/">CoffeeScript</a>. Check out <a href="https://github.com/casperin/nod/tree/develop/nod">the source here</a>. I tried my best to comment the code to make it easy to dive in, but in case you have questions I'd be happy to elaborate. Right now we're (slowly) moving to using Yeoman and Gruntjs, so you will probably want to use that too. It's a bit messy though; but you can "CoffeeLint" your code with <code>grunt lint</code>, and concat and minify a version with <code>grunt prep</code> (this will also run the coffeelint). A server is run via <code>grunt server</code>, but (currently) doesn't update on changes to the test files.
+      p If you don't have anything particular you want to contribute with, but just love nod.js so much that you still want to do something (wow, I love you too man!), then...
+      ol
+        li Tests! There is currently not a single test unless you think of CoffeeLint as testing (this is one of the reasons why we're moving to yeoman)
+        li Write examples (see below) and <a href="https://github.com/casperin/nod/tree/develop/dev/examples">look here</a> for current ones (written in jade).
+        li Clean up gruntfile
+        li Make it load on changes to test files
+        li <a href="https://github.com/casperin/nod/issues">Issues...</a>
       
-
-      h2#compiling Compiling
-      p It is written in 
-        a(href='http://coffeescript.org') CoffeeScript
-        |  and so must be compiled in case you make changes. This is the command I use: 
-        code.prettyprint.lang-sh coffee -wcj nod.js nod/*.coffee
-
 
       h2#examples Examples
       include examples/ex1
