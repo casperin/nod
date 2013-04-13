@@ -10,7 +10,7 @@
     <script src="lib/prettify.js"></script>
     <script src="nod.min.js"></script>
     <style>
-      body {margin-bottom:100px }
+      body {margin-bottom:100px}
       .code { display: none }
       .nod_msg { background: #fcc; display: inline-block; padding: 2px 5px; margin-left: 5px; border-radius: 5px; }
       .container {margin-top:20px}
@@ -341,13 +341,12 @@ $( window ).on( 'nod_error_fired', log_error );</pre>
       <p>Go to <a href="//github.com/casperin/nod">github.com/casperin/nod</a> and clone it. For just a quick plug and play you only need the <a href="https://github.com/casperin/nod/blob/master/nod.js">nod.js</a>or <a href="https://github.com/casperin/nod/blob/master/nod.min.js">nod.min.js</a>.</p>
       <p id="bower"><strong>Bower: </strong><code>jquery-nod</code></p>
       <h2 id="contribute">Contributing</h2>
-      <p>This project is still young so there is plenty of room for improvements, so clone the development branch (we use git flow) and hack away. Nod.js is written in <a href="http://coffeescript.org/">CoffeeScript</a>. Check out <a href="https://github.com/casperin/nod/tree/develop/nod">the source here</a>. I tried my best to comment the code to make it easy to dive in, but in case you have questions I'd be happy to elaborate. Right now we're (slowly) moving to using Yeoman and Gruntjs, so you will probably want to use that too. It's a bit messy though; but you can "CoffeeLint" your code with <code>grunt lint</code>, and concat and minify a version with <code>grunt prep</code> (this will also run the coffeelint). A server is run via <code>grunt server</code>, but (currently) doesn't update on changes to the test files.</p>
+      <p>This project is still young so there is plenty of room for improvements, so clone the development branch (we use git flow) and hack away. Nod.js is written in <a href="http://coffeescript.org/">CoffeeScript</a>. Check out <a href="https://github.com/casperin/nod/tree/develop/nod">the source here</a>. I tried my best to comment the code to make it easy to dive in, but in case you have questions I'd be happy to elaborate. Right now we're (slowly) moving to using Yeoman and Gruntjs, so you will probably want to use that too. It's a bit messy though; but you can test some stuff with <code>grunt test</code>, and concat and minify a version with <code>grunt build</code>. A server is run via <code>grunt server</code>, but (currently) doesn't update on changes to the test files.</p>
       <p>If you don't have anything particular you want to contribute with, but just love nod.js so much that you still want to do something (wow, I love you too man!), then...</p>
       <ol>
         <li>Tests! There is currently not a single test unless you think of CoffeeLint as testing (this is one of the reasons why we're moving to yeoman)</li>
         <li>Write examples (see below) and <a href="https://github.com/casperin/nod/tree/develop/dev/examples">look here</a> for current ones (written in jade).</li>
         <li>Clean up gruntfile</li>
-        <li>Make it load on changes to test files</li>
         <li><a href="https://github.com/casperin/nod/issues">Issues...</a></li>
       </ol>
       <h2 id="examples">Examples</h2>
