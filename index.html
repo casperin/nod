@@ -398,7 +398,10 @@ $(&quot;#ex1&quot;).nod( metrics );</pre>
           var metrics = [
             [ '.search_field', 'integer', 'Must be a number' ]
           ];
-          $("#ex2").nod( metrics );
+          var options = {
+            disableSubmitBtn : false
+          }
+          $("#ex2").nod( metrics, options );
         </script>
       </form>
       <div class="code">
@@ -413,7 +416,12 @@ $(&quot;#ex1&quot;).nod( metrics );</pre>
         <pre class="prettyprint lang-js">var metrics = [
   [ '.search_field', 'integer', 'Must be a number' ]
 ];
-$(&quot;#ex2&quot;).nod( metrics );</pre>
+ 
+var options = {
+  disableSubmitBtn : false
+ }
+ 
+$(&quot;#ex2&quot;).nod( metrics, options );</pre>
       </div>
       <hr id="example3">
       <form id="ex3" class="form-horizontal">
