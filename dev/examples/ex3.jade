@@ -1,0 +1,63 @@
+hr#example3
+form#ex3.form-horizontal
+  .control-group
+    label.control-label Type "foo"
+    .controls
+      input(type='text').ex3a
+  .control-group
+    .control-label
+      label Select something
+    .controls
+      select#ex3select
+        option(value="") Select something please
+        option(value="1") Pick this
+        option(value="2") Or this
+        option(value="3") But not this
+        option(value="4") This is fine though
+  .controls
+    button(type='submit').btn Submit
+  script
+    var metrics = [
+      [ '.ex3a', 'exact:foo', 'I told you to type "foo"!' ],
+      [ '#ex3select', 'presence', 'Pick something' ],
+      [ '#ex3select', 'not:3', 'I told you not to pick this one!' ],
+    ];
+    var options = {
+      'groupClass' : 'warning',
+    };
+    $("#ex3").nod( metrics, options );
+.code
+  pre.prettyprint.lang-html &lt;form id=&quot;ex3&quot; class=&quot;form-horizontal&quot;&gt;
+    | &lt;div class=&quot;control-group&quot;&gt;
+    |   &lt;label class=&quot;control-label&quot;&gt;Type &quot;foo&quot;&lt;/label&gt;
+    |   &lt;div class=&quot;controls&quot;&gt;
+    |     &lt;input type=&quot;text&quot; class=&quot;ex3a&quot;&gt;
+    |   &lt;/div&gt;
+    | &lt;/div&gt;
+    | &lt;div class=&quot;control-group&quot;&gt;
+    |   &lt;div class=&quot;control-label&quot;&gt;
+    |     &lt;label&gt;Select something&lt;/label&gt;
+    |   &lt;/div&gt;
+    |   &lt;div class=&quot;controls&quot;&gt;
+    |     &lt;select id=&quot;ex3select&quot;&gt;
+    |       &lt;option value=&quot;&quot;&gt;Select something please&lt;/option&gt;
+    |       &lt;option value=&quot;1&quot;&gt;Pick this&lt;/option&gt;
+    |       &lt;option value=&quot;2&quot;&gt;Or this&lt;/option&gt;
+    |       &lt;option value=&quot;3&quot;&gt;But not this&lt;/option&gt;
+    |       &lt;option value=&quot;4&quot;&gt;This is fine though&lt;/option&gt;
+    |     &lt;/select&gt;
+    |   &lt;/div&gt;
+    | &lt;/div&gt;
+    | &lt;div class=&quot;controls&quot;&gt;
+    |   &lt;button type=&quot;submit&quot; class=&quot;btn&quot;&gt;Submit&lt;/button&gt;
+    | &lt;/div&gt;
+  pre.prettyprint.lang-js
+    | var metrics = [
+    |   [ '.ex3a', 'exact:foo', 'I told you to type "foo"!' ],
+    |   [ '#ex3select', 'presence', 'Pick something' ],
+    |   [ '#ex3select', 'not:3', 'I told you not to pick this one!' ],
+    | ];
+    | var options = {
+    |   'groupClass' : 'warning',
+    | };
+    | $("#ex3").nod( metrics, options );

@@ -1,1 +1,5 @@
-/dev
+node_modules
+dist
+.tmp
+test/components
+*.sublime-*

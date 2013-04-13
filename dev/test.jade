@@ -1,0 +1,68 @@
+!!! 5
+html
+  head
+    meta(charset="utf-8")
+    title Testing Nod
+    link(href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css",rel="stylesheet")
+    script(src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")
+    script(src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js")
+    style
+      body {margin-bottom:100px}
+      .nod_msg {
+        font-weight: bold;
+        margin-left: 5px;
+      }
+
+  body
+
+    
+
+   
+    .container
+
+
+      fieldset
+        legend The testing facility
+        form(action="foo.html")#form.form.form-horizontal
+
+          .control-group
+            .controls
+              label.radio
+                input(type='radio',name='a',value='a1')#bar
+                | First
+              label.radio
+                input(type='radio',name='a',value='a2')
+                | Second
+              label.radio
+                input(type='radio',name='a',value='a3')
+                | Third
+
+
+
+          .control-group
+            .control-label
+              label One
+            .controls
+              input(type="text",autofocus)#one
+              span.help-inline Help text
+
+
+          .control-group
+            .control-label
+              label Label two
+            .controls
+              input(type="text")#two
+
+
+          .controls
+            button(data-loading-text="loading...",type="submit")#submit_btn.btn.btn-success Submit yourself
+
+
+    //
+      script(src='nod.min.js')
+    script(src="checker.js")
+    script(src="listener.js")
+    script(src="msg.js")
+    script(src="nod.js")
+    script(src="init.js")
+    script(src="dev/test_nod.js")
