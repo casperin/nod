@@ -78,12 +78,15 @@ class Nod
     if @submit.length
       @submit.on 'click', @massCheck      # [enter] will trigger this too
     else
-      @form.on 'submit', @massCheck       # For forms w/o submit btn
+      @form.on 'keyup', @listenForEnter   # For forms w/o submit btn
 
+  listenForEnter : ( event ) =>           # Listen for enter and submit form
+    if event.keyCode is 13                # 13 = [enter]
+      @massCheck()
 
   # This function is run whenever the form is submitted.
   massCheck : ( event ) =>
-    event.preventDefault()      # Prevent form from being submitted
+    event?.preventDefault()               # Prevent form from being submitted
 
     # Push all the checks for each listener into an array.
     checks = []

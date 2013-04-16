@@ -19,25 +19,16 @@
     };
 
     Checker.prototype.makeGetVal = function($el) {
-      var sel, type;
+      var name, type;
       type = $el.attr('type');
       if (type === 'checkbox') {
         return function() {
           return $el.is(':checked');
         };
       } else if (type === 'radio') {
-        if ($el.attr("name") !== "") {
-          sel = '[name=' + $el.attr('name') + ']';
-          $el = jQuery(sel);
-        }
+        name = $el.attr('name');
         return function() {
-          var checked;
-          checked = $el.filter(':checked');
-          if (checked.size()) {
-            return checked.val();
-          } else {
-            return "";
-          }
+          return jQuery('[name=' + name + ']').filter(':checked').val();
         };
       } else {
         return function() {
@@ -58,35 +49,38 @@
       if (type === 'same-as' && jQuery(arg).length !== 1) {
         throw new Error('same-as selector must target one and only one element');
       }
+      if (!v && type !== 'presence') {
+        return true;
+      }
       switch (type) {
         case 'presence':
           return !!v;
         case 'exact':
-          return !v || v === arg;
+          return v === arg;
         case 'not':
-          return !v || v !== arg;
+          return v !== arg;
         case 'same-as':
-          return !v || v === jQuery(arg).val();
+          return v === jQuery(arg).val();
         case 'min-num':
-          return !v || +v >= +arg;
+          return +v >= +arg;
         case 'max-num':
-          return !v || +v <= +arg;
+          return +v <= +arg;
         case 'between-num':
-          return !v || +v >= +arg && +v <= +sec;
+          return +v >= +arg && +v <= +sec;
         case 'min-length':
-          return !v || v.length >= +arg;
+          return v.length >= +arg;
         case 'max-length':
-          return !v || v.length <= +arg;
+          return v.length <= +arg;
         case 'exact-length':
-          return !v || v.length === +arg;
+          return v.length === +arg;
         case 'between':
-          return !v || v.length >= +arg && v.length <= +sec;
+          return v.length >= +arg && v.length <= +sec;
         case 'integer':
-          return !v || /^\s*\d+\s*$/.test(v);
+          return /^\s*\d+\s*$/.test(v);
         case 'float':
-          return !v || /^[-+]?[0-9]+(\.[0-9]+)?$/.test(v);
+          return /^[-+]?[0-9]+(\.[0-9]+)?$/.test(v);
         case 'email':
-          return !v || this.email(v);
+          return this.email(v);
         default:
           throw new Error('I don\'t know ' + type + ', sorry.');
       }
@@ -276,6 +270,9 @@
       this.massCheck = function(event) {
         return Nod.prototype.massCheck.apply(_this, arguments);
       };
+      this.listenForEnter = function(event) {
+        return Nod.prototype.listenForEnter.apply(_this, arguments);
+      };
       this.events = function() {
         return Nod.prototype.events.apply(_this, arguments);
       };
@@ -331,14 +328,22 @@
       if (this.submit.length) {
         return this.submit.on('click', this.massCheck);
       } else {
-        return this.form.on('submit', this.massCheck);
+        return this.form.on('keyup', this.listenForEnter);
+      }
+    };
+
+    Nod.prototype.listenForEnter = function(event) {
+      if (event.keyCode === 13) {
+        return this.massCheck();
       }
     };
 
     Nod.prototype.massCheck = function(event) {
       var checks, l, _i, _len, _ref,
         _this = this;
-      event.preventDefault();
+      if (event != null) {
+        event.preventDefault();
+      }
       checks = [];
       _ref = this.listeners;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {

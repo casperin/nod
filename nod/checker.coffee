@@ -13,18 +13,15 @@ class Checker
 
   makeGetVal : ( $el ) ->
     type = $el.attr 'type'
-    if type is 'checkbox'                   # If it's a checkbox we don't care
-      -> $el.is ':checked'                  # about the value.
+    if type is 'checkbox'
+      -> $el.is ':checked'
     else if type is 'radio'
-      if $el.attr("name") isnt ""           # if the radio button has a name
-        sel = '[name='+$el.attr('name')+']'
-        $el = jQuery( sel )                 # gather all buttons in its group
-
-      ->
-        checked = $el.filter ':checked'
-        if checked.size() then checked.val()
-        else ""
+      # assign name once, so we don't query for it every time the check is run
+      name = $el.attr 'name'
+      # fn that returns the value of whichever radio with same name is checked
+      -> jQuery( '[name=' +name+ ']' ).filter( ':checked' ).val()
     else
+      # text fields and select boxes (untested for multiple select)
       -> jQuery.trim $el.val()
 
 
@@ -38,24 +35,27 @@ class Checker
 
     [ type, arg, sec ] = jQuery.map m.split( ':' ) , jQuery.trim
 
-    if type == 'same-as' && jQuery( arg ).length != 1    # Special case
+    if type == 'same-as' and jQuery( arg ).length isnt 1    # Special case
       throw new Error 'same-as selector must target one and only one element'
+
+    if !v and type isnt 'presence'      # Unless we're checking for presence
+      return true                       # return true if no value
 
     switch type
       when 'presence'     then !!v
-      when 'exact'        then !v or v == arg
-      when 'not'          then !v or v != arg
-      when 'same-as'      then !v or v == jQuery( arg ).val()
-      when 'min-num'      then !v or +v >= +arg
-      when 'max-num'      then !v or +v <= +arg
-      when 'between-num'  then !v or +v >= +arg and +v <= +sec
-      when 'min-length'   then !v or v.length >= +arg
-      when 'max-length'   then !v or v.length <= +arg
-      when 'exact-length' then !v or v.length == +arg
-      when 'between'      then !v or v.length >= +arg and v.length<=+sec
-      when 'integer'      then !v or ( /^\s*\d+\s*$/ ).test v
-      when 'float'        then !v or ( /^[-+]?[0-9]+(\.[0-9]+)?$/ ).test v
-      when 'email'        then !v or @email v
+      when 'exact'        then v == arg
+      when 'not'          then v != arg
+      when 'same-as'      then v == jQuery( arg ).val()
+      when 'min-num'      then +v >= +arg
+      when 'max-num'      then +v <= +arg
+      when 'between-num'  then +v >= +arg and +v <= +sec
+      when 'min-length'   then v.length >= +arg
+      when 'max-length'   then v.length <= +arg
+      when 'exact-length' then v.length == +arg
+      when 'between'      then v.length >= +arg and v.length <= +sec
+      when 'integer'      then ( /^\s*\d+\s*$/ ).test v
+      when 'float'        then ( /^[-+]?[0-9]+(\.[0-9]+)?$/ ).test v
+      when 'email'        then @email v
       else throw new Error 'I don\'t know ' + type + ', sorry.'
 
   email : ( v ) ->
