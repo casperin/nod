@@ -18,13 +18,11 @@ class Checker
     else if type is 'radio'
       if $el.attr("name") isnt ""           # if the radio button has a name
         sel = '[name='+$el.attr('name')+']'
-        group = jQuery( sel )               # gather all buttons in its group
-        if group.size() > 1                 # if there is a group
-          checked = group.filter ':checked'
-          return -> checked.val() || ""     # validate checked radios in group
+        $el = jQuery( sel )                 # gather all buttons in its group
 
-      ->                                    # fallback in case of improper use
-        if $el.is ':checked' then $el.val()
+      ->
+        checked = $el.filter ':checked'
+        if checked.size() then checked.val()
         else ""
     else
       -> jQuery.trim $el.val()

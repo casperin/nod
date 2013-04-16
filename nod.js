@@ -19,7 +19,7 @@
     };
 
     Checker.prototype.makeGetVal = function($el) {
-      var checked, group, sel, type;
+      var sel, type;
       type = $el.attr('type');
       if (type === 'checkbox') {
         return function() {
@@ -28,17 +28,13 @@
       } else if (type === 'radio') {
         if ($el.attr("name") !== "") {
           sel = '[name=' + $el.attr('name') + ']';
-          group = jQuery(sel);
-          if (group.size() > 1) {
-            checked = group.filter(':checked');
-            return function() {
-              return checked.val() || "";
-            };
-          }
+          $el = jQuery(sel);
         }
         return function() {
-          if ($el.is(':checked')) {
-            return $el.val();
+          var checked;
+          checked = $el.filter(':checked');
+          if (checked.size()) {
+            return checked.val();
           } else {
             return "";
           }
