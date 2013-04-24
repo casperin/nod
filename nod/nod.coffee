@@ -53,13 +53,11 @@ class Nod
       # user did their job properly.
       if field.length isnt 3 then @throw 'field', field
 
-      [ selector, metric, msg ] = field     # field = ['#foo','float','msg']
-
       # Selectors might be general in their scope and return more than one
       # element. We want to apply one listener to each of the elements.
       # Notice that one element can easily end up with more than one listener.
-      for el in @form.find selector
-        listeners.push new Listener el, @get, metric, msg
+      for el in @form.find field[ 0 ]
+        listeners.push new Listener el, @get, field
 
     return listeners
 
