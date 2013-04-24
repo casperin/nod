@@ -247,6 +247,8 @@ Nod = (function() {
     this.form = form;
     this.formIsErrorFree = __bind(this.formIsErrorFree, this);
 
+    this.submitForm = __bind(this.submitForm, this);
+
     this.toggleSubmitBtnText = __bind(this.toggleSubmitBtnText, this);
 
     this.toggleSubmitBtn = __bind(this.toggleSubmitBtn, this);
@@ -274,6 +276,7 @@ Nod = (function() {
       'submitBtnSelector': '[type=submit]',
       'metricsSplitter': ':',
       'errorPosClasses': ['.help-inline', '.add-on', 'button', '.input-append'],
+      'silentSubmit': false,
       'broadcastError': false,
       'errorClass': 'nod_msg',
       'groupSelector': '.control-group'
@@ -323,8 +326,7 @@ Nod = (function() {
   };
 
   Nod.prototype.massCheck = function(event) {
-    var checks, l, _i, _len, _ref,
-      _this = this;
+    var checks, l, _i, _len, _ref;
     if (event != null) {
       event.preventDefault();
     }
@@ -335,11 +337,7 @@ Nod = (function() {
       checks.push(l.runCheck());
     }
     this.toggleSubmitBtnText();
-    return jQuery.when.apply(window, checks).then(function() {
-      if (_this.formIsErrorFree()) {
-        return _this.form.submit();
-      }
-    }).then(this.toggleSubmitBtnText);
+    return jQuery.when.apply(window, checks).then(this.submitForm).then(this.toggleSubmitBtnText);
   };
 
   Nod.prototype.toggle_status = function(event) {
@@ -371,6 +369,19 @@ Nod = (function() {
     if (tmp) {
       this.submit.attr('data-loading-text', this.submit.html());
       return this.submit.html(tmp);
+    }
+  };
+
+  Nod.prototype.submitForm = function() {
+    var $form;
+    if (!this.formIsErrorFree()) {
+      return;
+    }
+    if (this.get.silentSubmit) {
+      $form = jQuery(this.form);
+      return $form.trigger('silentSubmit', $form.serialize());
+    } else {
+      return this.form.submit();
     }
   };
 

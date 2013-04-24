@@ -17,12 +17,18 @@ jQuery ->
     [ '#two', 'presence', 'em' ]
   ]
 
+  ff = ( event, data ) ->
+    console.log data
+
+  jQuery("#form").on 'silentSubmit', ff
+
   options = {
     # 'groupSelector' : 'li'
     # 'disableSubmitBtn' : false
     # 'broadcastError' : true
     # 'delay' : 0
     # 'submitBtnSelector' : '#submit_btn'
+    silentSubmit : true
   }
 
 
