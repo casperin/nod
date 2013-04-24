@@ -184,7 +184,7 @@ Msg = (function() {
       return this.$msg.remove();
     } else {
       this.showMsg();
-      if (this.broadcastError) {
+      if (this.get.broadcastError) {
         return this.broadcast();
       }
     }
