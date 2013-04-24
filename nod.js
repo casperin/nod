@@ -19,7 +19,7 @@ Checker = (function() {
   };
 
   Checker.prototype.makeGetVal = function($el, sel) {
-    var name, type;
+    var inputs, name, type;
     type = $el.attr('type');
     if (type === 'checkbox') {
       return function() {
@@ -32,8 +32,9 @@ Checker = (function() {
       };
     } else {
       if (this.metric === 'one-of') {
+        inputs = jQuery(sel);
         return function() {
-          return jQuery(sel).map(function() {
+          return inputs.map(function() {
             return jQuery.trim(this.value);
           }).get().join('');
         };
@@ -113,6 +114,7 @@ Listener = (function() {
 
   function Listener(el, get, field) {
     this.get = get;
+    this.field = field;
     this.change_status = __bind(this.change_status, this);
 
     this.runCheck = __bind(this.runCheck, this);
@@ -124,8 +126,8 @@ Listener = (function() {
     this.$el = jQuery(el);
     this.delayId = "";
     this.status = true;
-    this.checker = new Checker(this.$el, field);
-    this.msg = new Msg(this.$el, this.get, field);
+    this.checker = new Checker(this.$el, this.field);
+    this.msg = new Msg(this.$el, this.get, this.field);
     this.events();
   }
 
@@ -135,6 +137,9 @@ Listener = (function() {
     } else {
       this.$el.on('change', this.runCheck);
       this.$el.on('blur', this.runCheck);
+      if (this.field[1] === 'one-of') {
+        jQuery(window).on('nod-run-one-of', this.runCheck);
+      }
       if (this.get.delay) {
         return this.$el.on('keyup', this.delayedCheck);
       }
@@ -158,7 +163,10 @@ Listener = (function() {
     }
     this.status = isCorrect;
     this.msg.toggle(this.status);
-    return jQuery(this).trigger('nod_toggle');
+    jQuery(this).trigger('nod_toggle');
+    if (this.field[1] === 'one-of' && status) {
+      return jQuery(window).trigger('nod-run-one-of');
+    }
   };
 
   return Listener;

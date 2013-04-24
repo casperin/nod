@@ -28,8 +28,9 @@ class Checker
     # text fields and select boxes (untested for multiple select)
     else
       if @metric is 'one-of'
+        inputs = jQuery sel   # Query just once
         # Gather values from all the fields in the selector, and join() them
-        -> jQuery( sel ).map( -> jQuery.trim this.value ).get().join('')
+        -> inputs.map( -> jQuery.trim @value ).get().join('')
       else
         -> jQuery.trim $el.val()
 
