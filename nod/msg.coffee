@@ -22,7 +22,7 @@ class Msg
       @$msg.remove()
     else                                      # Errors
       @showMsg()
-      @broadcast() if @broadcastError         # Not used internally
+      @broadcast() if @get.broadcastError     # Not used internally
 
 
   # We need to know the type of the input field before we know where to place

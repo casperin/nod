@@ -3,7 +3,7 @@
 # Also takes care of toggling submit buttons and group classes if errors exist
 #
 class Nod
-  constructor: (@form, fields, options ) ->
+  constructor: ( @form, fields, options ) ->
 
     # Silent fail if no fields where passed in.
     unless fields then return
@@ -22,6 +22,7 @@ class Nod
                               'button'
                               '.input-append' # If parent has this class it
                             ]                 # go up one and continue
+      'silentSubmit'      : false             # Doesn't submit the form
       'broadcastError'    : false             # True to trigger event on error
       'errorClass'        : 'nod_msg'         # Your error msg gets this class
       'groupSelector'     : '.control-group'  # Should surround the field + msg
@@ -105,7 +106,7 @@ class Nod
       # jquery-deferred-then-once-all-deferred-objects-have-been-resolved
       .when.apply( window, checks )
       # When all checks has been run we submit the form unless there are errors
-      .then( => @form.submit() if @formIsErrorFree() )
+      .then( @submitForm )
       .then( @toggleSubmitBtnText )     # Swap text back to its original
 
 
@@ -142,6 +143,15 @@ class Nod
     if tmp
       @submit.attr 'data-loading-text',  @submit.html()
       @submit.html tmp
+
+
+  submitForm : =>
+    unless @formIsErrorFree() then return
+    if @get.silentSubmit
+      $form = jQuery @form
+      $form.trigger 'silentSubmit', $form.serialize()
+    else
+      @form.submit()
 
 
   # Helper to check if the form is free of errors. Returns a boolean.
