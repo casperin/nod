@@ -25,17 +25,18 @@ html
         legend The testing facility
         form(action="foo.html")#form.form.form-horizontal
 
-          .control-group
-            .controls
-              label.radio
-                input(type='radio',name='a',value='a1')#bar
-                | First
-              label.radio
-                input(type='radio',name='a',value='a2')
-                | Second
-              label.radio
-                input(type='radio',name='a',value='a3')
-                | Third
+          //
+            .control-group
+              .controls
+                label.radio
+                  input(type='radio',name='a',value='a1')#bar
+                  | First
+                label.radio
+                  input(type='radio',name='a',value='a2')
+                  | Second
+                label.radio
+                  input(type='radio',name='a',value='a3')
+                  | Third
 
 
 
@@ -44,7 +45,6 @@ html
               label One
             .controls
               input(type="text",autofocus)#one
-              span.help-inline Help text
 
 
           .control-group
@@ -54,8 +54,15 @@ html
               input(type="text")#two
 
 
+          .control-group
+            .control-label
+              label Label three
+            .controls
+              input(type="text")#three
+
+
           .controls
-            button(data-loading-text="loading...",type="submit")#submit_btn.btn.btn-success Submit yourself
+            button(data-loading-text="loading...",type="submit")#submit_btn.btn.btn-success Go go!
 
 
     //

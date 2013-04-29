@@ -4,8 +4,8 @@
 #
 class Msg
 
-  constructor: ( @$el, @get, msg ) ->
-    @$msg = @createMsg msg                    # create the element
+  constructor: ( @$el, @get, field ) ->
+    @$msg = @createMsg field[ 2 ]             # create the element
     @showMsg = @createShowMsg()               # Create fn to show @$msg
 
 
