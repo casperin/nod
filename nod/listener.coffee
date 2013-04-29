@@ -14,7 +14,7 @@ class Listener
 
   events : =>
     if @$el.attr( 'type' ) is 'radio'         # Listen to all with same name
-      jQuery( '[name='+@$el.attr("name")+']' ).on 'change', @runCheck
+      jQuery( '[name="'+@$el.attr("name")+'"]' ).on 'change', @runCheck
     else
       @$el.on 'change', @runCheck             # For checkboxes and select fields
       @$el.on 'blur'  , @runCheck             # On blur we run the check
