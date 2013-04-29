@@ -19,7 +19,7 @@
         font-weight: bold;
       }
       .input-append, .input-prepend { font-size: 14px; } /* bug in bootstrap? */
-      
+
       /* prettify */
       .com { color: #93a1a1; }
       .lit { color: #195f91; }
@@ -29,7 +29,7 @@
       .kwd, .prettyprint .tag { color: #1e347b; }
       .typ, .atn, .dec, .var { color: teal; }
       .pln { color: #48484c; }
-      
+
       .prettyprint {
         padding: 8px;
         background-color: #f7f7f9;
@@ -50,11 +50,11 @@
         line-height: 20px;
         text-shadow: 0 1px 0 #fff;
       }
-      
+
     </style>
     <script>
       $(document).ready(function(){
-        var see_code = $('<button/>', 
+        var see_code = $('<button/>',
             {html:"See code", class:"btn btn-mini see-code" }
         ).on( 'click', function() {
             $(this).next('.code').trigger('tgl');
@@ -65,8 +65,8 @@
           el.is(':visible') ? el.slideUp() : el.slideDown();
         });
       });
-      
-      
+
+
     </script>
   </head>
   <body>
@@ -85,7 +85,7 @@
       <p>Comments, bugs, suggestions and ideas are all very much appreciated.</p>
       <h2>Quick introduction</h2>
       <p>
-         
+
         The plugin is made as a jQuery plugin and is activated like this: <code class="prettyprint lang-js">$("#form").nod( metrics );</code> The <code class="prettyprint lang-js">metrics</code> is a list that you build beforehand. It is basically a list of each selector and how you want it validated.
       </p>
       <p>Example:</p>
@@ -93,7 +93,6 @@
   [ '#foo', 'presence', 'Cannot be empty' ],
   [ '#bar', 'min-length:4', 'Must be at least 4 characters long' ]
 ];
- 
 $( &quot;#form&quot; ).nod( metrics );</pre>
       <p>Each "sublist" consists of three parts:</p>
       <ol>
@@ -265,16 +264,16 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
             <td>The selector for something surrounding your input elements. Like <code>.control-group</code> in bootstrap forms.</td>
           </tr>
           <tr class="muted">
-            <td> 
+            <td>
               <del>disabledAttr</del>
             </td>
-            <td> 
+            <td>
               <del>String</del>
             </td>
-            <td> 
+            <td>
               <del>'disabled'</del>
             </td>
-            <td> 
+            <td>
               <del>Things will surely break if you change this.</del> <span class="label">Gone in 1.0.1</span>
             </td>
           </tr>
@@ -303,14 +302,14 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
       <pre class="prettyprint lang-js linenums">var metrics = [
     ['[name=a]', 'presence', 'You must click on at least one radio button']
 ];
- 
+
 $( &quot;#form&quot; ).nod( metrics );</pre>
       <p>However if we want people to specifically click on a particular radio button, we do (line 2 is still important)</p>
       <pre class="prettyprint lang-js linenums">var metrics = [
     ['[name=a]', 'presence', 'You must click on at least one radio button'],
     ['#bar', 'exact:a1', 'You must click on *this* radio button']
 ];
- 
+
 $( &quot;#form&quot; ).nod( metrics );</pre>
       <p>Conversely we can use the keyword <code>not</code> instead of <code>exact</code>.</p>
       <p><span class="label label-info">Notice</span> <code>name</code> attribute is mandatory on the input fields for all of these.</p>
@@ -319,11 +318,11 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
       <pre class="prettyprint lang-js linenums">var getFn = function( value ) {
     $.get('check_email.php', value);
 };
- 
+
 var metrics = [
     ['#email', getFn, 'This email is already in use']
 ];
- 
+
 $( &quot;#form&quot; ).nod( metrics );</pre>
       <p>Nod.js will take whatever response it gets from the server and evaluate it to a boolean and use that as an indicator for whether the input is valid.  Further, if your submit button has <code>data-loading-text</code>, this will be swapped while the check is going on (and swapped back when done, regardless of errors).</p>
       <h3 id="email">Email validation</h3>
@@ -334,7 +333,7 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
   console.log( data.el );
   console.log( data.msg );
 }
- 
+
 $( window ).on( 'nod_error_fired', log_error );</pre>
       <p>As you can see, you'll get an object with the element (actually the <code>$(el)</code>) and one with the error message.</p>
       <h2 id="download">Downloading</h2>
@@ -415,11 +414,11 @@ $(&quot;#ex1&quot;).nod( metrics );</pre>
         <pre class="prettyprint lang-js">var metrics = [
   [ '.search_field', 'integer', 'Must be a number' ]
 ];
- 
+
 var options = {
   disableSubmitBtn : false
  }
- 
+
 $(&quot;#ex2&quot;).nod( metrics, options );</pre>
       </div>
       <hr id="example3">
@@ -494,6 +493,39 @@ var options = {
 };
 $(&quot;#ex3&quot;).nod( metrics, options );</pre>
       </div>
+      <hr id="example4"/>
+      <form id="ex4" class="form-horizontal">
+        <div class="control-group">
+          <label class="control-label">Select one</label>
+          <div class="controls">
+            <label>
+              Pick me!
+              <input type="radio" id="ex4r1" class="pull-left" name="ex4radio" value="good value">
+            </label>
+            <label>
+              Or me!
+              <input type="radio" id="ex4r2" class="pull-left" name="ex4radio" value="still good">
+            </label>
+            <label>
+              Not me, though.
+              <input type="radio" id="ex4r3" class="pull-left" name="ex4radio" value="I suck">
+            </label>
+          </div>
+        </div>
+        <div class="controls">
+          <button type="submit" class="btn">Submit</button>
+        </div>
+        <script>
+          var metrics = [
+            [ '#ex4r1', 'presence', 'You need to pick one!' ],
+            [ '#ex4r1', 'not:I suck', "You can't pick that one!"]
+          ];
+          var options = {
+            'groupClass' : 'warning',
+          };
+          $("#ex4").nod( metrics, options );
+        </script>
+      </form>
     </div>
     <script>!function($) { $(function(){ window.prettyPrint && prettyPrint() }) }(window.jQuery);</script>
   </body>

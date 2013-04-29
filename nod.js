@@ -274,6 +274,9 @@
       this.formIsErrorFree = function() {
         return Nod.prototype.formIsErrorFree.apply(_this, arguments);
       };
+      this.submitForm = function() {
+        return Nod.prototype.submitForm.apply(_this, arguments);
+      };
       this.toggleSubmitBtnText = function() {
         return Nod.prototype.toggleSubmitBtnText.apply(_this, arguments);
       };
@@ -309,6 +312,7 @@
         'submitBtnSelector': '[type=submit]',
         'metricsSplitter': ':',
         'errorPosClasses': ['.help-inline', '.add-on', 'button', '.input-append'],
+        'silentSubmit': false,
         'broadcastError': false,
         'errorClass': 'nod_msg',
         'groupSelector': '.control-group'
@@ -357,8 +361,7 @@
     };
 
     Nod.prototype.massCheck = function(event) {
-      var checks, l, _i, _len, _ref,
-        _this = this;
+      var checks, l, _i, _len, _ref;
       if (event != null) {
         event.preventDefault();
       }
@@ -369,11 +372,7 @@
         checks.push(l.runCheck());
       }
       this.toggleSubmitBtnText();
-      return jQuery.when.apply(window, checks).then(function() {
-        if (_this.formIsErrorFree()) {
-          return _this.form.submit();
-        }
-      }).then(this.toggleSubmitBtnText);
+      return jQuery.when.apply(window, checks).then(this.submitForm).then(this.toggleSubmitBtnText);
     };
 
     Nod.prototype.toggle_status = function(event) {
@@ -405,6 +404,19 @@
       if (tmp) {
         this.submit.attr('data-loading-text', this.submit.html());
         return this.submit.html(tmp);
+      }
+    };
+
+    Nod.prototype.submitForm = function() {
+      var $form;
+      if (!this.formIsErrorFree()) {
+        return;
+      }
+      if (this.get.silentSubmit) {
+        $form = jQuery(this.form);
+        return $form.trigger('silentSubmit', $form.serialize());
+      } else {
+        return this.form.submit();
       }
     };
 

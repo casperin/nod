@@ -3,7 +3,7 @@ var $;
 $ = 'boo';
 
 jQuery(function() {
-  var fn, g, metrics, options, regex;
+  var ff, fn, g, metrics, options, regex;
   fn = function(v) {
     if (v === "") {
       return false;
@@ -14,7 +14,13 @@ jQuery(function() {
     return jQuery.get('dev/resp.txt', v);
   };
   regex = /foo/;
-  metrics = [['#one, #two, #three', 'one-of', 'yo']];
-  options = {};
+  metrics = [['[name=a]', 'presence', 'pres err'], ['#bar', 'not:a1', 'You must click on *this* radio button'], ['#one', 'email', 'email'], ['#two', 'presence', 'em']];
+  ff = function(event, data) {
+    return console.log(data);
+  };
+  jQuery("#form").on('silentSubmit', ff);
+  options = {
+    silentSubmit: true
+  };
   return jQuery("#form").nod(metrics, options);
 });
