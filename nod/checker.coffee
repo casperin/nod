@@ -19,7 +19,7 @@ class Checker
       # assign name once, so we don't query for it every time the check is run
       name = $el.attr 'name'
       # fn that returns the value of whichever radio with same name is checked
-      -> jQuery( '[name=' +name+ ']' ).filter( ':checked' ).val()
+      -> jQuery( '[name="' +name+ '"]' ).filter( ':checked' ).val()
     else
       # text fields and select boxes (untested for multiple select)
       -> jQuery.trim $el.val()
