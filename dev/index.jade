@@ -281,6 +281,11 @@ html
             td 'nod_msg'
             td Used internally. This is the class you want to style if you want any specific styling.
           tr
+            td silentSubmit
+            td Bool
+            td false
+            td If set to <code>true</code>, the form will not be submitted the regular way, but instead an event: <code>silentSubmit</code> will be called on the form with the values you'd normally submit. (<a href="#silentsubmit">Read more</a>)
+          tr
             td broadcastError
             td Bool
             td false
@@ -367,6 +372,16 @@ html
       h3#email Email validation
       p Don't use this. Validating emails should be done backend (by sending an email) and not frontend. I've used the most lax regex for checking emails that I could find (RFC822) so as to err on the side of letting too many emails through rather than rejecting valid emails; but really, you ought not to use frontend email validation at all.
 
+      h3#silentsubmit Silent Submit
+      p if you have set <code>silentSubmit : true</code>, then form won't submit. Instead you need to listen for the event on the form itself:
+      pre.prettyprint.lang-js.linenums
+        | var submitFn = function( event, data ) {
+        |   console.log( data );
+        | }
+        | 
+        | $( '#form' ).on( 'silentSubmit', submitFn );
+      p This is used mainly (only?) if you want to submit your form by ajax.
+
       h3#broadcast Broadcasting
       p Say you want to log to your server everytime users make errors in your fields, then set <code>broadcastError : true</code> in your options object and listen for <code>nod_error_fired</code> on the window oject, like this:
       pre.prettyprint.lang-js.linenums
@@ -395,7 +410,7 @@ html
 
       h2#contribute Contributing
       p This project is still young so there is plenty of room for improvements, so clone the development branch (we use git flow) and hack away. Nod.js is written in <a href="http://coffeescript.org/">CoffeeScript</a>. Check out <a href="https://github.com/casperin/nod/tree/develop/nod">the source here</a>. I tried my best to comment the code to make it easy to dive in, but in case you have questions I'd be happy to elaborate. Right now we're (slowly) moving to using Yeoman and Gruntjs, so you will probably want to use that too. It's a bit messy though; but you can test some stuff with <code>grunt test</code>, and concat and minify a version with <code>grunt build</code>. A server is run via <code>grunt server</code>, but (currently) doesn't update on changes to the test files.
-      p If you don't have anything particular you want to contribute with, but just love nod.js so much that you still want to do something (wow, I love you too man!), then...
+      p If you don't have anything particular you want to contribute with, but just love nod.js so much that you still want to do something (I love you too man), then...
       ol
         li Tests! There is currently not a single test unless you think of CoffeeLint as testing (this is one of the reasons why we're moving to yeoman)
         li Write examples (see below) and <a href="https://github.com/casperin/nod/tree/develop/dev/examples">look here</a> for current ones (written in jade).
