@@ -1,4 +1,4 @@
-Nod v.1.0.1
+Nod v.1.0.2
 ===========
 
 Frontend validation jQuery plugin
@@ -39,6 +39,16 @@ Once you have complete your changes you can build it and move the files to the
 root with.
 
     grunt build
+
+
+Contributors
+------------
+
+* Luis Hdez - [aggressivex](https://github.com/aggressivex)
+* Matthias Buchetics - [mbuchetics](https://github.com/mbuchetics)
+* Chris Hall - [chall8908](https://github.com/chall8908)
+
+Very quick list, so just write me some hate mail if you feel left out, and I'll add you ;-)
 
 
 License
