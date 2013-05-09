@@ -6,7 +6,7 @@ class Listener
   constructor: ( el, @get, @field ) ->
     @$el      = jQuery el
     @delayId  = ""                            # So we can cancel delayed checks
-    @status   = true                          # We assume field to be ok
+    @status   = null                          # This will be changed to bool
     @checker  = new Checker @$el, @field      # Run this to check a field
     @msg      = new Msg     @$el, @get, @field # Toggles showing/hiding msgs
     @events()                                 # Listen for changes on element
