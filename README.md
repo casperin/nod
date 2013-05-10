@@ -41,6 +41,14 @@ root with.
     grunt build
 
 
+Contributors
+------------
+
+* Luis Hdez - [aggressivex](https://github.com/aggressivex)
+* Matthias Buchetics - [mbuchetics](https://github.com/mbuchetics)
+* Chris Hall - [chall8908](https://github.com/chall8908)
+
+
 License
 -------
 
