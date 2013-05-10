@@ -1,0 +1,58 @@
+
+hr#example4
+form#ex4.form-horizontal
+  p Leave at least one number
+  .control-group
+    label.control-label Home
+    .controls
+      input(type='text')#ex4a_home
+  .control-group
+    label.control-label Work
+    .controls
+      input(type='text')#ex4a_work
+  .control-group
+    label.control-label Mobile
+    .controls
+      input(type='text')#ex4a_mobile
+  .controls
+    button(type='submit').btn Call me
+  script
+    var metrics = [
+      [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'one-of', 'Add at least one number' ]
+    ];
+    $("#ex4").nod( metrics );
+
+// use http://www.opinionatedgeek.com/DotNet/Tools/HTMLEncode/Encode.aspx
+.code
+  pre.prettyprint.lang-html &lt;form id=&quot;ex4&quot; class=&quot;form-horizontal&quot;&gt;
+    |   &lt;p&gt;Leave at least one number&lt;/p&gt;
+    |   &lt;div class=&quot;control-group&quot;&gt;
+    |     &lt;label class=&quot;control-label&quot;&gt;Home&lt;/label&gt;
+    |     &lt;div class=&quot;controls&quot;&gt;
+    |       &lt;input type=&quot;text&quot; id=&quot;ex4a_home&quot;&gt;
+    |     &lt;/div&gt;
+    |   &lt;/div&gt;
+    |   &lt;div class=&quot;control-group&quot;&gt;
+    |     &lt;label class=&quot;control-label&quot;&gt;Work&lt;/label&gt;
+    |     &lt;div class=&quot;controls&quot;&gt;
+    |       &lt;input type=&quot;text&quot; id=&quot;ex4a_work&quot;&gt;
+    |     &lt;/div&gt;
+    |   &lt;/div&gt;
+    |   &lt;div class=&quot;control-group&quot;&gt;
+    |     &lt;label class=&quot;control-label&quot;&gt;Mobile&lt;/label&gt;
+    |     &lt;div class=&quot;controls&quot;&gt;
+    |       &lt;input type=&quot;text&quot; id=&quot;ex4a_mobile&quot;&gt;
+    |     &lt;/div&gt;
+    |   &lt;/div&gt;
+    |   &lt;div class=&quot;controls&quot;&gt;
+    |     &lt;button type=&quot;submit&quot; class=&quot;btn&quot;&gt;Call me&lt;/button&gt;
+    |   &lt;/div&gt;
+    | &lt;/form&gt;
+  pre.prettyprint.lang-js
+    | &lt;script&gt;
+    |   var metrics = [
+    |     [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'one-of', 'Add at least one number' ]
+    |   ];
+    |   $( '#ex4' ).nod( metrics );
+    | &lt;/script&gt;
+

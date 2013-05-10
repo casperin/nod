@@ -38,7 +38,9 @@ class Listener
 
 
   change_status : ( status ) =>
-    isCorrect = !!eval status                 # Bool
+    try
+      status = eval status
+    isCorrect = !!status                      # Bool
     return if @status is isCorrect            # Stop if nothing changed
     @status = isCorrect                       # Set the new status
     @msg.toggle @status                       # toggle msg with new status

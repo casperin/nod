@@ -157,7 +157,10 @@ Listener = (function() {
 
   Listener.prototype.change_status = function(status) {
     var isCorrect;
-    isCorrect = !!eval(status);
+    try {
+      status = eval(status);
+    } catch (_error) {}
+    isCorrect = !!status;
     if (this.status === isCorrect) {
       return;
     }
