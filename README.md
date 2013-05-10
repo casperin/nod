@@ -50,7 +50,13 @@ May be freely distributed under the MIT license.
 Updates
 -------
 
-* **v.1.0.3**
+* **v 1.0.3**
+  * one-of
+  * different handling of ajax calls
+* **v 1.0.2**
+  * silentSubmit
+  * Better selectors
+* **v 1.0.1**
   * Support for ajax checking added
   * Radio button support
   * Restructuring code
