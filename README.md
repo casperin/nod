@@ -1,4 +1,4 @@
-Nod v.1.0.1
+Nod v.1.0.3
 ===========
 
 Frontend validation jQuery plugin
@@ -50,7 +50,7 @@ May be freely distributed under the MIT license.
 Updates
 -------
 
-* **v.1.0.1**
+* **v.1.0.3**
   * Support for ajax checking added
   * Radio button support
   * Restructuring code

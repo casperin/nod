@@ -14,7 +14,7 @@ jQuery(function() {
     return jQuery.get('dev/resp.txt', v);
   };
   regex = /foo/;
-  metrics = [['#one, #two, #three', 'one-of', 'yo']];
+  metrics = [['#two', 'presence', 'em'], ['#one', g, 'get']];
   ff = function(event, data) {
     return console.log(data);
   };

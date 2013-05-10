@@ -14,8 +14,9 @@ jQuery ->
     # [ '#bar', 'not:a1', 'You must click on *this* radio button' ]
     # [ '#one', 'presence', 'pre' ]
     # [ '#one', 'email', 'email' ]
-    # [ '#two', 'presence', 'em' ]
-    [ '#one, #two, #three', 'one-of', 'yo' ]
+    [ '#two', 'presence', 'em' ]
+    # [ '#one, #two, #three', 'one-of', 'yo' ]
+    [ '#one', g, 'get' ]
   ]
 
   ff = ( event, data ) ->

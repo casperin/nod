@@ -157,7 +157,7 @@ Listener = (function() {
 
   Listener.prototype.change_status = function(status) {
     var isCorrect;
-    isCorrect = !!status;
+    isCorrect = !!eval(status);
     if (this.status === isCorrect) {
       return;
     }
@@ -355,7 +355,7 @@ Nod = (function() {
       checks.push(l.runCheck());
     }
     this.toggleSubmitBtnText();
-    return jQuery.when.apply(window, checks).then(this.submitForm).then(this.toggleSubmitBtnText);
+    return jQuery.when.apply(jQuery, checks).then(this.submitForm).then(this.toggleSubmitBtnText);
   };
 
   Nod.prototype.toggle_status = function(event) {

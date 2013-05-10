@@ -99,10 +99,7 @@ class Nod
 
     # We use $.deferred in case user has ajax checks.
     jQuery
-      # .when() only accepts a comma seperate list, so we use apply as
-      # descriped here: http://stackoverflow.com/questions/5573165/raising-
-      # jquery-deferred-then-once-all-deferred-objects-have-been-resolved
-      .when.apply( window, checks )
+      .when( checks... )
       # When all checks has been run we submit the form unless there are errors
       .then( @submitForm )
       .then( @toggleSubmitBtnText )     # Swap text back to its original
