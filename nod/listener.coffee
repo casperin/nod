@@ -3,12 +3,12 @@
 #
 class Listener
 
-  constructor: ( el, @get, metric, msg ) ->
+  constructor: ( el, @get, @field ) ->
     @$el      = jQuery el
     @delayId  = ""                            # So we can cancel delayed checks
-    @status   = true                          # We assume field to be ok
-    @checker  = new Checker @$el, metric      # Run this to check a field
-    @msg      = new Msg     @$el, @get, msg   # Toggles showing/hiding msgs
+    @status   = null                          # This will be changed to bool
+    @checker  = new Checker @$el, @field      # Run this to check a field
+    @msg      = new Msg     @$el, @get, @field # Toggles showing/hiding msgs
     @events()                                 # Listen for changes on element
 
 
@@ -18,6 +18,8 @@ class Listener
     else
       @$el.on 'change', @runCheck             # For checkboxes and select fields
       @$el.on 'blur'  , @runCheck             # On blur we run the check
+      if @field[ 1 ] is 'one-of'
+        jQuery( window ).on 'nod-run-one-of', @runCheck
       if @get.delay
         @$el.on 'keyup' , @delayedCheck       # delayed check on keypress
 
@@ -36,9 +38,13 @@ class Listener
 
 
   change_status : ( status ) =>
+    try
+      status = eval status
     isCorrect = !!status                      # Bool
     return if @status is isCorrect            # Stop if nothing changed
     @status = isCorrect                       # Set the new status
     @msg.toggle @status                       # toggle msg with new status
     jQuery( @ ).trigger 'nod_toggle'          # Triggers check on submit btn
                                               # and .control-group
+    if @field[ 1 ] is 'one-of' and status
+      jQuery( window ).trigger 'nod-run-one-of'

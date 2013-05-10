@@ -6,19 +6,20 @@ var Checker,
 
 Checker = (function() {
 
-  function Checker($el, metric) {
-    this.metric = metric;
+  function Checker($el, field) {
     this.run = __bind(this.run, this);
 
-    this.getVal = this.makeGetVal($el);
+    var sel;
+    sel = field[0], this.metric = field[1];
+    this.getVal = this.makeGetVal($el, sel);
   }
 
   Checker.prototype.run = function() {
     return this.verify(this.metric, this.getVal());
   };
 
-  Checker.prototype.makeGetVal = function($el) {
-    var name, type;
+  Checker.prototype.makeGetVal = function($el, sel) {
+    var inputs, name, type;
     type = $el.attr('type');
     if (type === 'checkbox') {
       return function() {
@@ -30,9 +31,18 @@ Checker = (function() {
         return jQuery('[name="' + name + '"]').filter(':checked').val();
       };
     } else {
-      return function() {
-        return jQuery.trim($el.val());
-      };
+      if (this.metric === 'one-of') {
+        inputs = jQuery(sel);
+        return function() {
+          return inputs.map(function() {
+            return jQuery.trim(this.value);
+          }).get().join('');
+        };
+      } else {
+        return function() {
+          return jQuery.trim($el.val());
+        };
+      }
     }
   };
 
@@ -48,11 +58,13 @@ Checker = (function() {
     if (type === 'same-as' && jQuery(arg).length !== 1) {
       throw new Error('same-as selector must target one and only one element');
     }
-    if (!v && type !== 'presence') {
+    if (!v && type !== 'presence' && type !== 'one-of') {
       return true;
     }
     switch (type) {
       case 'presence':
+        return !!v;
+      case 'one-of':
         return !!v;
       case 'exact':
         return v === arg;
@@ -100,8 +112,9 @@ var Listener,
 
 Listener = (function() {
 
-  function Listener(el, get, metric, msg) {
+  function Listener(el, get, field) {
     this.get = get;
+    this.field = field;
     this.change_status = __bind(this.change_status, this);
 
     this.runCheck = __bind(this.runCheck, this);
@@ -112,9 +125,9 @@ Listener = (function() {
 
     this.$el = jQuery(el);
     this.delayId = "";
-    this.status = true;
-    this.checker = new Checker(this.$el, metric);
-    this.msg = new Msg(this.$el, this.get, msg);
+    this.status = null;
+    this.checker = new Checker(this.$el, this.field);
+    this.msg = new Msg(this.$el, this.get, this.field);
     this.events();
   }
 
@@ -124,6 +137,9 @@ Listener = (function() {
     } else {
       this.$el.on('change', this.runCheck);
       this.$el.on('blur', this.runCheck);
+      if (this.field[1] === 'one-of') {
+        jQuery(window).on('nod-run-one-of', this.runCheck);
+      }
       if (this.get.delay) {
         return this.$el.on('keyup', this.delayedCheck);
       }
@@ -141,13 +157,19 @@ Listener = (function() {
 
   Listener.prototype.change_status = function(status) {
     var isCorrect;
+    try {
+      status = eval(status);
+    } catch (_error) {}
     isCorrect = !!status;
     if (this.status === isCorrect) {
       return;
     }
     this.status = isCorrect;
     this.msg.toggle(this.status);
-    return jQuery(this).trigger('nod_toggle');
+    jQuery(this).trigger('nod_toggle');
+    if (this.field[1] === 'one-of' && status) {
+      return jQuery(window).trigger('nod-run-one-of');
+    }
   };
 
   return Listener;
@@ -159,7 +181,7 @@ var Msg,
 
 Msg = (function() {
 
-  function Msg($el, get, msg) {
+  function Msg($el, get, field) {
     this.$el = $el;
     this.get = get;
     this.createShowMsg = __bind(this.createShowMsg, this);
@@ -168,7 +190,7 @@ Msg = (function() {
 
     this.createMsg = __bind(this.createMsg, this);
 
-    this.$msg = this.createMsg(msg);
+    this.$msg = this.createMsg(field[2]);
     this.showMsg = this.createShowMsg();
   }
 
@@ -288,18 +310,17 @@ Nod = (function() {
   }
 
   Nod.prototype.createListeners = function(fields) {
-    var el, field, listeners, metric, msg, selector, _i, _j, _len, _len1, _ref;
+    var el, field, listeners, _i, _j, _len, _len1, _ref;
     listeners = [];
     for (_i = 0, _len = fields.length; _i < _len; _i++) {
       field = fields[_i];
       if (field.length !== 3) {
         this["throw"]('field', field);
       }
-      selector = field[0], metric = field[1], msg = field[2];
-      _ref = this.form.find(selector);
+      _ref = this.form.find(field[0]);
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
         el = _ref[_j];
-        listeners.push(new Listener(el, this.get, metric, msg));
+        listeners.push(new Listener(el, this.get, field));
       }
     }
     return listeners;
@@ -337,7 +358,7 @@ Nod = (function() {
       checks.push(l.runCheck());
     }
     this.toggleSubmitBtnText();
-    return jQuery.when.apply(window, checks).then(this.submitForm).then(this.toggleSubmitBtnText);
+    return jQuery.when.apply(jQuery, checks).then(this.submitForm).then(this.toggleSubmitBtnText);
   };
 
   Nod.prototype.toggle_status = function(event) {

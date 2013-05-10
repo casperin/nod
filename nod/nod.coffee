@@ -54,13 +54,11 @@ class Nod
       # user did their job properly.
       if field.length isnt 3 then @throw 'field', field
 
-      [ selector, metric, msg ] = field     # field = ['#foo','float','msg']
-
       # Selectors might be general in their scope and return more than one
       # element. We want to apply one listener to each of the elements.
       # Notice that one element can easily end up with more than one listener.
-      for el in @form.find selector
-        listeners.push new Listener el, @get, metric, msg
+      for el in @form.find field[ 0 ]
+        listeners.push new Listener el, @get, field
 
     return listeners
 
@@ -101,10 +99,7 @@ class Nod
 
     # We use $.deferred in case user has ajax checks.
     jQuery
-      # .when() only accepts a comma seperate list, so we use apply as
-      # descriped here: http://stackoverflow.com/questions/5573165/raising-
-      # jquery-deferred-then-once-all-deferred-objects-have-been-resolved
-      .when.apply( window, checks )
+      .when( checks... )
       # When all checks has been run we submit the form unless there are errors
       .then( @submitForm )
       .then( @toggleSubmitBtnText )     # Swap text back to its original

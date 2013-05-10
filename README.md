@@ -1,4 +1,4 @@
-Nod v.1.0.2
+Nod v.1.0.3
 ===========
 
 Frontend validation jQuery plugin
@@ -48,8 +48,6 @@ Contributors
 * Matthias Buchetics - [mbuchetics](https://github.com/mbuchetics)
 * Chris Hall - [chall8908](https://github.com/chall8908)
 
-Very quick list, so just write me some hate mail if you feel left out, and I'll add you ;-)
-
 
 License
 -------
@@ -60,10 +58,13 @@ May be freely distributed under the MIT license.
 Updates
 -------
 
-* **v.1.0.2**
+* **v 1.0.3**
+  * one-of
+  * different handling of ajax calls
+* **v 1.0.2**
   * silentSubmit
   * Better selectors
-* **v.1.0.1**
+* **v 1.0.1**
   * Support for ajax checking added
   * Radio button support
   * Restructuring code

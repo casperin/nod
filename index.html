@@ -70,8 +70,8 @@
     </script>
   </head>
   <body>
-    <div class="container"><a href="//github.com/casperin/nod" style="margin-top:10px;" class="btn btn-success pull-right"><i class="icon-heart icon-white"></i>&nbsp;Fork me baby</a>
-      <h1>Nod v.1.0.2 <small>A frontend validation jQuery plugin</small></h1>
+    <div class="container"><a href="//github.com/casperin/nod" style="margin-top:10px;" class="btn btn-success pull-right"><i class="icon-heart icon-white"></i>&nbsp;Fork me</a>
+      <h1>Nod v.1.0.3 <small>A frontend validation jQuery plugin</small></h1>
       <hr>
       <p>Writing frontend validation for forms is painfully boring. So I made this in the hopes that it will help make it a little less agonizing for you.</p>
       <p>It's designed to</p>
@@ -164,6 +164,10 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
             <td><code class="prettyprint lang-js">[ '#email_repeat', 'same-as:#email', 'Your emails do not match' ]</code></td>
           </tr>
           <tr>
+            <td>'one-of' <small>(<a href="#example4">example</a>)</small></td>
+            <td><code class="prettyprint lang-js">[ '#first, #second', 'one-of', 'You must fill out either #first or #second' ]</code></td>
+          </tr>
+          <tr>
             <td>'email' <small>(<a href="#email">read this</a>)</small></td>
             <td><code class="prettyprint lang-js">[ '#foo', 'email', 'Must be a valid email (RFC 822)' ]</code></td>
           </tr>
@@ -226,20 +230,6 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
             <td>'[type=submit]'</td>
             <td>Selector to find the submit button. If the form is submitted with a button that is not a member of this selector, then the form will be submitted regardless of errors.</td>
           </tr>
-          <tr class="muted">
-            <td>
-              <del>metricsSplitter</del>
-            </td>
-            <td>
-              <del>String</del>
-            </td>
-            <td>
-              <del>':'</del>
-            </td>
-            <td>
-              <del>The <code>:</code> in <code>max-length:4</code></del> <span class="label">Gone in 1.0.1</span>
-            </td>
-          </tr>
           <tr>
             <td>errorPosClasses</td>
             <td>Array</td>
@@ -270,23 +260,8 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
             <td>'.control-group'</td>
             <td>The selector for something surrounding your input elements. Like <code>.control-group</code> in bootstrap forms.</td>
           </tr>
-          <tr class="muted">
-            <td> 
-              <del>disabledAttr</del>
-            </td>
-            <td> 
-              <del>String</del>
-            </td>
-            <td> 
-              <del>'disabled'</del>
-            </td>
-            <td> 
-              <del>Things will surely break if you change this.</del> <span class="label">Gone in 1.0.1</span>
-            </td>
-          </tr>
         </tbody>
       </table>
-      <p><span class="label label-info">Notice </span> Some of these values will straight up break the plugin unless you know exactly what you're doing.</p>
       <h2 id="notes">Notes</h2>
       <h3 id="radio">Radio buttons</h3>
       <p>These can be a bit tricky to validate, so here's an example.</p>
@@ -331,8 +306,9 @@ var metrics = [
 ];
  
 $( &quot;#form&quot; ).nod( metrics );</pre>
-      <p>Nod.js will take whatever response it gets from the server and evaluate it to a boolean and use that as an indicator for whether the input is valid.  Further, if your submit button has <code>data-loading-text</code>, this will be swapped while the check is going on (and swapped back when done, regardless of errors).</p>
-      <p>This feature is all very beta'ish and kind of hard to test fully. So if you find any errors or things that could be handled more gracefully, then I'd appreciate the feedback.</p>
+      <p>Nod.js will take whatever response it gets from the server and eval it (if possible) to a boolean and use that as an indicator for whether the input is valid. This means that a "truthy" responses like <code>"true"</code>, <code>1</code>, <code>true</code>, <code>"foo"</code> will all return true (the field is valid) and conversely <code>"false"</code>, <code>0</code>, <code>false</code> will return false and be interpreted as if the field is not valid.</p>
+      <p>Also, if your submit button has <code>data-loading-text</code>, this will be swapped while the check is going on if it was initiated by a click of that button (and swapped back when done, regardless of errors).</p>
+      <p> <span class="label label-info">Notice</span> This feature is all very beta'ish and kind of hard to test fully. So if you find any errors or things that could be handled more gracefully, then I'd appreciate the feedback.</p>
       <h3 id="email">Email validation</h3>
       <p>Don't use this. Validating emails should be done backend (by sending an email) and not frontend. I've used the most lax regex for checking emails that I could find (RFC822) so as to err on the side of letting too many emails through rather than rejecting valid emails; but really, you ought not to use frontend email validation at all.</p>
       <p>That said, the ones who write the code are not always the ones who get to decide which features to implement, so I've included the feature regardless of what I think about its use. Hope it makes your life a little better.</p>
@@ -509,6 +485,71 @@ var options = {
   'groupClass' : 'warning',
 };
 $(&quot;#ex3&quot;).nod( metrics, options );</pre>
+      </div>
+      <hr id="example4">
+      <form id="ex4" class="form-horizontal">
+        <p>Leave at least one number</p>
+        <div class="control-group">
+          <label class="control-label">Home</label>
+          <div class="controls">
+            <input type="text" id="ex4a_home">
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">Work</label>
+          <div class="controls">
+            <input type="text" id="ex4a_work">
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">Mobile</label>
+          <div class="controls">
+            <input type="text" id="ex4a_mobile">
+          </div>
+        </div>
+        <div class="controls">
+          <button type="submit" class="btn">Call me</button>
+        </div>
+        <script>
+          var metrics = [
+            [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'one-of', 'Add at least one number' ]
+          ];
+          $("#ex4").nod( metrics );
+          
+        </script>
+      </form>
+      <!-- use http://www.opinionatedgeek.com/DotNet/Tools/HTMLEncode/Encode.aspx-->
+      <div class="code">
+        <pre class="prettyprint lang-html">&lt;form id=&quot;ex4&quot; class=&quot;form-horizontal&quot;&gt;
+  &lt;p&gt;Leave at least one number&lt;/p&gt;
+  &lt;div class=&quot;control-group&quot;&gt;
+    &lt;label class=&quot;control-label&quot;&gt;Home&lt;/label&gt;
+    &lt;div class=&quot;controls&quot;&gt;
+      &lt;input type=&quot;text&quot; id=&quot;ex4a_home&quot;&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;control-group&quot;&gt;
+    &lt;label class=&quot;control-label&quot;&gt;Work&lt;/label&gt;
+    &lt;div class=&quot;controls&quot;&gt;
+      &lt;input type=&quot;text&quot; id=&quot;ex4a_work&quot;&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;control-group&quot;&gt;
+    &lt;label class=&quot;control-label&quot;&gt;Mobile&lt;/label&gt;
+    &lt;div class=&quot;controls&quot;&gt;
+      &lt;input type=&quot;text&quot; id=&quot;ex4a_mobile&quot;&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;controls&quot;&gt;
+    &lt;button type=&quot;submit&quot; class=&quot;btn&quot;&gt;Call me&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/form&gt;</pre>
+        <pre class="prettyprint lang-js">&lt;script&gt;
+  var metrics = [
+    [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'one-of', 'Add at least one number' ]
+  ];
+  $( '#ex4' ).nod( metrics );
+&lt;/script&gt;</pre>
       </div>
     </div>
     <script>!function($) { $(function(){ window.prettyPrint && prettyPrint() }) }(window.jQuery);</script>

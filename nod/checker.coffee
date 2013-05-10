@@ -2,27 +2,35 @@
 # errors, and otherwise false
 #
 class Checker
-  constructor : ( $el, @metric ) ->
+  constructor : ( $el, field ) ->
 
-    @getVal = @makeGetVal $el
+    [ sel, @metric ] = field
+
+    @getVal = @makeGetVal $el, sel
 
   # Called from outside. This function returns a boolean
   run : =>
     @verify @metric, @getVal()
 
 
-  makeGetVal : ( $el ) ->
+  makeGetVal : ( $el, sel ) ->
     type = $el.attr 'type'
+
     if type is 'checkbox'
       -> $el.is ':checked'
+
     else if type is 'radio'
       # assign name once, so we don't query for it every time the check is run
       name = $el.attr 'name'
       # fn that returns the value of whichever radio with same name is checked
       -> jQuery( '[name="' +name+ '"]' ).filter( ':checked' ).val()
     else
-      # text fields and select boxes (untested for multiple select)
-      -> jQuery.trim $el.val()
+      if @metric is 'one-of'
+        inputs = jQuery sel   # Query just once
+        # Gather values from all the fields in the selector, and join() them
+        -> inputs.map( -> jQuery.trim @value ).get().join('')
+      else
+        -> jQuery.trim $el.val()
 
 
   verify : ( m , v ) ->     # metric, value
@@ -38,11 +46,13 @@ class Checker
     if type == 'same-as' and jQuery( arg ).length isnt 1    # Special case
       throw new Error 'same-as selector must target one and only one element'
 
-    if !v and type isnt 'presence'      # Unless we're checking for presence
-      return true                       # return true if no value
+    # Unless we're checking for presence or one-of then return true if no value
+    if !v and type isnt 'presence' and type isnt 'one-of'
+      return true
 
     switch type
       when 'presence'     then !!v
+      when 'one-of'       then !!v
       when 'exact'        then v == arg
       when 'not'          then v != arg
       when 'same-as'      then v == jQuery( arg ).val()

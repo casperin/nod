@@ -10,11 +10,13 @@ jQuery ->
   regex = /foo/
   
   metrics = [
-    [ '[name=a]', 'presence', 'pres err' ]
-    [ '#bar', 'not:a1', 'You must click on *this* radio button' ]
+    # [ '[name=a]', 'presence', 'pres err' ]
+    # [ '#bar', 'not:a1', 'You must click on *this* radio button' ]
     # [ '#one', 'presence', 'pre' ]
-    [ '#one', 'email', 'email' ]
+    # [ '#one', 'email', 'email' ]
     [ '#two', 'presence', 'em' ]
+    # [ '#one, #two, #three', 'one-of', 'yo' ]
+    [ '#one', g, 'get' ]
   ]
 
   ff = ( event, data ) ->

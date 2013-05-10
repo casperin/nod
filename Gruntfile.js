@@ -16,7 +16,7 @@ module.exports = function (grunt) {
         name: 'jquery-nod',
         app: '.',
         dist: 'dist',
-        version: '1.0.1',
+        version: '1.0.3',
         banner: '/* jquery-nod - v<%= nod.version %> - ' +
           '<%= grunt.template.today("yyyy-mm-dd") %> \n' +
           ' * https://github.com/casperin/nod \n' +
