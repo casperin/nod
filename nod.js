@@ -408,6 +408,9 @@ Nod = (function() {
 
   Nod.prototype.formIsErrorFree = function() {
     return !jQuery(this.listeners).filter(function() {
+      if (this.status == null) {
+        this.runCheck();
+      }
       return !this.status;
     }).length;
   };
