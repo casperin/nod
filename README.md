@@ -1,4 +1,4 @@
-Nod v.1.0.3
+Nod v.1.0.4
 ===========
 
 Frontend validation jQuery plugin
@@ -47,6 +47,7 @@ Contributors
 * Luis Hdez - [aggressivex](https://github.com/aggressivex)
 * Matthias Buchetics - [mbuchetics](https://github.com/mbuchetics)
 * Chris Hall - [chall8908](https://github.com/chall8908)
+* Eduardo Robles Elvira - [edulix](https://github.com/edulix)
 
 
 License
@@ -58,6 +59,8 @@ May be freely distributed under the MIT license.
 Updates
 -------
 
+* **v 1.0.4**
+  * [bugfix](https://github.com/casperin/nod/pull/37)
 * **v 1.0.3**
   * one-of
   * different handling of ajax calls
