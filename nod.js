@@ -446,7 +446,7 @@ Nod = (function() {
 
 
 $.fn.nod = function(fields, settings) {
-  if (fields === void 0 && settings === void 0) {
+  if (!(fields || settings)) {
     return this[0].__nod;
   }
   new Nod(this, fields, settings);
