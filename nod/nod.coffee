@@ -8,6 +8,8 @@ class Nod
     # Silent fail if no fields where passed in.
     unless fields then return
 
+    @form[0].__nod = this
+
     # Defining variables used throughout the plugin.
     @get = jQuery.extend
       'delay'             : 700               # Keyup > delay(ms) > input check
@@ -151,7 +153,11 @@ class Nod
 
   # Helper to check if the form is free of errors. Returns a boolean.
   formIsErrorFree : =>
-    !jQuery( @listeners ).filter( -> !@status ).length
+    !jQuery( @listeners ).filter( ->
+      if @status is null
+        @runCheck()
+      return !@status
+    ).length
 
 
   # Helper fn used in the constructor to see if both the form and the submit

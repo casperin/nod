@@ -290,6 +290,7 @@ Nod = (function() {
     if (!fields) {
       return;
     }
+    this.form[0].__nod = this;
     this.get = jQuery.extend({
       'delay': 700,
       'disableSubmitBtn': true,
@@ -408,6 +409,9 @@ Nod = (function() {
 
   Nod.prototype.formIsErrorFree = function() {
     return !jQuery(this.listeners).filter(function() {
+      if (this.status === null) {
+        this.runCheck();
+      }
       return !this.status;
     }).length;
   };
@@ -442,6 +446,9 @@ Nod = (function() {
 
 
 $.fn.nod = function(fields, settings) {
+  if (fields === void 0 && settings === void 0) {
+    return this[0].__nod;
+  }
   new Nod(this, fields, settings);
   return this;
 };
