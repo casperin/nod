@@ -23,14 +23,14 @@ class Checker
       # assign name once, so we don't query for it every time the check is run
       name = $el.attr 'name'
       # fn that returns the value of whichever radio with same name is checked
-      -> jQuery( '[name="' +name+ '"]' ).filter( ':checked' ).val()
+      -> $( '[name="' +name+ '"]' ).filter( ':checked' ).val()
     else
       if @metric is 'one-of'
-        inputs = jQuery sel   # Query just once
+        inputs = $ sel   # Query just once
         # Gather values from all the fields in the selector, and join() them
-        -> inputs.map( -> jQuery.trim @value ).get().join('')
+        -> inputs.map( -> $.trim @value ).get().join('')
       else
-        -> jQuery.trim $el.val()
+        -> $.trim $el.val()
 
 
   verify : ( m , v ) ->     # metric, value
@@ -41,9 +41,9 @@ class Checker
     if m instanceof RegExp                    # If user passes a regexp, then
       return m.test v                         # we use that for testing.
 
-    [ type, arg, sec ] = jQuery.map m.split( ':' ) , jQuery.trim
+    [ type, arg, sec ] = $.map m.split( ':' ) , $.trim
 
-    if type == 'same-as' and jQuery( arg ).length isnt 1    # Special case
+    if type == 'same-as' and $( arg ).length isnt 1    # Special case
       throw new Error 'same-as selector must target one and only one element'
 
     # Unless we're checking for presence or one-of then return true if no value
@@ -55,7 +55,7 @@ class Checker
       when 'one-of'       then !!v
       when 'exact'        then v == arg
       when 'not'          then v != arg
-      when 'same-as'      then v == jQuery( arg ).val()
+      when 'same-as'      then v == $( arg ).val()
       when 'min-num'      then +v >= +arg
       when 'max-num'      then +v <= +arg
       when 'between-num'  then +v >= +arg and +v <= +sec
