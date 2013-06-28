@@ -11,7 +11,7 @@ class Nod
     @form[0].__nod = this
 
     # Defining variables used throughout the plugin.
-    @get = jQuery.extend
+    @get = $.extend
       'delay'             : 700               # Keyup > delay(ms) > input check
       'disableSubmitBtn'  : true              # automatically disable submit btn
       'helpSpanDisplay'   : 'help-inline'     # Help-inline / help-block
@@ -68,7 +68,7 @@ class Nod
   events : =>
                        
     for l in @listeners     # Listen for toggles on every listener
-      jQuery( l ).on 'nod_toggle', @toggle_status
+      $( l ).on 'nod_toggle', @toggle_status
 
     # If the form has submit buttons (as defined in the options{}), then they
     # will be the ones triggering the mass check (and they, in return, will be
@@ -100,7 +100,7 @@ class Nod
     @toggleSubmitBtnText()
 
     # We use $.deferred in case user has ajax checks.
-    jQuery
+    $
       .when( checks... )
       # When all checks has been run we submit the form unless there are errors
       .then( @submitForm )
@@ -145,7 +145,7 @@ class Nod
   submitForm : =>
     unless @formIsErrorFree() then return
     if @get.silentSubmit
-      $form = jQuery @form
+      $form = $ @form
       $form.trigger 'silentSubmit', $form.serialize()
     else
       @form.submit()
@@ -153,7 +153,7 @@ class Nod
 
   # Helper to check if the form is free of errors. Returns a boolean.
   formIsErrorFree : =>
-    !jQuery( @listeners ).filter( ->
+    !$( @listeners ).filter( ->
       if @status is null
         @runCheck()
       return !@status

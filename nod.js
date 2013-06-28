@@ -28,19 +28,19 @@ Checker = (function() {
     } else if (type === 'radio') {
       name = $el.attr('name');
       return function() {
-        return jQuery('[name="' + name + '"]').filter(':checked').val();
+        return $('[name="' + name + '"]').filter(':checked').val();
       };
     } else {
       if (this.metric === 'one-of') {
-        inputs = jQuery(sel);
+        inputs = $(sel);
         return function() {
           return inputs.map(function() {
-            return jQuery.trim(this.value);
+            return $.trim(this.value);
           }).get().join('');
         };
       } else {
         return function() {
-          return jQuery.trim($el.val());
+          return $.trim($el.val());
         };
       }
     }
@@ -54,8 +54,8 @@ Checker = (function() {
     if (m instanceof RegExp) {
       return m.test(v);
     }
-    _ref = jQuery.map(m.split(':'), jQuery.trim), type = _ref[0], arg = _ref[1], sec = _ref[2];
-    if (type === 'same-as' && jQuery(arg).length !== 1) {
+    _ref = $.map(m.split(':'), $.trim), type = _ref[0], arg = _ref[1], sec = _ref[2];
+    if (type === 'same-as' && $(arg).length !== 1) {
       throw new Error('same-as selector must target one and only one element');
     }
     if (!v && type !== 'presence' && type !== 'one-of') {
@@ -71,7 +71,7 @@ Checker = (function() {
       case 'not':
         return v !== arg;
       case 'same-as':
-        return v === jQuery(arg).val();
+        return v === $(arg).val();
       case 'min-num':
         return +v >= +arg;
       case 'max-num':
@@ -123,7 +123,7 @@ Listener = (function() {
 
     this.events = __bind(this.events, this);
 
-    this.$el = jQuery(el);
+    this.$el = $(el);
     this.delayId = "";
     this.status = null;
     this.checker = new Checker(this.$el, this.field);
@@ -133,12 +133,12 @@ Listener = (function() {
 
   Listener.prototype.events = function() {
     if (this.$el.attr('type') === 'radio') {
-      return jQuery('[name="' + this.$el.attr("name") + '"]').on('change', this.runCheck);
+      return $('[name="' + this.$el.attr("name") + '"]').on('change', this.runCheck);
     } else {
       this.$el.on('change', this.runCheck);
       this.$el.on('blur', this.runCheck);
       if (this.field[1] === 'one-of') {
-        jQuery(window).on('nod-run-one-of', this.runCheck);
+        $(window).on('nod-run-one-of', this.runCheck);
       }
       if (this.get.delay) {
         return this.$el.on('keyup', this.delayedCheck);
@@ -152,7 +152,7 @@ Listener = (function() {
   };
 
   Listener.prototype.runCheck = function() {
-    return jQuery.when(this.checker.run()).then(this.change_status);
+    return $.when(this.checker.run()).then(this.change_status);
   };
 
   Listener.prototype.change_status = function(status) {
@@ -166,9 +166,9 @@ Listener = (function() {
     }
     this.status = isCorrect;
     this.msg.toggle(this.status);
-    jQuery(this).trigger('nod_toggle');
+    $(this).trigger('nod_toggle');
     if (this.field[1] === 'one-of' && status) {
-      return jQuery(window).trigger('nod-run-one-of');
+      return $(window).trigger('nod-run-one-of');
     }
   };
 
@@ -195,7 +195,7 @@ Msg = (function() {
   }
 
   Msg.prototype.createMsg = function(msg) {
-    return jQuery('<span/>', {
+    return $('<span/>', {
       'html': msg,
       'class': this.get.helpSpanDisplay + ' ' + this.get.errorClass
     });
@@ -250,7 +250,7 @@ Msg = (function() {
   };
 
   Msg.prototype.broadcast = function() {
-    return jQuery(window).trigger('nod_error_fired', {
+    return $(window).trigger('nod_error_fired', {
       el: this.$el,
       msg: this.$msg.html()
     });
@@ -291,7 +291,7 @@ Nod = (function() {
       return;
     }
     this.form[0].__nod = this;
-    this.get = jQuery.extend({
+    this.get = $.extend({
       'delay': 700,
       'disableSubmitBtn': true,
       'helpSpanDisplay': 'help-inline',
@@ -332,7 +332,7 @@ Nod = (function() {
     _ref = this.listeners;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       l = _ref[_i];
-      jQuery(l).on('nod_toggle', this.toggle_status);
+      $(l).on('nod_toggle', this.toggle_status);
     }
     if (this.submit.length) {
       return this.submit.on('click', this.massCheck);
@@ -359,7 +359,7 @@ Nod = (function() {
       checks.push(l.runCheck());
     }
     this.toggleSubmitBtnText();
-    return jQuery.when.apply(jQuery, checks).then(this.submitForm).then(this.toggleSubmitBtnText);
+    return $.when.apply($, checks).then(this.submitForm).then(this.toggleSubmitBtnText);
   };
 
   Nod.prototype.toggle_status = function(event) {
@@ -400,7 +400,7 @@ Nod = (function() {
       return;
     }
     if (this.get.silentSubmit) {
-      $form = jQuery(this.form);
+      $form = $(this.form);
       return $form.trigger('silentSubmit', $form.serialize());
     } else {
       return this.form.submit();
@@ -408,7 +408,7 @@ Nod = (function() {
   };
 
   Nod.prototype.formIsErrorFree = function() {
-    return !jQuery(this.listeners).filter(function() {
+    return !$(this.listeners).filter(function() {
       if (this.status === null) {
         this.runCheck();
       }

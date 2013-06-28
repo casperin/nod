@@ -1,6 +1,6 @@
 {
     "name": "jquery-nod",
-    "version": "1.0.4", 
+    "version": "1.0.5", 
     "main": "./nod.js",
     "dependencies": {
         "jquery": ">=1.8"

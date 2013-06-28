@@ -1,4 +1,4 @@
-Nod v.1.0.4
+Nod v.1.0.5
 ===========
 
 Frontend validation jQuery plugin
@@ -59,6 +59,8 @@ May be freely distributed under the MIT license.
 Updates
 -------
 
+* **v 1.0.5**
+  * [bugfix](https://github.com/casperin/nod/issues/39)
 * **v 1.0.4**
   * [bugfix](https://github.com/casperin/nod/pull/37)
 * **v 1.0.3**

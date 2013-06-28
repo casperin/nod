@@ -10,7 +10,7 @@ class Msg
 
 
   createMsg : ( msg ) =>                      # Returns the el we toggle
-    jQuery '<span/>',
+    $ '<span/>',
       'html'  : msg
       'class' : @get.helpSpanDisplay + ' ' + @get.errorClass
 
@@ -61,6 +61,6 @@ class Msg
   # them, etc. It triggers an event on the window with an object describing
   # the nature of the error.
   broadcast : ->                              # Not used internally at all
-    jQuery( window ).trigger 'nod_error_fired',
+    $( window ).trigger 'nod_error_fired',
       el  : @$el
       msg : @$msg.html()
