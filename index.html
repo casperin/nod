@@ -19,7 +19,7 @@
         font-weight: bold;
       }
       .input-append, .input-prepend { font-size: 14px; } /* bug in bootstrap? */
-      
+
       /* prettify */
       .com { color: #93a1a1; }
       .lit { color: #195f91; }
@@ -29,7 +29,7 @@
       .kwd, .prettyprint .tag { color: #1e347b; }
       .typ, .atn, .dec, .var { color: teal; }
       .pln { color: #48484c; }
-      
+
       .prettyprint {
         padding: 8px;
         background-color: #f7f7f9;
@@ -50,11 +50,11 @@
         line-height: 20px;
         text-shadow: 0 1px 0 #fff;
       }
-      
+
     </style>
     <script>
       $(document).ready(function(){
-        var see_code = $('<button/>', 
+        var see_code = $('<button/>',
             {html:"See code", class:"btn btn-mini see-code" }
         ).on( 'click', function() {
             $(this).next('.code').trigger('tgl');
@@ -65,8 +65,8 @@
           el.is(':visible') ? el.slideUp() : el.slideDown();
         });
       });
-      
-      
+
+
     </script>
   </head>
   <body>
@@ -85,7 +85,7 @@
       <p>Comments, bugs, suggestions and ideas are all very much appreciated.</p>
       <h2>Quick introduction</h2>
       <p>
-         
+
         The plugin is made as a jQuery plugin and is activated like this: <code class="prettyprint lang-js">$("#form").nod( metrics );</code> The <code class="prettyprint lang-js">metrics</code> is a list that you build beforehand. It is basically a list of each selector and how you want it validated.
       </p>
       <p>Example:</p>
@@ -93,7 +93,7 @@
   [ '#foo', 'presence', 'Cannot be empty' ],
   [ '#bar', 'min-length:4', 'Must be at least 4 characters long' ]
 ];
- 
+
 $( &quot;#form&quot; ).nod( metrics );</pre>
       <p>Each "sublist" consists of three parts:</p>
       <ol>
@@ -284,27 +284,27 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
       <pre class="prettyprint lang-js linenums">var metrics = [
     ['[name=a]', 'presence', 'You must click on at least one radio button']
 ];
- 
+
 $( &quot;#form&quot; ).nod( metrics );</pre>
       <p>However if we want people to specifically click on a particular radio button, we do (line 2 is still important)</p>
       <pre class="prettyprint lang-js linenums">var metrics = [
     ['[name=a]', 'presence', 'You must click on at least one radio button'],
     ['#bar', 'exact:a1', 'You must click on *this* radio button']
 ];
- 
+
 $( &quot;#form&quot; ).nod( metrics );</pre>
       <p>Conversely we can use the keyword <code>not</code> instead of <code>exact</code>.</p>
       <p><span class="label label-info">Notice</span> <code>name</code> attribute is mandatory on the input fields for all of these.</p>
       <h3 id="ajax">Ajax checking</h3>
       <p>Yes, it works. Here's some code:</p>
       <pre class="prettyprint lang-js linenums">var getFn = function( value ) {
-    $.get('check_email.php', value);
+    return $.get('check_email.php', value);
 };
- 
+
 var metrics = [
     ['#email', getFn, 'This email is already in use']
 ];
- 
+
 $( &quot;#form&quot; ).nod( metrics );</pre>
       <p>Nod.js will take whatever response it gets from the server and eval it (if possible) to a boolean and use that as an indicator for whether the input is valid. This means that a "truthy" responses like <code>"true"</code>, <code>1</code>, <code>true</code>, <code>"foo"</code> will all return true (the field is valid) and conversely <code>"false"</code>, <code>0</code>, <code>false</code> will return false and be interpreted as if the field is not valid.</p>
       <p>Also, if your submit button has <code>data-loading-text</code>, this will be swapped while the check is going on if it was initiated by a click of that button (and swapped back when done, regardless of errors).</p>
@@ -317,7 +317,7 @@ $( &quot;#form&quot; ).nod( metrics );</pre>
       <pre class="prettyprint lang-js linenums">var submitFn = function( event, data ) {
   console.log( data );
 }
- 
+
 $( '#form' ).on( 'silentSubmit', submitFn );</pre>
       <p>This is used mainly (only?) if you want to submit your form by ajax.</p>
       <h3 id="broadcast">Broadcasting</h3>
@@ -326,7 +326,7 @@ $( '#form' ).on( 'silentSubmit', submitFn );</pre>
   console.log( data.el );
   console.log( data.msg );
 }
- 
+
 $( window ).on( 'nod_error_fired', log_error );</pre>
       <p>As you can see, you'll get an object with the element (actually the <code>$(el)</code>) and one with the error message.</p>
       <h2 id="download">Downloading</h2>
@@ -407,11 +407,11 @@ $(&quot;#ex1&quot;).nod( metrics );</pre>
         <pre class="prettyprint lang-js">var metrics = [
   [ '.search_field', 'integer', 'Must be a number' ]
 ];
- 
+
 var options = {
   disableSubmitBtn : false
  }
- 
+
 $(&quot;#ex2&quot;).nod( metrics, options );</pre>
       </div>
       <hr id="example3">
@@ -515,7 +515,7 @@ $(&quot;#ex3&quot;).nod( metrics, options );</pre>
             [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'one-of', 'Add at least one number' ]
           ];
           $("#ex4").nod( metrics );
-          
+
         </script>
       </form>
       <!-- use http://www.opinionatedgeek.com/DotNet/Tools/HTMLEncode/Encode.aspx-->
