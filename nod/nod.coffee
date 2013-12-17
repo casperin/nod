@@ -66,7 +66,7 @@ class Nod
 
 
   events : =>
-                       
+
     for l in @listeners     # Listen for toggles on every listener
       $( l ).on 'nod_toggle', @toggle_status
 
@@ -77,12 +77,12 @@ class Nod
     # defined in the options{}, and thus will completely skip the validation
     # and submit the form regardless of errors.
     if @submit.length
-      @submit.on 'click', @massCheck      # [enter] will trigger this too
+      @submit.on 'click touch', @massCheck  # [enter] will trigger this too
     else
-      @form.on 'keyup', @listenForEnter   # For forms w/o submit btn
+      @form.on 'keyup', @listenForEnter     # For forms w/o submit btn
 
-  listenForEnter : ( event ) =>           # Listen for enter and submit form
-    if event.keyCode is 13                # 13 = [enter]
+  listenForEnter : ( event ) =>             # Listen for enter and submit form
+    if event.keyCode is 13                  # 13 = [enter]
       @massCheck()
 
   # This function is run whenever the form is submitted.
