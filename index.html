@@ -511,11 +511,11 @@ $(&quot;#ex3&quot;).nod( metrics, options );</pre>
           <button type="submit" class="btn">Call me</button>
         </div>
         <script>
-          var metrics = [
-            [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'one-of', 'Add at least one number' ]
-          ];
-          $("#ex4").nod( metrics );
-
+            var metrics = [
+                [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'one-of', 'Add at least one number' ], 
+                [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'integer', 'Must be a number' ]
+            ];
+            $( '#ex4' ).nod( metrics );
         </script>
       </form>
       <!-- use http://www.opinionatedgeek.com/DotNet/Tools/HTMLEncode/Encode.aspx-->
@@ -546,7 +546,8 @@ $(&quot;#ex3&quot;).nod( metrics, options );</pre>
 &lt;/form&gt;</pre>
         <pre class="prettyprint lang-js">&lt;script&gt;
   var metrics = [
-    [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'one-of', 'Add at least one number' ]
+    [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'one-of', 'Add at least one number' ],
+    [ '#ex4a_home, #ex4a_work, #ex4a_mobile', 'integer', 'Must be a number' ]
   ];
   $( '#ex4' ).nod( metrics );
 &lt;/script&gt;</pre>
