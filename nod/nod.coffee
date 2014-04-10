@@ -164,7 +164,7 @@ class Nod
   # button is there. It will throw errors at the user in case something is
   # wrong with their config.
   checkIfElementsExist : ( form, submit, disableSubmitBtn ) ->
-    if !form.selector or !form.length         # No form
+    if !form.jquery or !form.length           # No form
       @throw 'form', form
     if !submit.length and disableSubmitBtn    # No submit button
       @throw 'submit', submit

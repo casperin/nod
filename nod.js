@@ -417,7 +417,7 @@ Nod = (function() {
   };
 
   Nod.prototype.checkIfElementsExist = function(form, submit, disableSubmitBtn) {
-    if (!form.selector || !form.length) {
+    if (!form.jquery || !form.length) {
       this["throw"]('form', form);
     }
     if (!submit.length && disableSubmitBtn) {
