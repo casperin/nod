@@ -2,10 +2,14 @@
     "name": "jquery-nod",
     "version": "1.0.5", 
     "main": "./nod.js",
+    "ignore": [
+          "lib",
+          "index.html"
+    ],
     "dependencies": {
-        "jquery": ">=1.8"
+        "jquery": ">=1.9.0"
     },
     "devDependencies": {
-        "bootstrap": "~2.3.1"
+        "bootstrap": "~3.1.1"
     }
 }

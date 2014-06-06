@@ -1,4 +1,4 @@
-!!! 5
+doctype html
 html
   head
     title Nod!
@@ -9,7 +9,7 @@ html
     script(src="lib/bootstrap.min.js")
     script(src="lib/prettify.js")
     script(src="nod.min.js")
-    style
+    style(type='text/css').
       body {margin-bottom:100px}
       .code { display: none }
       .nod_msg { background: #fcc; display: inline-block; padding: 2px 5px; margin-left: 5px; border-radius: 5px; }
@@ -51,7 +51,7 @@ html
         text-shadow: 0 1px 0 #fff;
       }
 
-    script
+    script(type='text/javascript').
       $(document).ready(function(){
         var see_code = $('<button/>', 
             {html:"See code", class:"btn btn-mini see-code" }
