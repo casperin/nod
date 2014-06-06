@@ -44,12 +44,10 @@ module.exports = function (grunt) {
             livereload: {
                 files: [
                     'dev/*.html',
+                    'dev/*.css',
                     '.tmp/*.html',
                     '.tmp/*.js',
-                    'nod.js',
-                    '{.tmp,<%= nod.app %>/lib/{,*/}*.css',
-                    '{.tmp,<%= nod.app %>/lib/{,*/}*.js',
-                    '<%= nod.app %>/lib/{,*/}*.{png,jpg,jpeg,webp}'
+                    'nod*.js'
                 ],
                 tasks: ['livereload']
             }
@@ -122,7 +120,11 @@ module.exports = function (grunt) {
         jade: {
             compile: {
                 options: {
-                    pretty: true
+                    pretty: true,
+                    client: false,
+                    data: function(dest, src) {
+                        return {nodVersion: nodConfig.version, compiledAt: new Date()};
+                    }
                 },
                 files: {
                     "./index.html": ["dev/index.jade"],
@@ -178,7 +180,7 @@ module.exports = function (grunt) {
               '.tmp/init.js',
               'dev/tail.js'
             ],
-            dest: 'nod.js'
+            dest: 'nod-<%=nod.version%>.js'
           }
         },
         uglify: {
@@ -186,8 +188,8 @@ module.exports = function (grunt) {
             banner: '<%= nod.banner %>'
           },
           dist: {
-            src: ['nod.js'],
-            dest: 'nod.min.js'
+            src: ['nod-<%=nod.version%>.js'],
+            dest: 'nod-<%=nod.version%>.min.js'
           }
         },
         useminPrepare: {

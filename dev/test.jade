@@ -3,11 +3,11 @@ html
   head
     meta(charset="utf-8")
     title Testing Nod
-    link(href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css",rel="stylesheet")
-    script(src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")
-    script(src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js")
+    link(href="test/components/bootstrap/dist/css/bootstrap.min.css",rel="stylesheet")
+    script(src="test/components/jquery/dist/jquery.min.js")
+    script(src="test/components/bootstrap/dist/js/bootstrap.min.js")
+
     style(type='text/css').
-      body {margin-bottom:100px}
       .nod_msg {
         font-weight: bold;
         margin-left: 5px;
@@ -15,61 +15,50 @@ html
 
   body
 
-    
-
-   
     .container
-
-
+      h4 Compiled at #{compiledAt}
       fieldset
         legend The testing facility
-        form(action="foo.html")#form.form.form-horizontal
+        form(action="foo.html")#form.form-horizontal
 
           //
-            .control-group
-              .controls
+            .form-group
                 label.radio
-                  input(type='radio',name='a',value='a1')#bar
+                  input.form-control(type='radio',name='a',value='a1')#bar
                   | First
                 label.radio
-                  input(type='radio',name='a',value='a2')
+                  input.form-control(type='radio',name='a',value='a2')
                   | Second
                 label.radio
-                  input(type='radio',name='a',value='a3')
+                  input.form-control(type='radio',name='a',value='a3')
                   | Third
 
 
-
-          .control-group
-            .control-label
-              label One
-            .controls
-              input(type="text",autofocus)#one
+          .form-group
+              label.control-label.col-sm-2 One
+              .col-sm-10
+                input.form-control(type="text",autofocus)#one
 
 
-          .control-group
-            .control-label
-              label Label two
-            .controls
-              input(type="text")#two
+          .form-group
+              label.control-label.col-sm-2 Label two
+              .col-sm-10
+                input.form-control(type="text")#two
 
+          .form-group
+              label.control-label.col-sm-2 Label three
+              .col-sm-10
+                input.form-control(type="text")#three
 
-          .control-group
-            .control-label
-              label Label three
-            .controls
-              input(type="text")#three
-
-
-          .controls
-            button(data-loading-text="loading...",type="submit")#submit_btn.btn.btn-success Go go!
-
+          .form-group
+            .col-sm-offset-2.col-sm-10
+              button(data-loading-text="loading...",type="submit")#submit_btn.btn.btn-success Go go!
 
     //
       script(src='nod.min.js')
     script(src="checker.js")
     script(src="listener.js")
     script(src="msg.js")
-    script(src="nod.js")
+    script(src="nod-#{nodVersion}.min.js")
     script(src="init.js")
     script(src="dev/test_nod.js")

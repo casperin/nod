@@ -3,22 +3,23 @@
   <head>
     <title>Nod!</title>
     <meta charset="utf-8">
-    <link href="lib/bootstrap-combined.min.css" rel="stylesheet">
-    <link href="lib/prettify.css">
-    <script src="lib/jquery.min.js"></script>
-    <script src="lib/bootstrap.min.js"></script>
-    <script src="lib/prettify.js"></script>
-    <script src="nod.min.js"></script>
+    <link href="test/components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="test/components/google-code-prettify/src/prettify.css">
+    <script src="test/components/jquery/dist/jquery.min.js"></script>
+    <script src="test/components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="test/components/google-code-prettify/src/prettify.js"></script>
+    <script src="nod-1.0.4.min.js"></script>
     <style type="text/css">
-      body {margin-bottom:100px}
-      .code { display: none }
-      .nod_msg { background: #fcc; display: inline-block; padding: 2px 5px; margin-left: 5px; border-radius: 5px; }
-      .container {margin-top:20px}
-      h2 {margin-top:1.4em}
-      .nod_msg {
-        font-weight: bold;
+      .code {
+        display: none;
+        margin-top: .8em;
       }
-      .input-append, .input-prepend { font-size: 14px; } /* bug in bootstrap? */
+      footer {
+        height: 80px;
+        padding: 2em;
+        font-size: larger;
+        color: black;
+      }
       
       /* prettify */
       .com { color: #93a1a1; }
@@ -31,7 +32,7 @@
       .pln { color: #48484c; }
       
       .prettyprint {
-        padding: 8px;
+        padding: 8px 0;
         background-color: #f7f7f9;
         border: 1px solid #e1e1e8;
       }
@@ -41,37 +42,17 @@
                 box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
       }
       /* Specify class=linenums on a pre to get line numbering */
-      ol.linenums {
-        margin: 0 0 0 33px; /* IE indents via margin-left */
-      }
       ol.linenums li {
         padding-left: 12px;
         color: #bebec5;
-        line-height: 20px;
-        text-shadow: 0 1px 0 #fff;
+        line-height: 1.6em;
       }
       
     </style>
-    <script type="text/javascript">
-      $(document).ready(function(){
-        var see_code = $('<button/>', 
-            {html:"See code", class:"btn btn-mini see-code" }
-        ).on( 'click', function() {
-            $(this).next('.code').trigger('tgl');
-        });
-        $( 'form' ).on( 'submit', submitForm = function( e ) { e.preventDefault(); } ).after( see_code );
-        $( '.code' ).on( 'tgl', function() {
-          el = $(this);
-          el.is(':visible') ? el.slideUp() : el.slideDown();
-        });
-      });
-      
-      
-    </script>
   </head>
   <body>
-    <div class="container"><a href="//github.com/casperin/nod" style="margin-top:10px;" class="btn btn-success pull-right"><i class="icon-heart icon-white"></i>&nbsp;Fork me</a>
-      <h1>Nod v.1.0.4 <small>A frontend validation jQuery plugin</small></h1>
+    <div class="container"><a href="//github.com/casperin/nod" style="margin-top:10px;" class="btn btn-lg btn-success pull-right"><i class="glyphicon glyphicon-heart"></i>&nbsp;Fork me</a>
+      <h1>Nod v1.0.4<small>A frontend validation jQuery plugin</small><span class="pull-right">Compiled at Fri Jun 06 2014 16:57:57 GMT+0100 (GMT Daylight Time)</span></h1>
       <hr>
       <p>Writing frontend validation for forms is painfully boring. So I made this in the hopes that it will help make it a little less agonizing for you.</p>
       <p>It's designed to</p>
@@ -219,7 +200,7 @@ $( "#form" ).nod( metrics );</pre>
             <td>groupClass</td>
             <td>String</td>
             <td>'error'</td>
-            <td>The <code>.control-group</code> will get this class if an error is found. Can be set to anything you like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap.</td>
+            <td>The <code>.form-group</code> will get this class if an error is found. Can be set to anything you like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap.</td>
           </tr>
           <tr>
             <td>submitBtnSelector</td>
@@ -254,29 +235,29 @@ $( "#form" ).nod( metrics );</pre>
           <tr>
             <td>groupSelector</td>
             <td>String</td>
-            <td>'.control-group'</td>
-            <td>The selector for something surrounding your input elements. Like <code>.control-group</code> in bootstrap forms.</td>
+            <td>'.form-group'</td>
+            <td>The selector for something surrounding your input elements. Like <code>.form-group</code> in bootstrap forms.</td>
           </tr>
         </tbody>
       </table>
       <h2 id="notes">Notes</h2>
       <h3 id="radio">Radio buttons</h3>
       <p>These can be a bit tricky to validate, so here's an example.</p>
-      <pre class="prettyprint lang-html linenums"><div class="control-group">
-  <div class="controls">
-    <label class="radio">
-      <input type="radio" name="a" value="a1" id="bar"> First
-    </label>
-    <label class="radio">
-      <input type="radio" name="a" value="a2"> Second
-    </label>
-    <label class="radio">
-      <input type="radio" name="a" value="a3"> Third
-    </label>
-  </div>
-</div>
-<!-- ... -->
-<button data-loading-text="loading..." type="submit" class="btn btn-success">Submit form</button></pre>
+      <pre class="prettyprint lang-html linenums">&lt;div class="form-group"&gt;
+  &lt;div class="controls"&gt;
+    &lt;label class="radio"&gt;
+      &lt;input type="radio" name="a" value="a1" id="bar"&gt; First
+    &lt;/label&gt;
+    &lt;label class="radio"&gt;
+      &lt;input type="radio" name="a" value="a2"&gt; Second
+    &lt;/label&gt;
+    &lt;label class="radio"&gt;
+      &lt;input type="radio" name="a" value="a3"&gt; Third
+    &lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- ... --&gt;
+&lt;button data-loading-text="loading..." type="submit" class="btn btn-success"&gt;Submit form&lt;/button&gt;</pre>
       <p>Pretty standard html. Notice the <code>#bar</code> on line 4 though. To validate for presence on these fields, we don't need the <code>#bar</code>, we just do</p>
       <pre class="prettyprint lang-js linenums">var metrics = [
     ['[name=a]', 'presence', 'You must click on at least one radio button']
@@ -341,14 +322,16 @@ $( window ).on( 'nod_error_fired', log_error );</pre>
       <h2 id="examples">Examples</h2>
       <hr id="example1">
       <form id="ex1" class="form-horizontal">
-        <div class="control-group">
-          <label class="control-label">Mandatory field</label>
-          <div class="controls">
-            <input type="text">
+        <div class="form-group">
+          <label class="control-label col-sm-2">Mandatory field</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control">
           </div>
         </div>
-        <div class="controls">
-          <button type="submit" class="btn">Submit</button>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-default">Submit</button>
+          </div>
         </div>
         <script type="text/javascript">
           var metrics = [
@@ -358,8 +341,8 @@ $( window ).on( 'nod_error_fired', log_error );</pre>
         </script>
       </form>
       <div class="code">
-        <pre class="prettyprint lang-html">&lt;form id=&quot;ex1&quot; class=&quot;form-horizontal&quot;&gt;
-  &lt;div class=&quot;control-group&quot;&gt;
+        <pre class="prettyprint lang-html">&lt;form id=&quot;ex1&quot; class=&quot;form-inline&quot;&gt;
+  &lt;div class=&quot;form-group&quot;&gt;
      &lt;label class=&quot;control-label&quot;&gt;Mandatory field&lt;/label&gt;
      &lt;div class=&quot;controls&quot;&gt;
        &lt;input type=&quot;text&quot;&gt;
@@ -376,10 +359,10 @@ $("#ex1").nod( metrics );</pre>
       </div>
       <hr id="example2">
       <form id="ex2" class="form-horizontal">
-        <div class="control-group">
-          <label class="control-label">Search for number</label>
-          <div class="controls">
-            <input type="text" placeholder="type a number and hit enter" class="search_field">
+        <div class="form-group">
+          <label class="control-label col-sm-2">Search for number</label>
+          <div class="col-sm-10">
+            <input type="text" placeholder="type a number and hit enter" class="form-control search_field">
           </div>
         </div>
         <script type="text/javascript">
@@ -390,13 +373,14 @@ $("#ex1").nod( metrics );</pre>
             disableSubmitBtn : false
           }
           $("#ex2").nod( metrics, options );
+          
         </script>
       </form>
       <div class="code">
-        <pre class="prettyprint lang-html">&lt;form id=&quot;ex2&quot; class=&quot;form-horizontal&quot;&gt;
-  &lt;div class=&quot;control-group&quot;&gt;
+        <pre class="prettyprint lang-html"> &lt;form id=&quot;ex2&quot; class=&quot;form-inline&quot;&gt;
+   &lt;div class=&quot;form-group&quot;&gt;
      &lt;label class=&quot;control-label&quot;&gt;Search for number&lt;/label&gt;
-     &lt;div class=&quot;controls&quot;&gt;
+       &lt;div class=&quot;controls&quot;&gt;
        &lt;input type=&quot;text&quot; class=&quot;search_field&quot; placeholder=&quot;type a number and hit enter&quot;&gt;
      &lt;/div&gt;
    &lt;/div&gt;
@@ -413,18 +397,16 @@ $("#ex2").nod( metrics, options );</pre>
       </div>
       <hr id="example3">
       <form id="ex3" class="form-horizontal">
-        <div class="control-group">
-          <label class="control-label">Type "foo"</label>
-          <div class="controls">
-            <input type="text" class="ex3a">
+        <div class="form-group">
+          <label class="control-label col-sm-2">Type "foo"</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control ex3a">
           </div>
         </div>
-        <div class="control-group">
-          <div class="control-label">
-            <label>Select something</label>
-          </div>
-          <div class="controls">
-            <select id="ex3select">
+        <div class="form-group">
+          <label class="control-label col-sm-2">Select something</label>
+          <div class="col-sm-10">
+            <select id="ex3select" class="form-control">
               <option value="">Select something please</option>
               <option value="1">Pick this</option>
               <option value="2">Or this</option>
@@ -433,8 +415,10 @@ $("#ex2").nod( metrics, options );</pre>
             </select>
           </div>
         </div>
-        <div class="controls">
-          <button type="submit" class="btn">Submit</button>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-default">Submit</button>
+          </div>
         </div>
         <script type="text/javascript">
           var metrics = [
@@ -443,20 +427,20 @@ $("#ex2").nod( metrics, options );</pre>
             [ '#ex3select', 'not:3', 'I told you not to pick this one!' ],
           ];
           var options = {
-            'groupClass' : 'warning',
+            'groupClass' : 'has-error',
           };
           $("#ex3").nod( metrics, options );
         </script>
       </form>
       <div class="code">
-        <pre class="prettyprint lang-html">&lt;form id=&quot;ex3&quot; class=&quot;form-horizontal&quot;&gt;
-&lt;div class=&quot;control-group&quot;&gt;
+        <pre class="prettyprint lang-html">&lt;form id=&quot;ex3&quot; class=&quot;form-inline&quot;&gt;
+&lt;div class=&quot;form-group&quot;&gt;
   &lt;label class=&quot;control-label&quot;&gt;Type &quot;foo&quot;&lt;/label&gt;
   &lt;div class=&quot;controls&quot;&gt;
     &lt;input type=&quot;text&quot; class=&quot;ex3a&quot;&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-&lt;div class=&quot;control-group&quot;&gt;
+&lt;div class=&quot;form-group&quot;&gt;
   &lt;div class=&quot;control-label&quot;&gt;
     &lt;label&gt;Select something&lt;/label&gt;
   &lt;/div&gt;
@@ -479,33 +463,35 @@ $("#ex2").nod( metrics, options );</pre>
   [ '#ex3select', 'not:3', 'I told you not to pick this one!' ],
 ];
 var options = {
-  'groupClass' : 'warning',
+  'groupClass' : 'has-error',
 };
 $("#ex3").nod( metrics, options );</pre>
       </div>
       <hr id="example4">
       <form id="ex4" class="form-horizontal">
         <p>Leave at least one number</p>
-        <div class="control-group">
-          <label class="control-label">Home</label>
-          <div class="controls">
-            <input type="text" id="ex4a_home">
+        <div class="form-group">
+          <label class="control-label col-sm-2">Home</label>
+          <div class="col-sm-10">
+            <input type="text" id="ex4a_home" class="form-control">
           </div>
         </div>
-        <div class="control-group">
-          <label class="control-label">Work</label>
-          <div class="controls">
-            <input type="text" id="ex4a_work">
+        <div class="form-group">
+          <label class="control-label col-sm-2">Work</label>
+          <div class="col-sm-10">
+            <input type="text" id="ex4a_work" class="form-control">
           </div>
         </div>
-        <div class="control-group">
-          <label class="control-label">Mobile</label>
-          <div class="controls">
-            <input type="text" id="ex4a_mobile">
+        <div class="form-group">
+          <label class="control-label col-sm-2">Mobile</label>
+          <div class="col-sm-10">
+            <input type="text" id="ex4a_mobile" class="form-control">
           </div>
         </div>
-        <div class="controls">
-          <button type="submit" class="btn">Call me</button>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-default">Call me</button>
+          </div>
         </div>
         <script type="text/javascript">
           var metrics = [
@@ -517,21 +503,21 @@ $("#ex3").nod( metrics, options );</pre>
       </form>
       <!-- use http://www.opinionatedgeek.com/DotNet/Tools/HTMLEncode/Encode.aspx-->
       <div class="code">
-        <pre class="prettyprint lang-html">&lt;form id=&quot;ex4&quot; class=&quot;form-horizontal&quot;&gt;
+        <pre class="prettyprint lang-html">&lt;form id=&quot;ex4&quot; class=&quot;form-inline&quot;&gt;
   &lt;p&gt;Leave at least one number&lt;/p&gt;
-  &lt;div class=&quot;control-group&quot;&gt;
+  &lt;div class=&quot;form-group&quot;&gt;
     &lt;label class=&quot;control-label&quot;&gt;Home&lt;/label&gt;
     &lt;div class=&quot;controls&quot;&gt;
       &lt;input type=&quot;text&quot; id=&quot;ex4a_home&quot;&gt;
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;div class=&quot;control-group&quot;&gt;
+  &lt;div class=&quot;form-group&quot;&gt;
     &lt;label class=&quot;control-label&quot;&gt;Work&lt;/label&gt;
     &lt;div class=&quot;controls&quot;&gt;
       &lt;input type=&quot;text&quot; id=&quot;ex4a_work&quot;&gt;
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;div class=&quot;control-group&quot;&gt;
+  &lt;div class=&quot;form-group&quot;&gt;
     &lt;label class=&quot;control-label&quot;&gt;Mobile&lt;/label&gt;
     &lt;div class=&quot;controls&quot;&gt;
       &lt;input type=&quot;text&quot; id=&quot;ex4a_mobile&quot;&gt;
@@ -549,6 +535,24 @@ $("#ex3").nod( metrics, options );</pre>
 &lt;/script&gt;</pre>
       </div>
     </div>
+    <div class="container">
+      <footer class="text-center">Nod</footer>
+    </div>
+    <script type="text/javascript">
+      $(function() {
+        var see_code = $('<button/>',
+            {html:"See code", class:"btn btn-sm btn-warning see-code" }
+        ).on( 'click', function() {
+            $(this).next('.code').trigger('tgl');
+        });
+        $( 'form' ).on( 'submit', submitForm = function( e ) { e.preventDefault(); } ).after( see_code );
+        $( '.code' ).on( 'tgl', function() {
+          el = $(this);
+          el.is(':visible') ? el.slideUp() : el.slideDown();
+        });
+      });
+      
+    </script>
     <script>!function($) { $(function(){ window.prettyPrint && prettyPrint() }) }(window.jQuery);</script>
   </body>
 </html>

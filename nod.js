@@ -5,10 +5,8 @@ var Checker,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 Checker = (function() {
-
   function Checker($el, field) {
     this.run = __bind(this.run, this);
-
     var sel;
     sel = field[0], this.metric = field[1];
     this.getVal = this.makeGetVal($el, sel);
@@ -111,18 +109,13 @@ var Listener,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 Listener = (function() {
-
   function Listener(el, get, field) {
     this.get = get;
     this.field = field;
     this.change_status = __bind(this.change_status, this);
-
     this.runCheck = __bind(this.runCheck, this);
-
     this.delayedCheck = __bind(this.delayedCheck, this);
-
     this.events = __bind(this.events, this);
-
     this.$el = $(el);
     this.delayId = "";
     this.status = null;
@@ -180,16 +173,12 @@ var Msg,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 Msg = (function() {
-
   function Msg($el, get, field) {
     this.$el = $el;
     this.get = get;
     this.createShowMsg = __bind(this.createShowMsg, this);
-
     this.toggle = __bind(this.toggle, this);
-
     this.createMsg = __bind(this.createMsg, this);
-
     this.$msg = this.createMsg(field[2]);
     this.showMsg = this.createShowMsg();
   }
@@ -264,29 +253,18 @@ var Nod,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 Nod = (function() {
-
   function Nod(form, fields, options) {
     this.form = form;
     this.formIsErrorFree = __bind(this.formIsErrorFree, this);
-
     this.submitForm = __bind(this.submitForm, this);
-
     this.toggleSubmitBtnText = __bind(this.toggleSubmitBtnText, this);
-
     this.toggleSubmitBtn = __bind(this.toggleSubmitBtn, this);
-
     this.toggleGroupClass = __bind(this.toggleGroupClass, this);
-
     this.toggle_status = __bind(this.toggle_status, this);
-
     this.massCheck = __bind(this.massCheck, this);
-
     this.listenForEnter = __bind(this.listenForEnter, this);
-
     this.events = __bind(this.events, this);
-
     this.createListeners = __bind(this.createListeners, this);
-
     if (!fields) {
       return;
     }
@@ -295,14 +273,14 @@ Nod = (function() {
       'delay': 700,
       'disableSubmitBtn': true,
       'helpSpanDisplay': 'help-inline',
-      'groupClass': 'error',
+      'groupClass': 'has-error',
       'submitBtnSelector': '[type=submit]',
       'metricsSplitter': ':',
       'errorPosClasses': ['.help-inline', '.add-on', 'button', '.input-append'],
       'silentSubmit': false,
       'broadcastError': false,
       'errorClass': 'nod_msg',
-      'groupSelector': '.control-group'
+      'groupSelector': '.form-group'
     }, options);
     this.listeners = this.createListeners(fields);
     this.submit = this.form.find(this.get.submitBtnSelector);
@@ -443,7 +421,6 @@ Nod = (function() {
   return Nod;
 
 })();
-
 
 $.fn.nod = function(fields, settings) {
   if (!(fields || settings)) {
