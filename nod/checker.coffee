@@ -65,6 +65,9 @@ class Checker
       when 'between'      then v.length >= +arg and v.length <= +sec
       when 'integer'      then ( /^\s*\d+\s*$/ ).test v
       when 'float'        then ( /^[-+]?[0-9]+(\.[0-9]+)?$/ ).test v
+      when 'date'         then new Date(v) instanceof Date  # The given value can be parsed as a date
+      when 'dd MMM yyyy'  then ( /^(\d{2}) ([a-zA-Z]{3}) (\d{4})$/ ).test v
+      when 'dd-MMM-yyyy'  then ( /^(\d{2})-([a-zA-Z]{3})-(\d{4})$/ ).test v
       when 'email'        then @email v
       else throw new Error 'I don\'t know ' + type + ', sorry.'
 
