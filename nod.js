@@ -94,8 +94,7 @@ function nod () {
 
     function addMetric (metric) {
 
-        var checkfn     = nod.getCheckFn(metric),
-            sameId      = nod.unique(),
+        var checkfn     = nod.getCheckFn(metric);
 
             // A "set" here, refers to an obj with one listener, one checker,
             // and one checkHandler. It will only be used once (just below).
@@ -104,26 +103,21 @@ function nod () {
                     listener:       listeners.findOrMakeItem(element, mediator),
                     checker:        checkers.findOrMakeItem(element, mediator),
                     checkHandler:   checkHandlers.findOrMakeItem(element, mediator, configuration, metric.messageContainer),
-                    domNode:        domNodes.findOrMakeItem(element, configuration, metric.messageContainer)
+                    domNode:        domNodes.findOrMakeItem(element, mediator, configuration, metric.messageContainer)
                 };
             });
 
         checkfn.validate = metric.validate;
 
+        if (metric.validate === 'one-of' || metric.validate === 'only-one-of') {
+            metric.triggeredBy = metric.selector;
+        }
+
         metricSets.forEach(function (metricSet) {
-            // In special cases, all checkHandlers to listen to the same/ checks
-            var id = (metric.validate === 'one-of' || metric.validate === 'only-one-of') ? sameId : nod.unique();
 
             // We want our checker to listen to the listener. A listener has an
             // id, which it uses when it fires events to the mediator.
             metricSet.checker.subscribeTo(metricSet.listener.id);
-
-            // We add the check function as one to be checked when the user
-            // inputs something. (There might be more than this one).
-            metricSet.checker.addCheck(checkfn, id);
-
-            // We want the check handler to listen for results from the checker
-            metricSet.checkHandler.subscribeTo(id, metric.errorMessage);
 
             // If the user set a `triggeredBy`, the checker need to listen to
             // changes on this element as well.
@@ -134,6 +128,20 @@ function nod () {
                     metricSet.checker.subscribeTo(listener.id);
                 });
             }
+
+
+            var checkId = nod.unique();
+
+            // We add the check function as one to be checked when the user
+            // inputs something. (There might be more than this one).
+            metricSet.checker.addCheck(checkfn, checkId);
+
+            // We want the check handler to listen for results from the checker
+            metricSet.checkHandler.subscribeTo(checkId, metric.errorMessage);
+
+
+
+            metricSet.domNode.subscribeTo(metricSet.checkHandler.id);
         });
     }
 
@@ -156,6 +164,7 @@ function nod () {
             listeners.removeItem(element);
             checkers.removeItem(element);
             checkHandlers.removeItem(element);
+            domNodes.removeItem(element);
         });
     }
 
@@ -195,6 +204,21 @@ function nod () {
     }
 
 
+    function setMessageOptions (options) {
+        if (!options.selector) {
+            throw 'I need an element to work with for MessageOptions';
+        }
+
+        nod.getElements(options.selector).forEach(function (element) {
+            var domNode = domNodes.findOrMakeItem(element);
+
+            if (options.container) {
+                domNode.setContainer(nod.getElement(options.container));
+                domNode.setMessage(nod.getElement(options.message));
+            }
+        });
+    }
+
     /**
      * Listen to all checks and allow the user to listen in, if he set a `tap`
      * function in the configuration.
@@ -207,6 +231,7 @@ function nod () {
 
 
 
+
     /**
      * Internal functions that are exposed to the public.
      */
@@ -215,7 +240,8 @@ function nod () {
         addForm:                addForm,
         remove:                 removeElement,
         isAllValid:             isAllValid,
-        configure:              configure
+        configure:              configure,
+        setMessageOptions:       setMessageOptions
     };
 }
 
@@ -453,9 +479,9 @@ nod.makeChecker = function (element, mediator) {
  * The checkHandlers lives in one to one with the element parsed in,
  * and listens for (usually) multiple error checks.
  */
-nod.makeCheckHandler = function (element, mediator, configuration, messageContainer) {
+nod.makeCheckHandler = function (element, mediator, configuration) {
     var results     = {},
-        domNode     = nod.makeDomNode(element, configuration, messageContainer);
+        id          = nod.unique();
 
     function subscribeTo (id, errorMsg) {
         // Create a representation of the type of error in the results
@@ -484,17 +510,21 @@ nod.makeCheckHandler = function (element, mediator, configuration, messageContai
             errorMsg;
 
         // Check all results to see if we need to show the error message.
-        for (var id in results) {
-            if (results[id].status === nod.constants.INVALID) {
+        for (var result_id in results) {
+            if (results[result_id].status === nod.constants.INVALID) {
                 result = nod.constants.INVALID;
-                errorMsg = results[id].errorMsg;
+                errorMsg = results[result_id].errorMsg;
                 break; // Break out of the loop. No reason to check more
             }
         }
 
         // Event if might be valid we pass along an undefined errorMsg. It
         // will just be ignored by the domNode.
-        domNode.set(result, errorMsg);
+        mediator.fire({
+            id:         id,
+            result:     result,
+            errorMsg:   errorMsg
+        });
     }
 
     function isValid () {
@@ -508,19 +538,12 @@ nod.makeCheckHandler = function (element, mediator, configuration, messageContai
     }
 
 
-    function dispose () {
-        // Update the class and remove the dom node.
-        domNode.dispose();
-    }
-
     return {
+        id:             id,
         subscribeTo:    subscribeTo,
         checkHandler:   checkHandler,
         isValid:        isValid,
-        dispose:        dispose,
-        element:        element     // Used by the collection to make sure
-                                    // we only have one checkHandler
-                                    // per element.
+        element:        element
     };
 };
 
@@ -557,7 +580,7 @@ nod.addClass = function (className, el) {
  * being checked.
  *
  */
-nod.makeDomNode = function (element, configuration, messageContainer) {
+nod.makeDomNode = function (element, mediator, configuration, messageContainer) {
     // A 'domNode' consists of two elements: a 'parent', and a 'span'. The
     // parent is given as a paremeter, while the span is created and added
     // as a child to the parent.
@@ -590,9 +613,10 @@ nod.makeDomNode = function (element, configuration, messageContainer) {
 
     // Updates the text and class according to the status.
     function updateSpan (status, errorMessage) {
-        span.style.display = 'none';
         var successMessageClass = configuration.successMessageClass || nod.classes.successMessageClass,
             errorMessageClass   = configuration.errorMessageClass || nod.classes.errorMessageClass;
+
+        span.style.display = 'none';
 
         switch (status) {
         case nod.constants.VALID:
@@ -612,7 +636,10 @@ nod.makeDomNode = function (element, configuration, messageContainer) {
         }
     }
 
-    function set (status, errorMessage) {
+    function set (argsObj) {
+        var status              = argsObj.result,
+            errorMessage        = argsObj.errorMsg;
+
         // If the dom is showing an invalid message, we want to update the
         // dom right away.
         if (_status === nod.constants.INVALID || configuration.delay === 0) {
@@ -641,6 +668,21 @@ nod.makeDomNode = function (element, configuration, messageContainer) {
         }
     }
 
+    function subscribeTo (id) {
+        mediator.subscribe(id, set);
+    }
+
+
+    function setContainer (container) {
+        parent = container;
+    }
+
+    function setMessage (message) {
+        span.parentNode.removeChild(span);
+
+        span = message;
+    }
+
 
     function dispose () {
         // First remove any classes
@@ -652,9 +694,11 @@ nod.makeDomNode = function (element, configuration, messageContainer) {
     }
 
     return {
-        set:        set,
-        element:    element,
-        dispose:    dispose
+        subscribeTo:    subscribeTo,
+        element:        element,
+        setContainer:   setContainer,
+        setMessage:     setMessage,
+        dispose:        dispose
     };
 };
 

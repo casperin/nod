@@ -404,6 +404,8 @@
             <div><input id='hp' type='text'></div>
             <div><input id='hq' type='text'></div>
             <div><input id='hr' type='text'></div>
+            <div><input id='hs' class='test-one-of' type='text'></div>
+            <div><input id='ht' class='test-one-of' type='text'></div>
         </form>
 
         <script>
@@ -488,6 +490,10 @@
                     selector: '#hr',
                     validate: ['email', 'max-length:8'],
                     errorMessage: ['Not an email', 'too long']
+                }, {
+                    selector: '.test-one-of',
+                    validate: 'only-one-of',
+                    errorMessage: ERROR_MSG
                 }]);
 
                 var ha = get('ha'),
@@ -507,7 +513,9 @@
                     ho = get('ho'),
                     hp = get('hp'),
                     hq = get('hq'),
-                    hr = get('hr');
+                    hr = get('hr'),
+                    hs = get('hs'),
+                    ht = get('ht');
 
                 setValue(ha, 'foo');
                 expect(isValid(ha), 'Check - `presence`');
@@ -564,6 +572,22 @@
                 setValue(hp, 'foo');
                 expect(isValid(hp), 'Check - `exact-length` (2nd check)');
 
+                // one is filled out
+                setValue(hs, 'foo');
+                expect(isValid(hs), 'Check - `only-one-of` #1');
+                // both filled out
+                setValue(ht, 'foo');
+                expect(isInvalid(hs), 'Check - `only-one-of` #2');
+
+                // other filled out
+                setValue(hs, '');
+                expect(isValid(ht), 'Check - `only-one-of` #3');
+
+                // None filled out
+                setValue(ht, '');
+                expect(isInvalid(hs), 'Check - `only-one-of` #4');
+                expect(isInvalid(ht), 'Check - `only-one-of` #5');
+
 
                 setValue(hq, 'f@b.com');
                 expect(isValid(hq), 'Multiple checks on one field. #1');
@@ -594,6 +618,7 @@
 
 
         <form action=''>
+            <div id='i-container'></div>
             <span id='i-error-message-here' class='my-class'></span>
             <input id='i' type='text'>
         </form>
@@ -607,18 +632,27 @@
                 i_nod.add({
                     selector: '#i',
                     validate: 'presence',
-                    errorMessage: 'custom error span?',
-                    messageContainer: '#i-error-message-here'
+                    errorMessage: 'custom error span?'
+                });
+
+                i_nod.setMessageOptions({
+                    selector: '#i',
+                    container: '#i-container',
+                    message: '#i-error-message-here'
                 });
 
                 var i = get('i'),
-                    i_msg = get('i-error-message-here');
+                    i_msg = get('i-error-message-here'),
+                    i_container = get('i-container');
 
                 setValue(i, '');
 
-                expect(i_msg.innerHTML === 'custom error span?', 'Custom error container is used for message');
+                expect(i_msg.innerHTML === 'custom error span?', 'Custom error is used for message');
 
-                expect(hasClass('my-class', i_msg), 'Custom error container maintains its classes');
+                expect(hasClass('my-class', i_msg), 'Custom error maintains its classes');
+                expect(hasClass(nod.classes.errorMessageClass, i_msg), 'Custom error maintains gets the error class');
+
+                expect(hasClass(nod.classes.errorClass, i_container), 'Custom container class is updated');
 
                 removeElement(i.parentNode);
             })();
