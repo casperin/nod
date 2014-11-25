@@ -657,5 +657,66 @@
                 removeElement(i.parentNode);
             })();
         </script>
+
+
+        <form action=''>
+            <div><input type='text' id='ja'></div>
+            <div><input type='text' id='jb'></div>
+        </form>
+
+        <script>
+            (function () {
+                var j_nod = nod();
+
+                j_nod.add({
+                    selector: ['#ja', '#jb'],
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                setValue(ja, 'foo');
+                setValue(jb, '');
+
+                setTimeout(function () {
+                    expect(isValid(ja), 'selectors can take lists of selectors #1');
+                    expect(isInvalid(jb), 'selectors can take lists of selectors #2');
+                }, 800);
+            })();
+        </script>
+
+
+
+
+        <form action=''>
+            <input type='text' id='ka'>
+        </form>
+
+        <script>
+            (function () {
+                var k_nod = nod();
+
+                k_nod.configure("delay", 1000);
+
+                k_nod.add({
+                    selector: '#ka',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                setValue(ka, 'foo');
+
+                setTimeout(function () {
+                    expect(isUnchecked(ka), 'Check if setting a delay works properly #1');
+                }, 900);
+
+                setTimeout(function () {
+                    expect(isValid(ka), 'Check if setting a delay works properly #2');
+                }, 1100);
+            })();
+        </script>
+
+
+
+
     </body>
 </html>

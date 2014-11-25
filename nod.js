@@ -10,26 +10,27 @@
  * A `metric` is the user created objects that is used to add checks to
  * nod.
  *
- * Each `element` will have at most one of a `listener`, a `checker`, and a
- * `checkHandler` "attached" to it. The `listener` listens for inputs or
- * changes to the `element` and passes the new value on to to the `checker`
- * which performs its checks and passes the the results on to the
- * `checkHandler` which calculates the new state of the `element` and asks
- * its "helper class" called a `domNode` to update the dom.
+ * Each `element` will have at most one of a `listener`, a `checker`, a
+ * `checkHandler`, and a `domNode` "attached" to it. The `listener` listens
+ * for inputs or changes to the `element` and passes the new value on to to the
+ * `checker` which performs its checks and passes the the results on to the
+ * `checkHandler` which calculates the new state of the `element` which it
+ * passes on to the `domNode` which will update the dom.
  *
- * The three main parts, the listener, the checker, and the checkHandler
- * all communicate through the `mediator` by firing events identified by a
- * unique id.
+ * The four main parts, the listener, the checker, the checkHandler, and the
+ * domNode all communicate through the `mediator` by firing events identified
+ * by a unique id. They do not know of each other's existance, and so no
+ * communication flows directly between them.
  *
- * All listeners, checkers, and handlers are grouped together in
+ * All listeners, checkers, handlers, and domNodes are grouped together in
  * `collections`, which are basically a glorified array that makes it easy
  * not to get duplicate items for each element (for instance two listeners
  * listening to the same element).
  *
  * The communication flow looks like this:
- * listener -> mediator -> checker -> mediator -> checkHandler -> domNode
+ * listener -> checker -> checkHandler -> domNode
  *
- * (the two mediators are actually the same object).
+ * Between each part, you have the mediator.
  *
  *
  * `Metrics` are added by the user, which sets up the system above. Notice
@@ -78,10 +79,14 @@ function nod () {
                     throw 'If you pass in `validate:...` as an array, then `errorMessage:...` also needs to be an array. "' + metric.validate + '", and "' + metric.errorMessage + '"';
                 }
 
+                // We store each as arrays, and then run through them,
+                // overwriting each of the keys accordingly.
                 validateArray     = metric.validate;
                 errorMessageArray = metric.errorMessage;
 
                 validateArray.forEach(function (validate, i) {
+                    // Overwrite the array with the individual 'validate' and
+                    // 'errorMessage'.
                     metric.validate     = validate;
                     metric.errorMessage = errorMessageArray[i];
 
@@ -94,41 +99,68 @@ function nod () {
 
     function addMetric (metric) {
 
-        var checkfn     = nod.getCheckFn(metric);
+            // The function that will check the value of the element.
+        var checkfn = nod.getCheckFn(metric),
+
+
+            // A list of elements that this metric will target.
+            elements = nod.getElements(metric.selector),
+
 
             // A "set" here, refers to an obj with one listener, one checker,
-            // and one checkHandler. It will only be used once (just below).
-            metricSets  = nod.getElements(metric.selector).map(function (element) {
+            // and one checkHandler. Only every one for each element in the
+            // dom.
+            metricSets = elements.map(function (element) {
                 return {
-                    listener:       listeners.findOrMakeItem(element, mediator),
-                    checker:        checkers.findOrMakeItem(element, mediator),
-                    checkHandler:   checkHandlers.findOrMakeItem(element, mediator, configuration),
-                    domNode:        domNodes.findOrMakeItem(element, mediator, configuration)
+                    listener:       listeners.findOrMake(element, mediator),
+                    checker:        checkers.findOrMake(element, mediator),
+                    checkHandler:   checkHandlers.findOrMake(element, mediator, configuration),
+                    domNode:        domNodes.findOrMake(element, mediator, configuration)
                 };
             });
 
+
+
+        // Saved for later reference in case the user has a `tap` function
+        // defined.
         checkfn.validate = metric.validate;
 
+
+
+        // Special cases. These `validates` affect each other, and their state
+        // needs to update each time either of the elements' values change.
         if (metric.validate === 'one-of' || metric.validate === 'only-one-of') {
             metric.triggeredBy = metric.selector;
         }
 
+
+
+        // Here we set up the "connections" between each of our main parts.
+        // They communicate only through the mediator.
         metricSets.forEach(function (metricSet) {
 
+
+            // :: Listener -> Checker
+
             // We want our checker to listen to the listener. A listener has an
-            // id, which it uses when it fires events to the mediator.
+            // id, which it uses when it fires events to the mediator (which
+            // was set up when the listener was created).
             metricSet.checker.subscribeTo(metricSet.listener.id);
 
             // If the user set a `triggeredBy`, the checker need to listen to
             // changes on this element as well.
             if (metric.triggeredBy) {
-                nod.getElements(metric.triggeredBy).forEach(function (element) {
-                    var listener = listeners.findOrMakeItem(element, mediator);
+                var triggerElements = nod.getElements(metric.triggeredBy);
+
+                triggerElements.forEach(function (element) {
+                    var listener = listeners.findOrMake(element, mediator);
 
                     metricSet.checker.subscribeTo(listener.id);
                 });
             }
 
+
+            // :: Checker -> checkHandler
 
             var checkId = nod.unique();
 
@@ -141,26 +173,51 @@ function nod () {
 
 
 
+            // :: checkHandler -> domNode
+
+            // The checkHandler has its own id (and only ever needs one), so we
+            // just ask the domNode to listen for that.
             metricSet.domNode.subscribeTo(metricSet.checkHandler.id);
         });
     }
 
 
-    function addForm (selector) {
-        function possiblePreventSubmit (event) {
-            if (configuration.preventSubmit && !isAllValid()) {
-                event.preventDefault();
-            }
-        }
 
-        nod.getElement(selector).addEventListener('submit', possiblePreventSubmit, false);
+    /**
+     * If a form is added, we listen for submits, and if the has also set
+     * `preventSubmit` in the configuration, then we stop the commit from
+     * happening unless all the elements are valid.
+     *
+     * Alternatively, a `remove` boolean can be added, to instead, remove the
+     * prevention. (Not much point to this at the moment, as the user can just
+     * remove `preventSubmit` instead).
+     */
+    function addForm (selector, remove) {
+        var form = nod.getElement(selector);
+
+        if (remove !== true) {
+            form.addEventListener('submit', possiblePreventSubmit, false);
+        } else {
+            form.removeEventListener('submit', possiblePreventSubmit, false);
+        }
+    }
+
+    // Prevent function, used above
+    function possiblePreventSubmit (event) {
+        if (configuration.preventSubmit && !isAllValid()) {
+            event.preventDefault();
+        }
     }
 
 
 
-
+    /**
+     * Removes elements completely.
+     */
     function removeElement (selector) {
-        nod.getElements(selector).forEach(function (element) {
+        var elements = nod.getElements(selector);
+
+        elements.forEach(function (element) {
             listeners.removeItem(element);
             checkers.removeItem(element);
             checkHandlers.removeItem(element);
@@ -170,6 +227,15 @@ function nod () {
 
 
 
+    /**
+     * configure
+     *
+     * Changes the configuration object used throughout the code for classes,
+     * delays, messages, etc.
+     *
+     * It can either be called with a key/value pair (two arguments), or with
+     * an object with key/value pairs.
+     */
     function configure (attributes, value) {
         if (arguments.length > 1) {
             configuration[attributes] = value;
@@ -205,20 +271,12 @@ function nod () {
 
 
     function setMessageOptions (options) {
-        if (!options.selector) {
-            throw 'I need an element to work with for MessageOptions';
-        }
+        var elements = nod.getElements(options.selector);
 
-        nod.getElements(options.selector).forEach(function (element) {
-            var domNode = domNodes.findOrMakeItem(element);
+        elements.forEach(function (element) {
+            var domNode = domNodes.findOrMake(element);
 
-            if (options.container) {
-                domNode.setContainer(nod.getElement(options.container));
-            }
-
-            if (options.message) {
-                domNode.setMessage(nod.getElement(options.message));
-            }
+            domNode.setMessageOptions(options.container, options.message);
         });
     }
 
@@ -339,7 +397,7 @@ nod.makeCollection = function (maker) {
         return -1;
     }
 
-    function findOrMakeItem (el, mediator) {
+    function findOrMake (el, mediator) {
         var index = findIndex(el);
 
         if (index !== -1) {
@@ -370,7 +428,7 @@ nod.makeCollection = function (maker) {
     }
 
     return {
-        findOrMakeItem: findOrMakeItem,
+        findOrMake:     findOrMake,
         removeItem:     removeItem,
         collection:     collection
     };
@@ -524,6 +582,7 @@ nod.makeCheckHandler = function (element, mediator, configuration) {
         // Event if might be valid we pass along an undefined errorMessage.
         mediator.fire({
             id:             id,
+            type:           'result',
             result:         result,
             errorMessage:   errorMessage
         });
@@ -589,7 +648,8 @@ nod.makeDomNode = function (element, mediator, configuration) {
     var parent              = element.parentNode,
         _status             = nod.constants.UNCHECKED,
         pendingUpdate       = null,
-        span                = document.createElement('span');
+        span                = document.createElement('span'),
+        customSpan          = false;
 
     span.style.display = 'none';
     parent.appendChild(span);
@@ -673,14 +733,16 @@ nod.makeDomNode = function (element, mediator, configuration) {
     }
 
 
-    function setContainer (container) {
-        parent = container;
-    }
+    function setMessageOptions (container, message) {
+        if (container) {
+            parent = nod.getElement(container);
+        }
 
-    function setMessage (message) {
-        span.parentNode.removeChild(span);
-
-        span = message;
+        if (message) {
+            span.parentNode.removeChild(span);      // Remove old span.
+            span = nod.getElement(message);         // Set the new one.
+            customSpan = true;                      // So we won't delete it.
+        }
     }
 
 
@@ -689,16 +751,17 @@ nod.makeDomNode = function (element, mediator, configuration) {
         nod.removeClass(configuration.errorClass || nod.classes.errorClass, parent);
         nod.removeClass(configuration.successClass || nod.classes.successClass, parent);
 
-        // Then we remove the span
-        parent.removeChild(span);
+        // Then we remove the span if it wasn't one that was set by the user.
+        if (!customSpan) {
+            span.parentNode.removeChild(span);
+        }
     }
 
     return {
-        subscribeTo:    subscribeTo,
-        element:        element,
-        setContainer:   setContainer,
-        setMessage:     setMessage,
-        dispose:        dispose
+        subscribeTo:        subscribeTo,
+        element:            element,
+        setMessageOptions:  setMessageOptions,
+        dispose:            dispose
     };
 };
 
@@ -736,10 +799,13 @@ nod.getElements = function (selector) {
             return window.jQuery(selector).get();
         }
 
-        return [].map.call(document.querySelectorAll(selector), function (el) { return el; });
+        // If not, then we do it the manual way.
+        var nodeList = document.querySelectorAll(selector);
+
+        return [].map.call(nodeList, function (el) { return el; });
     }
 
-    // jQuery elements
+    // if user gave us jQuery elements
     if (selector.jquery) {
         return selector.get();
     }
@@ -749,15 +815,31 @@ nod.getElements = function (selector) {
         return [selector];
     }
 
-    // array-like object of elements
-    if (Array.isArray(selector) && selector[0].nodeType === 1) {
-        // Possibly a NodeList
-        if (!selector.forEach) {
-            return [].map.call(selector, function (el) { return el; });
+    if (Array.isArray(selector)) {
+
+        // Array of css type selectors
+        if (typeof selector[0] === 'string') {
+            var result = [];
+
+            selector.forEach(function (sel) {
+                var elements = nod.getElements(sel);
+
+                result = result.concat(elements);
+            });
+
+            return result;
         }
 
-        // Array of elements
-        return selector;
+        // array-like object of elements
+        if (selector[0].nodeType === 1) {
+            // Possibly a NodeList
+            if (!selector.forEach) {
+                return [].map.call(selector, function (el) { return el; });
+            }
+
+            // Array of elements
+            return selector;
+        }
     }
 
     throw 'Unknown type of elements in your `selector`: ' + selector;
