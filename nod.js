@@ -47,7 +47,8 @@ function nod () {
         // Creating (empty) collections
         listeners       = nod.makeCollection(nod.makeListener),
         checkers        = nod.makeCollection(nod.makeChecker),
-        checkHandlers   = nod.makeCollection(nod.makeCheckHandler);
+        checkHandlers   = nod.makeCollection(nod.makeCheckHandler),
+        domNodes        = nod.makeCollection(nod.makeDomNode);
 
 
 
@@ -63,6 +64,7 @@ function nod () {
         var arrayMetrics = Array.isArray(metrics) ? metrics : [metrics];
 
         arrayMetrics.forEach(function (metric) {
+            var validateArray, errorMessageArray;
 
             // If the 'validate' is not an array, then we're good to go.
             if (!Array.isArray(metric.validate)) {
@@ -76,14 +78,14 @@ function nod () {
                     throw 'If you pass in `validate:...` as an array, then `errorMessage:...` also needs to be an array. "' + metric.validate + '", and "' + metric.errorMessage + '"';
                 }
 
-                metric.validate.forEach(function (_, i) {
-                    addMetric({
-                        selector: metric.selector,
-                        validate: metric.validate[i],
-                        errorMessage: metric.errorMessage[i],
-                        triggeredBy: metric.triggeredBy,
-                        messageContainer: metric.messageContainer
-                    });
+                validateArray     = metric.validate;
+                errorMessageArray = metric.errorMessage;
+
+                validateArray.forEach(function (validate, i) {
+                    metric.validate     = validate;
+                    metric.errorMessage = errorMessageArray[i];
+
+                    addMetric(metric);
                 });
             }
         });
@@ -99,9 +101,10 @@ function nod () {
             // and one checkHandler. It will only be used once (just below).
             metricSets  = nod.getElements(metric.selector).map(function (element) {
                 return {
-                    listener:        listeners.findOrMakeItem(element, mediator),
-                    checker:         checkers.findOrMakeItem(element, mediator),
-                    checkHandler:    checkHandlers.findOrMakeItem(element, mediator, configuration, metric.messageContainer)
+                    listener:       listeners.findOrMakeItem(element, mediator),
+                    checker:        checkers.findOrMakeItem(element, mediator),
+                    checkHandler:   checkHandlers.findOrMakeItem(element, mediator, configuration, metric.messageContainer),
+                    domNode:        domNodes.findOrMakeItem(element, configuration, metric.messageContainer)
                 };
             });
 
@@ -452,7 +455,7 @@ nod.makeChecker = function (element, mediator) {
  */
 nod.makeCheckHandler = function (element, mediator, configuration, messageContainer) {
     var results     = {},
-        domNode     = nod.makeDomNode(element.parentNode, configuration, messageContainer);
+        domNode     = nod.makeDomNode(element, configuration, messageContainer);
 
     function subscribeTo (id, errorMsg) {
         // Create a representation of the type of error in the results
@@ -554,11 +557,12 @@ nod.addClass = function (className, el) {
  * being checked.
  *
  */
-nod.makeDomNode = function (parent, configuration, messageContainer) {
+nod.makeDomNode = function (element, configuration, messageContainer) {
     // A 'domNode' consists of two elements: a 'parent', and a 'span'. The
     // parent is given as a paremeter, while the span is created and added
     // as a child to the parent.
-    var _status             = nod.constants.UNCHECKED,
+    var parent              = element.parentNode,
+        _status             = nod.constants.UNCHECKED,
         pendingUpdate       = null,
         span                = nod.getElement(messageContainer) || document.createElement('span');
 
@@ -649,6 +653,7 @@ nod.makeDomNode = function (parent, configuration, messageContainer) {
 
     return {
         set:        set,
+        element:    element,
         dispose:    dispose
     };
 };
