@@ -102,8 +102,8 @@ function nod () {
                 return {
                     listener:       listeners.findOrMakeItem(element, mediator),
                     checker:        checkers.findOrMakeItem(element, mediator),
-                    checkHandler:   checkHandlers.findOrMakeItem(element, mediator, configuration, metric.messageContainer),
-                    domNode:        domNodes.findOrMakeItem(element, mediator, configuration, metric.messageContainer)
+                    checkHandler:   checkHandlers.findOrMakeItem(element, mediator, configuration),
+                    domNode:        domNodes.findOrMakeItem(element, mediator, configuration)
                 };
             });
 
@@ -214,6 +214,9 @@ function nod () {
 
             if (options.container) {
                 domNode.setContainer(nod.getElement(options.container));
+            }
+
+            if (options.message) {
                 domNode.setMessage(nod.getElement(options.message));
             }
         });
@@ -241,7 +244,7 @@ function nod () {
         remove:                 removeElement,
         isAllValid:             isAllValid,
         configure:              configure,
-        setMessageOptions:       setMessageOptions
+        setMessageOptions:      setMessageOptions
     };
 }
 
@@ -483,13 +486,13 @@ nod.makeCheckHandler = function (element, mediator, configuration) {
     var results     = {},
         id          = nod.unique();
 
-    function subscribeTo (id, errorMsg) {
+    function subscribeTo (id, errorMessage) {
         // Create a representation of the type of error in the results
         // object.
         if (!results[id]) {
             results[id] = {
                 status: nod.constants.UNCHECKED,
-                errorMsg: errorMsg
+                errorMessage: errorMessage
             };
         }
 
@@ -500,30 +503,29 @@ nod.makeCheckHandler = function (element, mediator, configuration) {
     function checkHandler (result) {
         results[result.id].status = result.result ? nod.constants.VALID : nod.constants.INVALID;
 
-        updateDom();
+        notifyMediator();
     }
 
     // Runs through all results to see what kind of feedback to show the
     // user.
-    function updateDom () {
+    function notifyMediator () {
         var result = nod.constants.VALID, // We assume it's valid
-            errorMsg;
+            errorMessage;
 
         // Check all results to see if we need to show the error message.
         for (var result_id in results) {
             if (results[result_id].status === nod.constants.INVALID) {
                 result = nod.constants.INVALID;
-                errorMsg = results[result_id].errorMsg;
+                errorMessage = results[result_id].errorMessage;
                 break; // Break out of the loop. No reason to check more
             }
         }
 
-        // Event if might be valid we pass along an undefined errorMsg. It
-        // will just be ignored by the domNode.
+        // Event if might be valid we pass along an undefined errorMessage.
         mediator.fire({
-            id:         id,
-            result:     result,
-            errorMsg:   errorMsg
+            id:             id,
+            result:         result,
+            errorMessage:   errorMessage
         });
     }
 
@@ -580,19 +582,17 @@ nod.addClass = function (className, el) {
  * being checked.
  *
  */
-nod.makeDomNode = function (element, mediator, configuration, messageContainer) {
+nod.makeDomNode = function (element, mediator, configuration) {
     // A 'domNode' consists of two elements: a 'parent', and a 'span'. The
     // parent is given as a paremeter, while the span is created and added
     // as a child to the parent.
     var parent              = element.parentNode,
         _status             = nod.constants.UNCHECKED,
         pendingUpdate       = null,
-        span                = nod.getElement(messageContainer) || document.createElement('span');
+        span                = document.createElement('span');
 
-    if (!messageContainer) {
-        span.style.display = 'none';
-        parent.appendChild(span);
-    }
+    span.style.display = 'none';
+    parent.appendChild(span);
 
     // Updates the class of the parent to match the status of the element.
     function updateParent (status) {
@@ -638,7 +638,7 @@ nod.makeDomNode = function (element, mediator, configuration, messageContainer) 
 
     function set (argsObj) {
         var status              = argsObj.result,
-            errorMessage        = argsObj.errorMsg;
+            errorMessage        = argsObj.errorMessage;
 
         // If the dom is showing an invalid message, we want to update the
         // dom right away.
