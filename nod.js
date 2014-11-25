@@ -142,7 +142,7 @@ function nod () {
             }
         }
 
-        nod.getElements(selector)[0].addEventListener('submit', possiblePreventSubmit, false);
+        nod.getElement(selector).addEventListener('submit', possiblePreventSubmit, false);
     }
 
 
@@ -176,7 +176,7 @@ function nod () {
      */
     mediator.subscribe('all', function () {
         if (configuration.submit && configuration.disableSubmit) {
-            nod.getElements(configuration.submit)[0].disabled = !isAllValid();
+            nod.getElement(configuration.submit).disabled = !isAllValid();
         }
     });
 
@@ -406,8 +406,10 @@ nod.makeChecker = function (element, mediator) {
 
     // Run every check function against the value of the element.
     function performCheck () {
+        var value = nod.getValue(element);
+
         checks.forEach(function (check) {
-            check(nod.getValue(element));
+            check(value);
         });
     }
 
@@ -558,7 +560,7 @@ nod.makeDomNode = function (parent, configuration, messageContainer) {
     // as a child to the parent.
     var _status             = nod.constants.UNCHECKED,
         pendingUpdate       = null,
-        span                = nod.getElements(messageContainer)[0] || document.createElement('span');
+        span                = nod.getElement(messageContainer) || document.createElement('span');
 
     if (!messageContainer) {
         span.style.display = 'none';
@@ -651,6 +653,15 @@ nod.makeDomNode = function (parent, configuration, messageContainer) {
     };
 };
 
+
+/**
+ * getElement
+ *
+ * Returns the first element targeted by the selector. (see `getElements`)
+ */
+nod.getElement = function (selector) {
+    return nod.getElements(selector)[0];
+};
 
 
 /**
@@ -815,7 +826,7 @@ nod.checkfns = {
     },
 
     'same-as': function (selector) {
-        var element = nod.getElements(selector)[0];
+        var element = nod.getElement(selector);
 
         return function sameAs (callback, value) {
             callback(value === nod.getValue(element));
