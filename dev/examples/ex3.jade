@@ -1,40 +1,42 @@
 hr#example3
 form#ex3.form-horizontal
-  .control-group
-    label.control-label Type "foo"
-    .controls
-      input(type='text').ex3a
-  .control-group
-    .control-label
-      label Select something
-    .controls
-      select#ex3select
-        option(value="") Select something please
-        option(value="1") Pick this
-        option(value="2") Or this
-        option(value="3") But not this
-        option(value="4") This is fine though
-  .controls
-    button(type='submit').btn Submit
-  script
+  .form-group
+    label.control-label.col-sm-2 Type "foo"
+    .col-sm-10
+      input.form-control(type='text').ex3a
+
+  .form-group
+      label.control-label.col-sm-2 Select something
+      .col-sm-10
+        select#ex3select.form-control
+          option(value="") Select something please
+          option(value="1") Pick this
+          option(value="2") Or this
+          option(value="3") But not this
+          option(value="4") This is fine though
+  .form-group
+    .col-sm-offset-2.col-sm-10
+      button(type='submit').btn.btn-default Submit
+
+  script(type='text/javascript').
     var metrics = [
       [ '.ex3a', 'exact:foo', 'I told you to type "foo"!' ],
       [ '#ex3select', 'presence', 'Pick something' ],
       [ '#ex3select', 'not:3', 'I told you not to pick this one!' ],
     ];
     var options = {
-      'groupClass' : 'warning',
+      'groupClass' : 'has-error',
     };
     $("#ex3").nod( metrics, options );
 .code
-  pre.prettyprint.lang-html &lt;form id=&quot;ex3&quot; class=&quot;form-horizontal&quot;&gt;
-    | &lt;div class=&quot;control-group&quot;&gt;
+  pre.prettyprint.lang-html &lt;form id=&quot;ex3&quot; class=&quot;form-inline&quot;&gt;
+    | &lt;div class=&quot;form-group&quot;&gt;
     |   &lt;label class=&quot;control-label&quot;&gt;Type &quot;foo&quot;&lt;/label&gt;
     |   &lt;div class=&quot;controls&quot;&gt;
     |     &lt;input type=&quot;text&quot; class=&quot;ex3a&quot;&gt;
     |   &lt;/div&gt;
     | &lt;/div&gt;
-    | &lt;div class=&quot;control-group&quot;&gt;
+    | &lt;div class=&quot;form-group&quot;&gt;
     |   &lt;div class=&quot;control-label&quot;&gt;
     |     &lt;label&gt;Select something&lt;/label&gt;
     |   &lt;/div&gt;
@@ -58,6 +60,6 @@ form#ex3.form-horizontal
     |   [ '#ex3select', 'not:3', 'I told you not to pick this one!' ],
     | ];
     | var options = {
-    |   'groupClass' : 'warning',
+    |   'groupClass' : 'has-error',
     | };
     | $("#ex3").nod( metrics, options );

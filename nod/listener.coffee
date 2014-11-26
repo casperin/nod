@@ -45,6 +45,6 @@ class Listener
     @status = isCorrect                       # Set the new status
     @msg.toggle @status                       # toggle msg with new status
     $( @ ).trigger 'nod_toggle'               # Triggers check on submit btn
-                                              # and .control-group
+                                              # and .form-group
     if @field[ 1 ] is 'one-of' and status
       $( window ).trigger 'nod-run-one-of'

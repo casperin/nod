@@ -14,12 +14,12 @@ class Nod
     @get = $.extend
       'delay'             : 700               # Keyup > delay(ms) > input check
       'disableSubmitBtn'  : true              # automatically disable submit btn
-      'helpSpanDisplay'   : 'help-inline'     # Help-inline / help-block
-      'groupClass'        : 'error'           # Error / info / warning / success
+      'helpSpanDisplay'   : 'help-block'     # Help-inline / help-block
+      'groupClass'        : 'has-error'       # Error / info / warning / success
       'submitBtnSelector' : '[type=submit]'   # Selector to find submit btn
       'metricsSplitter'   : ':'               # The ":" in "max-length:4"
       'errorPosClasses'   : [                 # Errors will show up after the
-                              '.help-inline'  # input field or after one of
+                              '.help-block'  # input field or after one of
                               '.add-on'       # these selectors
                               'button'
                               '.input-append' # If parent has this class it
@@ -27,7 +27,7 @@ class Nod
       'silentSubmit'      : false             # Doesn't submit the form
       'broadcastError'    : false             # True to trigger event on error
       'errorClass'        : 'nod_msg'         # Your error msg gets this class
-      'groupSelector'     : '.control-group'  # Should surround the field + msg
+      'groupSelector'     : '.form-group'     # Should surround the field + msg
       , options
 
     # First we create all the listeners. One listener per rule per selector.

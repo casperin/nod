@@ -88,6 +88,12 @@ Checker = (function() {
         return /^\s*\d+\s*$/.test(v);
       case 'float':
         return /^[-+]?[0-9]+(\.[0-9]+)?$/.test(v);
+      case 'date':
+        return new Date(v) instanceof Date;
+      case 'dd MMM yyyy':
+        return /^(\d{2}) ([a-zA-Z]{3}) (\d{4})$/.test(v);
+      case 'dd-MMM-yyyy':
+        return /^(\d{2})-([a-zA-Z]{3})-(\d{4})$/.test(v);
       case 'email':
         return this.email(v);
       default:
@@ -272,11 +278,11 @@ Nod = (function() {
     this.get = $.extend({
       'delay': 700,
       'disableSubmitBtn': true,
-      'helpSpanDisplay': 'help-inline',
+      'helpSpanDisplay': 'help-block',
       'groupClass': 'has-error',
       'submitBtnSelector': '[type=submit]',
       'metricsSplitter': ':',
-      'errorPosClasses': ['.help-inline', '.add-on', 'button', '.input-append'],
+      'errorPosClasses': ['.help-block', '.add-on', 'button', '.input-append'],
       'silentSubmit': false,
       'broadcastError': false,
       'errorClass': 'nod_msg',

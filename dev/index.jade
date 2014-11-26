@@ -1,24 +1,27 @@
-!!! 5
+doctype html
 html
   head
     title Nod!
     meta(charset="utf-8")
-    link(href="lib/bootstrap-combined.min.css",rel="stylesheet")
-    link(href="lib/prettify.css")
-    script(src="lib/jquery.min.js")
-    script(src="lib/bootstrap.min.js")
-    script(src="lib/prettify.js")
-    script(src="nod.min.js")
-    style
-      body {margin-bottom:100px}
-      .code { display: none }
-      .nod_msg { background: #fcc; display: inline-block; padding: 2px 5px; margin-left: 5px; border-radius: 5px; }
-      .container {margin-top:20px}
-      h2 {margin-top:1.4em}
-      .nod_msg {
-        font-weight: bold;
+    link(href="test/components/bootstrap/dist/css/bootstrap.min.css",rel="stylesheet")
+    link(href="test/components/google-code-prettify/src/prettify.css")
+    script(src="test/components/jquery/dist/jquery.min.js")
+    script(src="test/components/bootstrap/dist/js/bootstrap.min.js")
+    script(src="test/components/google-code-prettify/src/prettify.js")
+
+    script(src="nod-#{nodVersion}.min.js")
+
+    style(type='text/css').
+      .code {
+        display: none;
+        margin-top: .8em;
       }
-      .input-append, .input-prepend { font-size: 14px; } /* bug in bootstrap? */
+      footer {
+        height: 80px;
+        padding: 2em;
+        font-size: larger;
+        color: black;
+      }
 
       /* prettify */
       .com { color: #93a1a1; }
@@ -31,7 +34,7 @@ html
       .pln { color: #48484c; }
 
       .prettyprint {
-        padding: 8px;
+        padding: 8px 0;
         background-color: #f7f7f9;
         border: 1px solid #e1e1e8;
       }
@@ -41,41 +44,22 @@ html
                 box-shadow: inset 40px 0 0 #fbfbfc, inset 41px 0 0 #ececf0;
       }
       /* Specify class=linenums on a pre to get line numbering */
-      ol.linenums {
-        margin: 0 0 0 33px; /* IE indents via margin-left */
-      }
       ol.linenums li {
         padding-left: 12px;
         color: #bebec5;
-        line-height: 20px;
-        text-shadow: 0 1px 0 #fff;
+        line-height: 1.6em;
       }
 
-    script
-      $(document).ready(function(){
-        var see_code = $('<button/>', 
-            {html:"See code", class:"btn btn-mini see-code" }
-          ).on( 'click', function() {
-            $(this).next('.code').trigger('tgl');
-          });
-        $( 'form' ).on( 'submit', submitForm = function( e ) { e.preventDefault(); } ).after( see_code );
-        $( '.code' ).on( 'tgl', function() {
-          el = $(this);
-          el.is(':visible') ? el.slideUp() : el.slideDown();
-        });
-      });
-
-
   body
-
     .container
 
-      a(href="//github.com/casperin/nod",style="margin-top:10px;").btn.btn-success.pull-right
-        i.icon-heart.icon-white
+      a(href="//github.com/casperin/nod",style="margin-top:10px;").btn.btn-lg.btn-success.pull-right
+        i.glyphicon.glyphicon-heart
         | &nbsp;Fork me
 
-      h1 Nod v.1.0.4 
+      h1 Nod v#{nodVersion}
         small A frontend validation jQuery plugin
+        span.pull-right Compiled at #{compiledAt}
       hr
       p Writing frontend validation for forms is painfully boring. So I made this in the hopes that it will help make it a little less agonizing for you.
       p It's designed to
@@ -262,7 +246,7 @@ html
             td groupClass
             td String
             td 'error'
-            td The <code>.control-group</code> will get this class if an error is found. Can be set to anything you like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap.
+            td The <code>.form-group</code> will get this class if an error is found. Can be set to anything you like, but <code>error</code>, <code>info</code>, <code>warning</code>, or <code>success</code> makes the most sense with bootstrap.
           tr
             td submitBtnSelector
             td String
@@ -291,8 +275,8 @@ html
           tr
             td groupSelector
             td String
-            td '.control-group'
-            td The selector for something surrounding your input elements. Like <code>.control-group</code> in bootstrap forms.
+            td '.form-group'
+            td The selector for something surrounding your input elements. Like <code>.form-group</code> in bootstrap forms.
 
 
       h2#notes Notes
@@ -300,21 +284,21 @@ html
       h3#radio Radio buttons
       p These can be a bit tricky to validate, so here's an example.
       pre.prettyprint.lang-html.linenums
-        | <div class="control-group">
-        |   <div class="controls">
-        |     <label class="radio">
-        |       <input type="radio" name="a" value="a1" id="bar"> First
-        |     </label>
-        |     <label class="radio">
-        |       <input type="radio" name="a" value="a2"> Second
-        |     </label>
-        |     <label class="radio">
-        |       <input type="radio" name="a" value="a3"> Third
-        |     </label>
-        |   </div>
-        | </div>
-        | <!-- ... -->
-        | <button data-loading-text="loading..." type="submit" class="btn btn-success">Submit form</button>
+        | &lt;div class="form-group"&gt;
+        |   &lt;div class="controls"&gt;
+        |     &lt;label class="radio"&gt;
+        |       &lt;input type="radio" name="a" value="a1" id="bar"&gt; First
+        |     &lt;/label&gt;
+        |     &lt;label class="radio"&gt;
+        |       &lt;input type="radio" name="a" value="a2"&gt; Second
+        |     &lt;/label&gt;
+        |     &lt;label class="radio"&gt;
+        |       &lt;input type="radio" name="a" value="a3"&gt; Third
+        |     &lt;/label&gt;
+        |   &lt;/div&gt;
+        | &lt;/div&gt;
+        | &lt;!-- ... --&gt;
+        | &lt;button data-loading-text="loading..." type="submit" class="btn btn-success"&gt;Submit form&lt;/button&gt;
       p Pretty standard html. Notice the <code>#bar</code> on line 4 though. To validate for presence on these fields, we don't need the <code>#bar</code>, we just do
       pre.prettyprint.lang-js.linenums
         | var metrics = [
@@ -411,5 +395,22 @@ html
       include examples/ex2
       include examples/ex3
       include examples/ex4
+
+    .container
+      footer.text-center Nod
+
+    script(type='text/javascript').
+        $(function() {
+          var see_code = $('<button/>',
+              {html:"See code", class:"btn btn-sm btn-warning see-code" }
+            ).on( 'click', function() {
+              $(this).next('.code').trigger('tgl');
+            });
+          $( 'form' ).on( 'submit', submitForm = function( e ) { e.preventDefault(); } ).after( see_code );
+          $( '.code' ).on( 'tgl', function() {
+            el = $(this);
+            el.is(':visible') ? el.slideUp() : el.slideDown();
+          });
+        });
 
     script !function($) { $(function(){ window.prettyPrint && prettyPrint() }) }(window.jQuery);
