@@ -1,0 +1,12 @@
+.nod-success {
+    background: #afa;
+}
+
+.nod-error {
+    background: #fcc;
+}
+
+.nod-error-message {
+    background: #c00;
+    color: #fff;
+}

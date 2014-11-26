@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <title>Basic example</title>
+        <link href='styles.css' rel='stylesheet'>
+        <script src='../nod.js'></script>
+    </head>
+    <body>
+
+        <div>
+            <input class='basic-test'>
+        </div>
+
+        <script>
+            // create an instance to work with by calling it.
+            var myNod = nod();
+
+            // Add a check to nod.
+            myNod.add({
+                selector: '.basic-test',
+                validate: 'min-length:3',
+                errorMessage: 'Must be at least three characters long.'
+            });
+        </script>
+
+    </body>
+</html>

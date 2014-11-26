@@ -896,6 +896,12 @@ nod.checkfns = {
         };
     },
 
+    'contains': function (containsValue) {
+        return function contains (callback, value) {
+            callback(value.indexOf(containsValue) > -1);
+        };
+    },
+
     'not': function (exactValue) {
         return function not (callback, value) {
             callback(value !== exactValue);

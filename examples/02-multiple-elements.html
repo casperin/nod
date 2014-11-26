@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <title>Multiple Elements</title>
+        <link href='styles.css' rel='stylesheet'>
+        <script src='../nod.js'></script>
+    </head>
+    <body>
+
+        <ul>
+            <li><input class='foo' id='bar'></li>
+            <li><input class='foo'></li>
+        </ul>
+
+        <script>
+            var myNod = nod();
+
+            myNod.add([{
+                selector: '.foo',
+                validate: 'presence',
+                errorMessage: 'Don\'t leave me empty!'
+            }, {
+                selector: document.getElementById('bar'),
+                validate: 'not:hello',
+                errorMessage: 'Don\'t write "hello"'
+            }]);
+
+            // Notice that the selector takes almost nnything. Look at
+            // `nod.getElements` to see the details.
+        </script>
+
+    </body>
+</html>
