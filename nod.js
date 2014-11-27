@@ -122,22 +122,22 @@ function nod () {
             });
 
 
-
         // Saved for later reference in case the user has a `tap` function
         // defined.
-        checkfn.validate = metric.validate;
+        checkfn.validate = (typeof metric.validate === 'function') ? metric.validate.toString() : metric.validate;
 
 
 
         // Special cases. These `validates` affect each other, and their state
         // needs to update each time either of the elements' values change.
-        if (metric.validate === 'one-of' || metric.validate === 'only-one-of') {
+        if (metric.validate === 'one-of' || metric.validate === 'only-one-of' || metric.validate === 'some-radio') {
             specialTriggers.push(metric.selector);
         }
 
         if (typeof metric.validate === 'string' && metric.validate.indexOf('same-as') > -1) {
             specialTriggers.push(metric.validate.split(':')[1]);
         }
+
 
 
         // Helper function, used in the loop below.
@@ -505,10 +505,8 @@ nod.makeChecker = function (element, mediator) {
 
     // Run every check function against the value of the element.
     function performCheck () {
-        var value = nod.getValue(element);
-
         checks.forEach(function (check) {
-            check(value);
+            check();
         });
     }
 
@@ -525,8 +523,8 @@ nod.makeChecker = function (element, mediator) {
             });
         }
 
-        checks.push(function (value) {
-            checkfn(callback, value);
+        checks.push(function () {
+            checkfn(callback, element.value, element);
         });
     }
 
@@ -840,17 +838,6 @@ nod.getElements = function (selector) {
 };
 
 
-/**
- * Returns the value of an element.
- */
-nod.getValue = function (element) {
-    switch (element.type) {
-    case 'checkbox':    return element.checked;
-    case 'radio':       return element.selected;
-    default:            return element.value;
-    }
-};
-
 
 
 nod.getCheckFn = function (metric) {
@@ -862,10 +849,12 @@ nod.getCheckFn = function (metric) {
         return nod.checkfns.regexp(metric.validate);
     }
 
-    var args = metric.validate.split(':'),
+    var args   = metric.validate.split(':'),
         fnName = args.shift();
 
-    if (fnName === 'one-of' || fnName === 'only-one-of' || fnName === 'same-as') {
+    if (fnName === 'one-of' || fnName === 'only-one-of' ||
+        fnName === 'same-as' || fnName === 'some-radio') {
+
         args.push(metric.selector);
     }
 
@@ -957,10 +946,10 @@ nod.checkfns = {
     },
 
     'same-as': function (selector) {
-        var element = nod.getElement(selector);
+        var sameAsElement = nod.getElement(selector);
 
         return function sameAs (callback, value) {
-            callback(value === nod.getValue(element));
+            callback(value === sameAsElement.value);
         };
     },
 
@@ -995,8 +984,20 @@ nod.checkfns = {
     },
 
     'checked': function () {
-        return function checked (callback, value) {
-            callback(value === true);
+        return function checked (callback, value, element) {
+            callback(element.checked);
+        };
+    },
+
+    'some-radio': function (selector) {
+        var radioElements = nod.getElements(selector);
+
+        return function someRadio (callback, value, element) {
+            var result = radioElements.reduce(function (memo, element) {
+                return memo || element.checked;
+            }, false);
+
+            callback(result);
         };
     },
 

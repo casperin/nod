@@ -766,5 +766,36 @@
 
 
 
+        <form action=''>
+            <div><input type='radio' value="ma" name="name-m" id='ma'></div>
+            <div><input type='radio' value="mb" name="name-m" id='mb'></div>
+        </form>
+
+        <script>
+            (function () {
+                var m_nod = nod();
+
+                m_nod.configure("delay", 0);
+
+                m_nod.add([{
+                    selector: '[name=name-m]',
+                    validate: 'some-radio',
+                    errorMessage: ERROR_MSG
+                }]);
+
+                var ma = get('ma'),
+                    mb = get('mb');
+
+                expect(isUnchecked(ma), 'Check - `some-radio` #1');
+                ma.checked = true;
+                trigger(ma, 'change');
+                expect(isValid(mb),  'Check - `some-radio` #2');
+
+                removeElement(ma.parentNode.parentNode);
+            })();
+        </script>
+
+
+
     </body>
 </html>
