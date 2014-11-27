@@ -98,9 +98,11 @@ function nod () {
 
 
     function addMetric (metric) {
+        var specialTriggers = [],
+
 
             // The function that will check the value of the element.
-        var checkfn = nod.getCheckFn(metric),
+            checkfn = nod.getCheckFn(metric),
 
 
             // A list of elements that this metric will target.
@@ -130,9 +132,24 @@ function nod () {
         // Special cases. These `validates` affect each other, and their state
         // needs to update each time either of the elements' values change.
         if (metric.validate === 'one-of' || metric.validate === 'only-one-of') {
-            metric.triggeredBy = metric.selector;
+            specialTriggers.push(metric.selector);
         }
 
+        if (typeof metric.validate === 'string' && metric.validate.indexOf('same-as') > -1) {
+            specialTriggers.push(metric.validate.split(':')[1]);
+        }
+
+
+        // Helper function, used in the loop below.
+        function subscribeToTriggers (checker, selector) {
+            var triggerElements = nod.getElements(selector);
+
+            triggerElements.forEach(function (element) {
+                var listener = listeners.findOrMake(element, mediator);
+
+                checker.subscribeTo(listener.id);
+            });
+        }
 
 
         // Here we set up the "connections" between each of our main parts.
@@ -149,15 +166,9 @@ function nod () {
 
             // If the user set a `triggeredBy`, the checker need to listen to
             // changes on this element as well.
-            if (metric.triggeredBy) {
-                var triggerElements = nod.getElements(metric.triggeredBy);
-
-                triggerElements.forEach(function (element) {
-                    var listener = listeners.findOrMake(element, mediator);
-
-                    metricSet.checker.subscribeTo(listener.id);
-                });
-            }
+            // Same goes for special triggers that we set.
+            subscribeToTriggers(metricSet.checker, metric.triggeredBy);
+            subscribeToTriggers(metricSet.checker, specialTriggers);
 
 
             // :: Checker -> checkHandler
@@ -816,6 +827,9 @@ nod.getElements = function (selector) {
     }
 
     if (Array.isArray(selector)) {
+        if (selector.length === 0) {
+            return [];
+        }
 
         // Array of css type selectors
         if (typeof selector[0] === 'string') {

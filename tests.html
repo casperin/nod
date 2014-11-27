@@ -175,7 +175,7 @@
                     selector: '#bb',
                     validate: 'same-as:#b',
                     errorMessage: ERROR_MSG,
-                    triggeredBy: '#b'
+                    //triggeredBy: '#b'
                 });
 
                 var b  = get('b');
@@ -186,11 +186,11 @@
 
                 setValue(b, 'foo');
 
-                expect(isInvalid(bb), 'Triggered by should work?');
+                expect(isInvalid(bb), 'same-as #1');
 
                 setValue(bb, 'foo');
 
-                expect(isValid(bb), 'Same-as works');
+                expect(isValid(bb), 'same-as #2');
 
                 // We're done
                 removeElement(b.parentNode);
@@ -552,8 +552,9 @@
                 setValue(hk, '3.4');
                 expect(isValid(hk), 'Check - `float`');
 
+                expect(isInvalid(hl), 'Check - `same-as` #3');
                 setValue(hl, '3.4');
-                expect(isValid(hl), 'Check - `same-as`');
+                expect(isValid(hl), 'Check - `same-as` #4');
 
                 hm.checked = true;
                 trigger(hm, 'change');
@@ -720,6 +721,33 @@
             })();
         </script>
 
+
+
+        <form action=''>
+            <input type='text' id='la'>
+            <input type='text' id='lb'>
+        </form>
+
+        <script>
+            (function () {
+                var l_nod = nod();
+
+                l_nod.configure("delay", 0);
+
+                l_nod.add({
+                    selector: '#lb',
+                    validate: 'presence',
+                    triggeredBy: '#la',
+                    errorMessage: ERROR_MSG
+                });
+
+                var la = get('la'),
+                    lb = get('lb');
+
+                setValue(la, 'foo');
+                expect(isInvalid(lb), '`triggeredBy` triggers correctly');
+            })();
+        </script>
 
 
 

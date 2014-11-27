@@ -69,9 +69,6 @@
             }, {
                 selector: '.bar',
                 validate: 'same-as:.foo',
-                // With this set, every change to .foo will trigger a check on
-                // .bar (makes sense for "same-as").
-                triggeredBy: '.foo',
                 errorMessage: 'Has to be the same as above'
             }]);
         </script>
