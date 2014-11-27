@@ -319,17 +319,17 @@ function nod () {
 
 
 nod.constants = {
-    VALID: 'valid',
-    INVALID: 'invalid',
-    UNCHECKED: 'unchecked'
+    VALID:          'valid',
+    INVALID:        'invalid',
+    UNCHECKED:      'unchecked'
 };
 
 
 nod.classes = {
-    successClass: 'nod-success',
-    successMessageClass: 'nod-success-message',
-    errorClass: 'nod-error',
-    errorMessageClass: 'nod-error-message'
+    successClass:         'nod-success',
+    successMessageClass:  'nod-success-message',
+    errorClass:           'nod-error',
+    errorMessageClass:    'nod-error-message'
 };
 
 
@@ -359,28 +359,26 @@ nod.makeMediator = function () {
     var subscribers = [],
         all = [];
 
-    function subscribeId (id, fn) {
-        if (!subscribers[id]) {
-            subscribers[id] = [];
-        }
-
-        if (subscribers[id].indexOf(fn) === -1) {
-            subscribers[id].push(fn);
-        }
-    }
-
     return {
         subscribe: function subscribe (id, fn) {
             if (id === 'all') {
                 all.push(fn);
             } else {
-                subscribeId(id, fn);
+                if (!subscribers[id]) {
+                    subscribers[id] = [];
+                }
+
+                if (subscribers[id].indexOf(fn) === -1) {
+                    subscribers[id].push(fn);
+                }
             }
         },
 
         fire: function fire (argsObj) {
-            subscribers[argsObj.id].concat(all).forEach(function (fn) {
-                fn(argsObj);
+            var subscribedFunctions = subscribers[argsObj.id].concat(all);
+
+            subscribedFunctions.forEach(function (subscribedFunction) {
+                subscribedFunction(argsObj);
             });
         }
     };
@@ -439,9 +437,9 @@ nod.makeCollection = function (maker) {
     }
 
     return {
-        findOrMake:     findOrMake,
-        removeItem:     removeItem,
-        collection:     collection
+        findOrMake: findOrMake,
+        removeItem: removeItem,
+        collection: collection
     };
 };
 
@@ -827,33 +825,15 @@ nod.getElements = function (selector) {
     }
 
     if (Array.isArray(selector)) {
-        if (selector.length === 0) {
-            return [];
-        }
+        var result = [];
 
-        // Array of css type selectors
-        if (typeof selector[0] === 'string') {
-            var result = [];
+        selector.forEach(function (sel) {
+            var elements = nod.getElements(sel);
 
-            selector.forEach(function (sel) {
-                var elements = nod.getElements(sel);
+            result = result.concat(elements);
+        });
 
-                result = result.concat(elements);
-            });
-
-            return result;
-        }
-
-        // array-like object of elements
-        if (selector[0].nodeType === 1) {
-            // Possibly a NodeList
-            if (!selector.forEach) {
-                return [].map.call(selector, function (el) { return el; });
-            }
-
-            // Array of elements
-            return selector;
-        }
+        return result;
     }
 
     throw 'Unknown type of elements in your `selector`: ' + selector;

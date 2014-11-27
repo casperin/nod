@@ -684,6 +684,8 @@
                 setTimeout(function () {
                     expect(isValid(ja), 'selectors can take lists of selectors #1');
                     expect(isInvalid(jb), 'selectors can take lists of selectors #2');
+
+                    removeElement(ja.parentNode.parentNode);
                 }, 800);
             })();
         </script>
@@ -717,6 +719,8 @@
 
                 setTimeout(function () {
                     expect(isValid(ka), 'Check if setting a delay works properly #2');
+
+                    removeElement(ka.parentNode);
                 }, 1100);
             })();
         </script>
@@ -724,8 +728,9 @@
 
 
         <form action=''>
-            <input type='text' id='la'>
-            <input type='text' id='lb'>
+            <div><input type='text' id='la'></div>
+            <div><input type='text' id='lb'></div>
+            <div><input type='text' id='lc'></div>
         </form>
 
         <script>
@@ -734,18 +739,28 @@
 
                 l_nod.configure("delay", 0);
 
-                l_nod.add({
+                l_nod.add([{
                     selector: '#lb',
                     validate: 'presence',
                     triggeredBy: '#la',
                     errorMessage: ERROR_MSG
-                });
+                }, {
+                    selector: '#lc',
+                    // Checking that the #lb and #la does not conflict (#2)
+                    validate: 'same-as:#lb',
+                    triggeredBy: '#la',
+                    errorMessage: ERROR_MSG
+                }]);
 
                 var la = get('la'),
-                    lb = get('lb');
+                    lb = get('lb'),
+                    lc = get('lc');
 
                 setValue(la, 'foo');
-                expect(isInvalid(lb), '`triggeredBy` triggers correctly');
+                expect(isInvalid(lb), '`triggeredBy` triggers correctly #1');
+                expect(isValid(lc), '`triggeredBy` triggers correctly #2');
+
+                removeElement(la.parentNode.parentNode);
             })();
         </script>
 
