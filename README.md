@@ -3,8 +3,6 @@ Nod v.2.0
 
 Frontend input validation
 
-[Documentation and examples](http://casperin.github.com/nod "nod") -- or you can
-just clone this and open index.html :)
 
 Practical info
 --------------
@@ -16,8 +14,8 @@ Practical info
 * **Backwards compatibility:** ver. 2 is *not* compatible with previous versions.
 
 
-Examples
---------
+Example
+-------
 
 Cloning the project, and checking out the examples is the best way to go. But here are some basic stuff to give you and idea and get you going.
 
