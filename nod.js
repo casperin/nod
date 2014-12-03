@@ -636,6 +636,28 @@ nod.addClass = function (className, el) {
 };
 
 
+nod.getParent = function (element, configuration) {
+    if (!configuration.parentClass) {
+        return element.parentNode;
+    } else {
+        return nod.findParentWithClass(element.parentNode, configuration.parentClass);
+    }
+};
+
+nod.findParentWithClass = function (parent, klass) {
+    // Guard (only the `window` does not have a parent).
+    if (!parent.parentNode) {
+        return parent;
+    }
+
+    // Found it
+    if (nod.hasClass(klass, parent)) {
+        return parent;
+    }
+
+    // Try next parent (recursion)
+    return nod.findParentWithClass(parent.parentNode, klass);
+};
 
 /**
  * makeDomNode
@@ -652,7 +674,7 @@ nod.makeDomNode = function (element, mediator, configuration) {
     // A 'domNode' consists of two elements: a 'parent', and a 'span'. The
     // parent is given as a paremeter, while the span is created and added
     // as a child to the parent.
-    var parent              = element.parentNode,
+    var parent              = nod.getParent(element, configuration),
         _status             = nod.constants.UNCHECKED,
         pendingUpdate       = null,
         span                = document.createElement('span'),

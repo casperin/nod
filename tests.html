@@ -175,7 +175,7 @@
                     selector: '#bb',
                     validate: 'same-as:#b',
                     errorMessage: ERROR_MSG,
-                    //triggeredBy: '#b'
+                    triggeredBy: '#b'
                 });
 
                 var b  = get('b');
@@ -186,11 +186,11 @@
 
                 setValue(b, 'foo');
 
-                expect(isInvalid(bb), 'same-as #1');
+                expect(isInvalid(bb), 'Triggered by should work?');
 
                 setValue(bb, 'foo');
 
-                expect(isValid(bb), 'same-as #2');
+                expect(isValid(bb), 'Same-as works');
 
                 // We're done
                 removeElement(b.parentNode);
@@ -552,9 +552,8 @@
                 setValue(hk, '3.4');
                 expect(isValid(hk), 'Check - `float`');
 
-                expect(isInvalid(hl), 'Check - `same-as` #3');
                 setValue(hl, '3.4');
-                expect(isValid(hl), 'Check - `same-as` #4');
+                expect(isValid(hl), 'Check - `same-as`');
 
                 hm.checked = true;
                 trigger(hm, 'change');
@@ -675,9 +674,6 @@
                     errorMessage: ERROR_MSG
                 });
 
-                var ja = get('ja'),
-                    jb = get('jb');
-
                 setValue(ja, 'foo');
                 setValue(jb, '');
 
@@ -709,8 +705,6 @@
                     errorMessage: ERROR_MSG
                 });
 
-                var ka = get('ka');
-
                 setValue(ka, 'foo');
 
                 setTimeout(function () {
@@ -726,74 +720,39 @@
         </script>
 
 
-
         <form action=''>
-            <div><input type='text' id='la'></div>
-            <div><input type='text' id='lb'></div>
-            <div><input type='text' id='lc'></div>
+            <div class='parent-parent' id='parent_id'>
+                <div>
+                    <input type='text' id='l'>
+                </div>
+            </div>
         </form>
 
         <script>
             (function () {
                 var l_nod = nod();
 
-                l_nod.configure("delay", 0);
+                l_nod.configure({
+                    'delay': 0,
+                    'parentClass': 'parent-parent'
+                });
 
-                l_nod.add([{
-                    selector: '#lb',
+                l_nod.add({
+                    selector: '#l',
                     validate: 'presence',
-                    triggeredBy: '#la',
                     errorMessage: ERROR_MSG
-                }, {
-                    selector: '#lc',
-                    // Checking that the #lb and #la does not conflict (#2)
-                    validate: 'same-as:#lb',
-                    triggeredBy: '#la',
-                    errorMessage: ERROR_MSG
-                }]);
+                });
 
-                var la = get('la'),
-                    lb = get('lb'),
-                    lc = get('lc');
+                var parentparent = get('parent_id');
 
-                setValue(la, 'foo');
-                expect(isInvalid(lb), '`triggeredBy` triggers correctly #1');
-                expect(isValid(lc), '`triggeredBy` triggers correctly #2');
+                setValue(l, 'foo');
 
-                removeElement(la.parentNode.parentNode);
+                expect(hasClass('nod-success', parentparent), 'Setting the "parentClass"');
+
+                removeElement(l.parentNode.parentNode.parentNode);
             })();
         </script>
 
-
-
-        <form action=''>
-            <div><input type='radio' value="ma" name="name-m" id='ma'></div>
-            <div><input type='radio' value="mb" name="name-m" id='mb'></div>
-        </form>
-
-        <script>
-            (function () {
-                var m_nod = nod();
-
-                m_nod.configure("delay", 0);
-
-                m_nod.add([{
-                    selector: '[name=name-m]',
-                    validate: 'some-radio',
-                    errorMessage: ERROR_MSG
-                }]);
-
-                var ma = get('ma'),
-                    mb = get('mb');
-
-                expect(isUnchecked(ma), 'Check - `some-radio` #1');
-                ma.checked = true;
-                trigger(ma, 'change');
-                expect(isValid(mb),  'Check - `some-radio` #2');
-
-                removeElement(ma.parentNode.parentNode);
-            })();
-        </script>
 
 
 
