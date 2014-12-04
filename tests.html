@@ -173,7 +173,7 @@
 
                 b_nod.add({
                     selector: '#bb',
-                    validate: 'same-as:#b',
+                    validate: 'presence',
                     errorMessage: ERROR_MSG,
                     triggeredBy: '#b'
                 });
@@ -186,11 +186,7 @@
 
                 setValue(b, 'foo');
 
-                expect(isInvalid(bb), 'Triggered by should work?');
-
-                setValue(bb, 'foo');
-
-                expect(isValid(bb), 'Same-as works');
+                expect(isInvalid(bb), 'TriggeredBy');
 
                 // We're done
                 removeElement(b.parentNode);
@@ -552,8 +548,11 @@
                 setValue(hk, '3.4');
                 expect(isValid(hk), 'Check - `float`');
 
+                expect(isUnchecked(hl), 'Check - `same-as` #1');
                 setValue(hl, '3.4');
-                expect(isValid(hl), 'Check - `same-as`');
+                expect(isValid(hl), 'Check - `same-as` #2');
+                setValue(hk, 'foo');
+                expect(isInvalid(hl), 'Check - `same-as` #3');
 
                 hm.checked = true;
                 trigger(hm, 'change');

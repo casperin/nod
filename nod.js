@@ -152,6 +152,7 @@ function nod () {
         }
 
 
+
         // Here we set up the "connections" between each of our main parts.
         // They communicate only through the mediator.
         metricSets.forEach(function (metricSet) {
@@ -190,6 +191,11 @@ function nod () {
             // just ask the domNode to listen for that.
             metricSet.domNode.subscribeTo(metricSet.checkHandler.id);
         });
+
+
+
+        // After all is done, we may have to enable/disable a submit button.
+        toggleSubmit();
     }
 
 
@@ -249,26 +255,41 @@ function nod () {
      */
     function configure (attributes, value) {
         if (arguments.length > 1) {
-            configuration[attributes] = value;
-        }  else {
-            for (var key in attributes) {
-                configuration[key] = attributes[key];
-            }
+            var k = attributes;
+            attributes = {};
+
+            attributes[k] = value;
+        }
+
+        for (var key in attributes) {
+            configuration[key] = attributes[key];
+        }
+
+        if (attributes.submit || attributes.disableSubmit) {
+            toggleSubmit();
         }
     }
 
+
+
+    /**
+     * toggleSubmit
+     *
+     * Toggles the submit button (enabled if every element is valid, otherwise
+     * disabled).
+     */
+    function toggleSubmit () {
+        if (configuration.submit && configuration.disableSubmit) {
+            nod.getElement(configuration.submit).disabled = !isAllValid();
+        }
+    }
 
 
     /*
      * Listen to all checks, and if the user has set in the configuration to
      * enable/disabled the submit button, we do that.
      */
-    mediator.subscribe('all', function () {
-        if (configuration.submit && configuration.disableSubmit) {
-            nod.getElement(configuration.submit).disabled = !isAllValid();
-        }
-    });
-
+    mediator.subscribe('all', toggleSubmit);
 
 
     /**
@@ -454,9 +475,10 @@ nod.makeCollection = function (maker) {
 nod.makeListener = function (element, mediator) {
     var id = nod.unique();
 
-    function changed () {
+    function changed (event) {
         mediator.fire({
             id:     id,
+            event:  event,
             type:   'change'
         });
     }
@@ -504,9 +526,9 @@ nod.makeChecker = function (element, mediator) {
     }
 
     // Run every check function against the value of the element.
-    function performCheck () {
+    function performCheck (argsObj) {
         checks.forEach(function (check) {
-            check();
+            check(argsObj);
         });
     }
 
@@ -523,8 +545,8 @@ nod.makeChecker = function (element, mediator) {
             });
         }
 
-        checks.push(function () {
-            checkfn(callback, element.value, element);
+        checks.push(function (argsObj) {
+            checkfn(callback, element.value, element, argsObj.event);
         });
     }
 
@@ -970,7 +992,16 @@ nod.checkfns = {
     'same-as': function (selector) {
         var sameAsElement = nod.getElement(selector);
 
-        return function sameAs (callback, value) {
+        return function sameAs (callback, value, element, event) {
+            // 'same-as' is special, in that if it is triggered by another
+            // field (the one it should be similar to), and the field itself is
+            // empty, then it bails out without a check. This is to avoid
+            // showing an error message before the user has even reached the
+            // element.
+            if (event.target !== element && element.value.length === 0) {
+                return;
+            }
+
             callback(value === sameAsElement.value);
         };
     },
