@@ -217,6 +217,10 @@ function nod () {
     function possiblePreventSubmit (event) {
         if (configuration.preventSubmit && !isAllValid()) {
             event.preventDefault();
+
+            checkers.collection.forEach(function (checker) {
+                checker.performCheck();
+            });
         }
     }
 
@@ -532,6 +536,7 @@ nod.makeChecker = function (element, mediator) {
     return {
         subscribeTo:    subscribeTo,
         addCheck:       addCheck,
+        performCheck:   performCheck,
         element:        element
     };
 };
