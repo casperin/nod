@@ -204,25 +204,22 @@ function nod () {
      * If a form is added, we listen for submits, and if the has also set
      * `preventSubmit` in the configuration, then we stop the commit from
      * happening unless all the elements are valid.
-     *
-     * Alternatively, a `remove` boolean can be added, to instead, remove the
-     * prevention. (Not much point to this at the moment, as the user can just
-     * remove `preventSubmit` instead).
      */
     function addForm (selector, remove) {
         var form = nod.getElement(selector);
 
-        if (remove !== true) {
-            form.addEventListener('submit', possiblePreventSubmit, false);
-        } else {
-            form.removeEventListener('submit', possiblePreventSubmit, false);
-        }
+       form.addEventListener('submit', possiblePreventSubmit, false);
     }
 
     // Prevent function, used above
     function possiblePreventSubmit (event) {
         if (configuration.preventSubmit && !isAllValid()) {
             event.preventDefault();
+
+            // Show errors to the user
+            checkers.collection.forEach(function (checker) {
+                checker.performCheck();
+            });
         }
     }
 
@@ -267,6 +264,10 @@ function nod () {
 
         if (attributes.submit || attributes.disableSubmit) {
             toggleSubmit();
+        }
+
+        if (attributes.form) {
+            addForm(attributes.form);
         }
     }
 
@@ -330,7 +331,6 @@ function nod () {
      */
     return {
         add:                    addMetrics,
-        addForm:                addForm,
         remove:                 removeElement,
         isAllValid:             isAllValid,
         configure:              configure,
@@ -556,6 +556,7 @@ nod.makeChecker = function (element, mediator) {
     return {
         subscribeTo:    subscribeTo,
         addCheck:       addCheck,
+        performCheck:   performCheck,
         element:        element
     };
 };
