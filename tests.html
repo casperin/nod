@@ -719,36 +719,35 @@
         </script>
 
 
+
         <form action=''>
-            <div class='parent-parent' id='parent_id'>
-                <div>
-                    <input type='text' id='l'>
-                </div>
-            </div>
+            <div><input type='radio' class='radio' name='radio' value='ma' id='ma'></div>
+            <div><input type='radio' class='radio' name='radio' value='mb' id='mb'></div>
         </form>
 
         <script>
             (function () {
-                var l_nod = nod();
+                var m_nod = nod();
 
-                l_nod.configure({
-                    'delay': 0,
-                    'parentClass': 'parent-parent'
-                });
+                m_nod.configure('delay', 0);
 
-                l_nod.add({
-                    selector: '#l',
-                    validate: 'presence',
+                m_nod.add({
+                    selector: '.radio',
+                    validate: 'some-radio',
                     errorMessage: ERROR_MSG
                 });
 
-                var parentparent = get('parent_id');
+                var ma = get('ma'),
+                    mb = get('mb');
 
-                setValue(l, 'foo');
+                expect(isUnchecked(ma), 'Check - `some-radio` #1');
 
-                expect(hasClass('nod-success', parentparent), 'Setting the "parentClass"');
+                ma.checked = true;
+                trigger(mb, 'change');
 
-                removeElement(l.parentNode.parentNode.parentNode);
+                expect(isValid(ma), 'Check - `some-radio` #2');
+
+                removeElement(ma.parentNode.parentNode);
             })();
         </script>
 

@@ -546,7 +546,9 @@ nod.makeChecker = function (element, mediator) {
         }
 
         checks.push(function (argsObj) {
-            checkfn(callback, element.value, element, argsObj.event);
+            argsObj.element = element;
+
+            checkfn(callback, element.value, argsObj);
         });
     }
 
@@ -993,13 +995,13 @@ nod.checkfns = {
     'same-as': function (selector) {
         var sameAsElement = nod.getElement(selector);
 
-        return function sameAs (callback, value, element, event) {
+        return function sameAs (callback, value, argsObj) {
             // 'same-as' is special, in that if it is triggered by another
             // field (the one it should be similar to), and the field itself is
             // empty, then it bails out without a check. This is to avoid
             // showing an error message before the user has even reached the
             // element.
-            if (event.target !== element && element.value.length === 0) {
+            if (argsObj.event.target !== argsObj.element && value.length === 0) {
                 return;
             }
 
@@ -1038,15 +1040,15 @@ nod.checkfns = {
     },
 
     'checked': function () {
-        return function checked (callback, value, element) {
-            callback(element.checked);
+        return function checked (callback, value, argsObj) {
+            callback(argsObj.element.checked);
         };
     },
 
     'some-radio': function (selector) {
         var radioElements = nod.getElements(selector);
 
-        return function someRadio (callback, value, element) {
+        return function someRadio (callback) {
             var result = radioElements.reduce(function (memo, element) {
                 return memo || element.checked;
             }, false);
