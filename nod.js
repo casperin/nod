@@ -1001,7 +1001,11 @@ nod.checkfns = {
             // empty, then it bails out without a check. This is to avoid
             // showing an error message before the user has even reached the
             // element.
-            if (argsObj.event.target !== argsObj.element && value.length === 0) {
+            if (    argsObj &&
+                    argsObj.event &&
+                    argsObj.event.target &&
+                    argsObj.event.target !== argsObj.element &&
+                    value.length === 0) {
                 return;
             }
 
