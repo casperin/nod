@@ -293,10 +293,10 @@
                 var e  = get('e'),
                     ele, val, res;
 
-                e_nod.configure('tap', function (el, validate, result) {
-                    ele = el;
-                    val = validate;
-                    res = result;
+                e_nod.configure('tap', function (options) {
+                    ele = options.element;
+                    val = options.validate;
+                    res = options.result;
                 });
 
                 setValue(e, 'foo');
@@ -636,7 +636,7 @@
 
                 i_nod.setMessageOptions({
                     selector: '#i',
-                    container: '#i-container',
+                    parent: '#i-container',
                     message: '#i-error-message-here'
                 });
 
@@ -751,6 +751,39 @@
             })();
         </script>
 
+
+
+        <form action=''>
+            <div id='myParent' class='myParent'>
+                <label><input type='text' id='myChild'></label>
+            </div>
+        </form>
+
+
+        <script>
+            (function () {
+                var n_nod = nod();
+
+                n_nod.configure({
+                    'delay': 0,
+                    parentClass: '.myParent'
+                });
+
+                n_nod.add({
+                    selector: '#myChild',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                var np = get('myParent'),
+                    nc = get('myChild');
+
+                setValue(nc, 'foo');
+
+                expect(hasClass('nod-success', np), 'configure `parentClass`');
+
+            })();
+        </script>
 
 
 

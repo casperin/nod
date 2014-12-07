@@ -102,7 +102,7 @@ function nod () {
 
 
             // The function that will check the value of the element.
-            checkfn = nod.getCheckFn(metric),
+            checkFunction = nod.getCheckFunction(metric),
 
 
             // A list of elements that this metric will target.
@@ -124,7 +124,7 @@ function nod () {
 
         // Saved for later reference in case the user has a `tap` function
         // defined.
-        checkfn.validate = (typeof metric.validate === 'function') ? metric.validate.toString() : metric.validate;
+        checkFunction.validate = (typeof metric.validate === 'function') ? metric.validate.toString() : metric.validate;
 
 
 
@@ -178,7 +178,7 @@ function nod () {
 
             // We add the check function as one to be checked when the user
             // inputs something. (There might be more than this one).
-            metricSet.checker.addCheck(checkfn, checkId);
+            metricSet.checker.addCheck(checkFunction, checkId);
 
             // We want the check handler to listen for results from the checker
             metricSet.checkHandler.subscribeTo(checkId, metric.errorMessage);
@@ -218,7 +218,9 @@ function nod () {
 
             // Show errors to the user
             checkers.collection.forEach(function (checker) {
-                checker.performCheck();
+                checker.performCheck({
+                    event: event
+                });
             });
         }
     }
@@ -309,7 +311,7 @@ function nod () {
         elements.forEach(function (element) {
             var domNode = domNodes.findOrMake(element);
 
-            domNode.setMessageOptions(options.container, options.message);
+            domNode.setMessageOptions(options.parent, options.message);
         });
     }
 
@@ -317,9 +319,9 @@ function nod () {
      * Listen to all checks and allow the user to listen in, if he set a `tap`
      * function in the configuration.
      */
-    mediator.subscribe('all', function (argsObj) {
-        if (typeof configuration.tap === 'function' && argsObj.type === 'check') {
-            configuration.tap(argsObj.element, argsObj.validate, argsObj.result);
+    mediator.subscribe('all', function (options) {
+        if (typeof configuration.tap === 'function' && options.type === 'check') {
+            configuration.tap(options);
         }
     });
 
@@ -395,11 +397,11 @@ nod.makeMediator = function () {
             }
         },
 
-        fire: function fire (argsObj) {
-            var subscribedFunctions = subscribers[argsObj.id].concat(all);
+        fire: function fire (options) {
+            var subscribedFunctions = subscribers[options.id].concat(all);
 
             subscribedFunctions.forEach(function (subscribedFunction) {
-                subscribedFunction(argsObj);
+                subscribedFunction(options);
             });
         }
     };
@@ -515,8 +517,8 @@ nod.makeListener = function (element, mediator) {
  * listeners, and an checkHandler; although they may
  * communicate with other "sets" of listeners, checkers and handlers.
  *
- * Checks are added, from the outside, and consists of a checkfn (see
- * nod.checkfns) and a unique id.
+ * Checks are added, from the outside, and consists of a checkFunction (see
+ * nod.checkFunctions) and a unique id.
  */
 nod.makeChecker = function (element, mediator) {
     var checks = [];
@@ -526,29 +528,29 @@ nod.makeChecker = function (element, mediator) {
     }
 
     // Run every check function against the value of the element.
-    function performCheck (argsObj) {
+    function performCheck (options) {
         checks.forEach(function (check) {
-            check(argsObj);
+            check(options || {});
         });
     }
 
     // Add a check function to the element. The result will be handed off
     // to the mediator (for checkHandlers to evaluate).
-    function addCheck (checkfn, id) {
+    function addCheck (checkFunction, id) {
         function callback (result) {
             mediator.fire({
                 id: id,
                 type: 'check',
                 result: result,
                 element: element,
-                validate: checkfn.validate
+                validate: checkFunction.validate
             });
         }
 
-        checks.push(function (argsObj) {
-            argsObj.element = element;
+        checks.push(function (options) {
+            options.element = element;
 
-            checkfn(callback, element.value, argsObj);
+            checkFunction(callback, element.value, options);
         });
     }
 
@@ -662,10 +664,14 @@ nod.addClass = function (className, el) {
 
 
 nod.getParent = function (element, configuration) {
-    if (!configuration.parentClass) {
+    var klass = configuration.parentClass;
+
+    if (!klass) {
         return element.parentNode;
     } else {
-        return nod.findParentWithClass(element.parentNode, configuration.parentClass);
+        klass = klass.charAt(0) === '.' ? klass.slice(1) : klass;
+
+        return nod.findParentWithClass(element.parentNode, klass);
     }
 };
 
@@ -750,9 +756,9 @@ nod.makeDomNode = function (element, mediator, configuration) {
         }
     }
 
-    function set (argsObj) {
-        var status              = argsObj.result,
-            errorMessage        = argsObj.errorMessage;
+    function set (options) {
+        var status              = options.result,
+            errorMessage        = options.errorMessage;
 
         // If the dom is showing an invalid message, we want to update the
         // dom right away.
@@ -787,9 +793,9 @@ nod.makeDomNode = function (element, mediator, configuration) {
     }
 
 
-    function setMessageOptions (container, message) {
-        if (container) {
-            parent = nod.getElement(container);
+    function setMessageOptions (parentContainer, message) {
+        if (parentContainer) {
+            parent = nod.getElement(parentContainer);
         }
 
         if (message) {
@@ -887,13 +893,13 @@ nod.getElements = function (selector) {
 
 
 
-nod.getCheckFn = function (metric) {
+nod.getCheckFunction = function (metric) {
     if (typeof metric.validate === 'function') {
         return metric.validate;
     }
 
     if (metric.validate instanceof RegExp) {
-        return nod.checkfns.regexp(metric.validate);
+        return nod.checkFunctions.regexp(metric.validate);
     }
 
     var args   = metric.validate.split(':'),
@@ -905,15 +911,15 @@ nod.getCheckFn = function (metric) {
         args.push(metric.selector);
     }
 
-    if (typeof nod.checkfns[fnName] === 'function') {
-        return nod.checkfns[fnName].apply(null, args);
+    if (typeof nod.checkFunctions[fnName] === 'function') {
+        return nod.checkFunctions[fnName].apply(null, args);
     } else {
         throw 'Couldn\'t find your validator function "' + fnName + '" for "' + metric.selector + '"';
     }
 };
 
 // Collection of built-in check functions
-nod.checkfns = {
+nod.checkFunctions = {
     'presence': function () {
         return function presence (callback, value) {
             callback(value.length > 0);
@@ -995,16 +1001,16 @@ nod.checkfns = {
     'same-as': function (selector) {
         var sameAsElement = nod.getElement(selector);
 
-        return function sameAs (callback, value, argsObj) {
+        return function sameAs (callback, value, options) {
             // 'same-as' is special, in that if it is triggered by another
             // field (the one it should be similar to), and the field itself is
             // empty, then it bails out without a check. This is to avoid
             // showing an error message before the user has even reached the
             // element.
-            if (    argsObj &&
-                    argsObj.event &&
-                    argsObj.event.target &&
-                    argsObj.event.target !== argsObj.element &&
+            if (    options &&
+                    options.event &&
+                    options.event.target &&
+                    options.event.target !== options.element &&
                     value.length === 0) {
                 return;
             }
@@ -1044,17 +1050,17 @@ nod.checkfns = {
     },
 
     'checked': function () {
-        return function checked (callback, value, argsObj) {
-            callback(argsObj.element.checked);
+        return function checked (callback, value, options) {
+            callback(options.element.checked);
         };
     },
 
     'some-radio': function (selector) {
         var radioElements = nod.getElements(selector);
 
-        return function someRadio (callback, value, argsObj) {
+        return function someRadio (callback, value, options) {
             var result = radioElements.reduce(function (memo, element) {
-                return memo || argsObj.element.checked;
+                return memo || options.element.checked;
             }, false);
 
             callback(result);
