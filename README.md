@@ -1,3 +1,7 @@
+### NOTICE
+
+I'm currently rewriting nod.js, and it is *almost* ready for release. If this is the first time you are here, then I *highly* recommend that you check out <a href='https://github.com/casperin/nod/tree/2'>branch 2</a>.
+
 Nod v.1.0.5
 ===========
 
