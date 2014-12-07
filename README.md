@@ -449,12 +449,12 @@ Some more examples:
 You can extend the available check functions in `nod` like this:
 
 ```javascript
-    // Note that this is the general `nod` function. Not a particular instance.
-    nod.checkFunctions['divBy2'] = function () {
-        return function (callback, value) {
-            callback(value % 2 === 0);
-        };
+// Note that this is the general `nod` function. Not a particular instance.
+nod.checkFunctions['divBy2'] = function () {
+    return function (callback, value) {
+        callback(value % 2 === 0);
     };
+};
 ```
 
 This function can then be reused:
@@ -470,13 +470,13 @@ myNod.add({
 We can also use arguments when setting up the function. Like so:
 
 ```javascript
-    nod.checkFunctions['divByX'] = function (x) {
-        x = parseInt(x, 10);
+nod.checkFunctions['divByX'] = function (x) {
+    x = parseInt(x, 10);
 
-        return function (callback, value) {
-            callback(value % x === 0);
-        };
+    return function (callback, value) {
+        callback(value % x === 0);
     };
+};
 ```
 
 And to define "x", we use it like so:
