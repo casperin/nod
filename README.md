@@ -388,7 +388,7 @@ examples below (or in the examples folder).
 * `"between-number:[Number]:[Number]"`
 * `"integer"`
 * `"float"`
-* `"same-as:[Sring]"` (A css type selector)
+* `"same-as:[String]"` (A css type selector)
 * `"one-of"`
 * `"only-one-of"`
 * `"checked"` (For checkboxes only)
@@ -493,5 +493,37 @@ If you need more arguments, you just separate them with ":".
 
 ```javascript
     validate: 'myFunc:a:b:c:d:e'
+```
+
+A little more comprehensive example. Say we want to make a game where the user
+has to add up numbers. We have some html:
+
+```html
+<span class='a'>21</span> +
+<span class='b'>5</span> =
+<input type='number' class='result'>
+```
+
+And let's see some check function:
+
+```javascript
+nod.checkFunctions['calc'] = function (a, b) {
+    var strA = nod.getElement(a).innerHTML,
+        strB = nod.getElement(b).innerHTML,
+        result = parseInt(strA, 10) + parseInt(strB, 10);
+
+    return function (callback, value) {
+        value = parseInt(value, 10); // values are always strings
+
+        callback(value === result);
+    };
+};
+
+// And let's use it
+myNod.add({
+    selector: '.result',
+    validate: 'calc:.a:.b',
+    errorMessage: 'Wrong! Don\'t you know math?'
+});
 ```
 
