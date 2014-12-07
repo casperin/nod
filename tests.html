@@ -782,8 +782,40 @@
 
                 expect(hasClass('nod-success', np), 'configure `parentClass`');
 
+                removeElement(np.parentNode);
             })();
         </script>
+
+        <form action=''>
+            <input type='text' id='o'>
+        </form>
+
+
+        <script>
+            (function () {
+                var o_nod = nod();
+
+                o_nod.configure({'delay': 0});
+
+                o_nod.add({
+                    selector: '#o',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                var o = get('o');
+
+                expect(o_nod.getStatus('#o') === nod.constants.UNCHECKED, 'getStatus #1');
+
+                setValue(o, 'foo');
+
+                expect(o_nod.getStatus('#o') === nod.constants.VALID, 'getStatus #2');
+
+                removeElement(o.parentNode);
+            })();
+        </script>
+
+
 
 
 
