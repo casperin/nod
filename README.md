@@ -190,8 +190,10 @@ through each referring to this html:
     <label>
         <span>What's the meaning of life?</span>
         <input type='text' class='foo'>
-        // error span gets added here:
-        // <span class='nod-error'><%= errorMessage %></span>
+        <!-- 
+            error span gets added here:
+            <span class='nod-error'><%= errorMessage %></span>
+        -->
     </label>
 </div>
 ```
