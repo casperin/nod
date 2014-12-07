@@ -1,0 +1,872 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>My own little testrunner</title>
+        <style>
+            body { font-family: monospace; }
+            #total-result { font-size: 2em; margin: 1em 0; }
+            ul { margin: 0; list-style: none; padding-left: 2em; text-indent: -2em; }
+            form { visibility: hidden; height: 0; }
+            .good { color: #1cbf00; }
+            .bad {  color: #c00; }
+        </style>
+        <script>
+            window.onerror = function () {
+                var errorMsg = document.createElement('div');
+                errorMsg.className = 'bad';
+                errorMsg.innerHTML = 'Some error happened. Check the console.';
+
+
+                get('total-result').appendChild(errorMsg);
+            }
+
+            function createLi (html, className) {
+                var li = document.createElement('li')
+
+                li.innerHTML = html;
+                li.className = className;
+
+                return li;
+            }
+
+            // Helper functions
+            function removeElement (el) {
+                el.parentNode.removeChild(el);
+            }
+
+            function hasClass (className, el) {
+                return !!el.className.match(new RegExp('(\\s|^)'+className+'(\\s|$)'));
+            }
+
+            function get (id) {
+                return document.getElementById(id);
+            }
+
+            var total = 0, passed = 0;
+
+            function expect (expected, msg) {
+                var li = createLi(msg, expected === true ? 'good' : 'bad');
+
+                get('results').appendChild(li);
+
+                total++;
+                get('total').innerHTML = total;
+
+                passed = expected === true ? passed + 1 : passed;
+                get('passed').innerHTML = passed;
+
+                if (passed < total) {
+                    get('total-result').className = 'bad';
+                }
+            }
+
+            function setValue (el, value) {
+                el.value = value;
+                trigger(el, 'input');
+            }
+
+            function isValid (el) {
+                return hasClass('nod-success', el.parentNode);
+            }
+
+            function isInvalid (el) {
+                return hasClass('nod-error', el.parentNode);
+            }
+
+            function isUnchecked (el) {
+                return !(isValid(el) || isInvalid(el));
+            }
+
+            function trigger (el, eventName) {
+                var customEvent = new CustomEvent(eventName);
+                el.dispatchEvent(customEvent);
+            }
+
+            // For ie 9 and 10
+            (function () {
+              function CustomEvent ( event, params ) {
+                params = params || { bubbles: false, cancelable: false, detail: undefined };
+                var evt = document.createEvent( 'CustomEvent' );
+                evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+                return evt;
+               };
+
+              CustomEvent.prototype = window.Event.prototype;
+
+              window.CustomEvent = CustomEvent;
+            })();
+
+            var ERROR_MSG = 'some error message';
+        </script>
+        <script src='nod.js'></script>
+    </head>
+    <body>
+
+
+        <div id='total-result' class='good'>
+            <span id='passed'>0</span> / <span id='total'>0</span>
+        </div>
+
+        <ul id='results'></ul>
+
+
+
+        <form action="">
+            <input id='a' type='text'>
+        </form>
+
+        <script>
+            (function () {
+                var a_nod = nod();
+
+                // Test that we can add an element, and that 'presence' works as expected.
+                a_nod.add({
+                    selector: '#a',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                var a = get('a');
+
+                expect(isUnchecked(a), 'Status in \'unchecked\' before entering anything');
+
+                trigger(a, 'input');
+
+                expect(isUnchecked(a), 'Check delay for unchecked inputs work');
+
+                setTimeout(function () {
+                    expect(isInvalid(a), 'Empty is invalid (\'presence\')');
+
+                    setValue(a, 'foo');
+
+                    expect(isValid(a), 'Valid on entering. Also, no delay for this');
+
+                    a_nod.remove(a);
+
+                    setValue(a, '');
+
+                    setTimeout(function () {
+                        expect(isUnchecked(a), 'Element is removed');
+
+
+                        // We're done
+                        removeElement(a.parentNode);
+                    }, 800);
+                }, 800);
+            })();
+        </script>
+
+
+
+
+
+
+        <form action=''>
+            <input id='b' type='text'>
+            <input id='bb' type='text'>
+        </form>
+
+        <script>
+            (function () {
+                var b_nod = nod();
+
+                b_nod.add({
+                    selector: '#bb',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG,
+                    triggeredBy: '#b'
+                });
+
+                var b  = get('b');
+                    bb = get('bb');
+
+                // We will also test removing delay
+                b_nod.configure("delay", 0);
+
+                setValue(b, 'foo');
+
+                expect(isInvalid(bb), 'TriggeredBy');
+
+                // We're done
+                removeElement(b.parentNode);
+            })();
+        </script>
+
+
+
+        <form action=''>
+            <input class='c' id='c' type='text'>
+            <input class='c' id='cc' type='text'>
+        </form>
+
+
+        <script>
+            (function () {
+                var c_nod = nod();
+
+                c_nod.add({
+                    selector: '.c',
+                    validate: 'only-one-of',
+                    errorMessage: ERROR_MSG
+                });
+
+                var c  = get('c');
+                    cc = get('cc');
+
+                setValue(c, 'foo');
+                setValue(cc, 'foo');
+
+                setTimeout(function () {
+                    expect(isInvalid(c), 'Only-one-of won\'t allow two elements to have input + two elements added with one selector');
+
+                    setValue(cc, '');
+
+                    expect(isValid(c), 'Only-one-of will allow one element to have input');
+
+                    // We're done
+                    removeElement(c.parentNode);
+                }, 800);
+            })();
+        </script>
+
+
+
+
+        <form action=''>
+            <input id='d' type='text'>
+        </form>
+
+        <script>
+            (function () {
+                var d_nod = nod();
+
+                d_nod.add({
+                    selector: '#d',
+                    validate: 'exact:foo',
+                    errorMessage: ERROR_MSG
+                });
+
+                var d  = get('d');
+
+                // Let's test some configuration
+                d_nod.configure({
+                    delay: 0,
+                    successClass: 'success-class',
+                    successMessage: 'success msg',
+                    successMessageClass: 'success-msg-class',
+                    errorClass: 'error-class',
+                    errorMessageClass: 'error-msg-class'
+                });
+
+                setValue(d, 'foo');
+
+                expect(hasClass('success-class', d.parentNode), 'Changing success class');
+                expect(d.parentNode.lastChild.innerHTML === 'success msg', 'Changing success message');
+                expect(hasClass('success-msg-class', d.parentNode.lastChild), 'Changing success message class');
+
+                setValue(d, '');
+
+                expect(hasClass('error-class', d.parentNode), 'Changing error class');
+                expect(hasClass('error-msg-class', d.parentNode.lastChild), 'Changing error message class');
+
+                // We're done
+                removeElement(d.parentNode);
+            })();
+        </script>
+
+
+        <form action=''>
+            <input id='e' type='text'>
+        </form>
+
+        <script>
+            (function () {
+                var e_nod = nod();
+
+                e_nod.add({
+                    selector: '#e',
+                    validate: 'not:foo',
+                    errorMessage: ERROR_MSG
+                });
+
+                var e  = get('e'),
+                    ele, val, res;
+
+                e_nod.configure('tap', function (options) {
+                    ele = options.element;
+                    val = options.validate;
+                    res = options.result;
+                });
+
+                setValue(e, 'foo');
+
+                expect(ele === e, 'First argument in tap fn is the element');
+                expect(val === 'not:foo', 'Second argument in tap fn is the `validate` string');
+                expect(res === false, 'Third argument in tap fn is the result');
+
+                // We're done
+                removeElement(e.parentNode);
+            })();
+        </script>
+
+
+        <form action=''>
+            <input id='f' type='text'>
+            <button type='submit' id='f_btn'>foo</button>
+        </form>
+
+        <script>
+            (function () {
+                var f_nod = nod();
+
+                f_nod.add({
+                    selector: '#f',
+                    validate: 'max-length:2',
+                    errorMessage: ERROR_MSG
+                });
+
+                var f  = get('f'),
+                    f_btn = get('f_btn');
+
+                f_nod.configure({
+                    submit: '#f_btn',
+                    disableSubmit: true
+                });
+
+                setValue(f, 'foo');
+
+                expect(f_btn.disabled === true, 'Can disable submit button when there are errors');
+
+                setValue(f, 'fo');
+
+                expect(f_btn.disabled === false, 'Enables submit button when no more errors');
+
+                // We're done
+                removeElement(f.parentNode);
+            })();
+        </script>
+
+
+
+
+        <form action=''>
+            <input id='g' type='text'>
+        </form>
+
+        <script>
+            (function () {
+                var g_nod = nod();
+
+                g_nod.add({
+                    selector: '#g',
+                    validate: function (callback, value) { callback(+value % 2 === 0); },
+                    errorMessage: ERROR_MSG
+                });
+
+                var g = get('g');
+
+                setValue(g, '4');
+
+                setTimeout(function () {
+                    expect(isValid(g), 'Custom checker function works');
+                }, 800);
+
+                // We're done
+                removeElement(g.parentNode);
+            })();
+        </script>
+
+
+
+
+
+        <form action=''>
+            <div><input id='ha' type='text'></div>
+            <div><input id='hb' type='text'></div>
+            <div><input id='hc' type='text'></div>
+            <div><input id='hd' type='text'></div>
+            <div><input id='he' type='text'></div>
+            <div><input id='hf' type='text'></div>
+            <div><input id='hg' type='text'></div>
+            <div><input id='hh' type='text'></div>
+            <div><input id='hi' type='text'></div>
+            <div><input id='hj' type='text'></div>
+            <div><input id='hk' type='text'></div>
+            <div><input id='hl' type='text'></div>
+            <div><input id='hm' type='checkbox'></div>
+            <div><input id='hn' type='text'></div>
+            <div><input id='ho' type='text'></div>
+            <div><input id='hp' type='text'></div>
+            <div><input id='hq' type='text'></div>
+            <div><input id='hr' type='text'></div>
+            <div><input id='hs' class='test-one-of' type='text'></div>
+            <div><input id='ht' class='test-one-of' type='text'></div>
+        </form>
+
+        <script>
+            (function () {
+                var h_nod = nod();
+
+                h_nod.configure('delay', 0);
+
+                h_nod.add([{
+                    selector: '#ha',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hb',
+                    validate: 'exact:foo',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hc',
+                    validate: 'not:foo',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hd',
+                    validate: 'min-length:3',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#he',
+                    validate: 'max-length:3',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hf',
+                    validate: 'between-length:2:4',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hp',
+                    validate: 'exact-length:3',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hg',
+                    validate: 'min-number:3',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hh',
+                    validate: 'max-number:3',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hi',
+                    validate: 'between-number:3:6',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hj',
+                    validate: 'integer',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hk',
+                    validate: 'float',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hl',
+                    validate: 'same-as:#hk',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hm',
+                    validate: 'checked',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hn',
+                    validate: /foo/,
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#ho',
+                    validate: 'email',
+                    errorMessage: ERROR_MSG
+                }, {
+                    selector: '#hq',
+                    validate: 'email',
+                    errorMessage: 'Not an email'
+                }, {
+                    selector: '#hq',
+                    validate: 'max-length:8',
+                    errorMessage: 'too long'
+                }, {
+                    selector: '#hr',
+                    validate: ['email', 'max-length:8'],
+                    errorMessage: ['Not an email', 'too long']
+                }, {
+                    selector: '.test-one-of',
+                    validate: 'only-one-of',
+                    errorMessage: ERROR_MSG
+                }]);
+
+                var ha = get('ha'),
+                    hb = get('hb'),
+                    hc = get('hc'),
+                    hd = get('hd'),
+                    he = get('he'),
+                    hf = get('hf'),
+                    hg = get('hg'),
+                    hh = get('hh'),
+                    hi = get('hi'),
+                    hj = get('hj'),
+                    hk = get('hk'),
+                    hl = get('hl'),
+                    hm = get('hm'),
+                    hn = get('hn'),
+                    ho = get('ho'),
+                    hp = get('hp'),
+                    hq = get('hq'),
+                    hr = get('hr'),
+                    hs = get('hs'),
+                    ht = get('ht');
+
+                setValue(ha, 'foo');
+                expect(isValid(ha), 'Check - `presence`');
+
+                setValue(hb, 'foo');
+                expect(isValid(hb), 'Check - `exact`');
+
+                setValue(hc, 'foo');
+                expect(isInvalid(hc), 'Check - `not`');
+
+                setValue(hd, 'foo');
+                expect(isValid(hd), 'Check - `min-length`');
+
+                setValue(he, 'foo');
+                expect(isValid(he), 'Check - `max-length`');
+
+                setValue(hf, 'foo');
+                expect(isValid(hf), 'Check - `between-length`');
+
+                setValue(hg, '3');
+                expect(isValid(hg), 'Check - `min-number`');
+
+                setValue(hh, '3');
+                expect(isValid(hh), 'Check - `max-number`');
+
+                setValue(hi, '3');
+                expect(isValid(hi), 'Check - `between-number`');
+
+                setValue(hj, '3');
+                expect(isValid(hj), 'Check - `integer`');
+                setValue(hj, '3.5');
+                expect(isInvalid(hj), 'Check - `integer` (2nd check)');
+
+                setValue(hk, '3.4');
+                expect(isValid(hk), 'Check - `float`');
+
+                expect(isUnchecked(hl), 'Check - `same-as` #1');
+                setValue(hl, '3.4');
+                expect(isValid(hl), 'Check - `same-as` #2');
+                setValue(hk, 'foo');
+                expect(isInvalid(hl), 'Check - `same-as` #3');
+
+                hm.checked = true;
+                trigger(hm, 'change');
+                expect(isValid(hm), 'Check - `checked`');
+
+                setValue(hn, 'foo');
+                expect(isValid(hn), 'Check - `regex`');
+
+                setValue(ho, 'some@email.com');
+                expect(isValid(ho), 'Check - `email`');
+                setValue(ho, 'some@.com');
+                expect(isInvalid(ho), 'Check - `email` (2nd check)');
+
+                setValue(hp, 'fo');
+                expect(isInvalid(hp), 'Check - `exact-length`');
+                setValue(hp, 'foo');
+                expect(isValid(hp), 'Check - `exact-length` (2nd check)');
+
+                // one is filled out
+                setValue(hs, 'foo');
+                expect(isValid(hs), 'Check - `only-one-of` #1');
+                // both filled out
+                setValue(ht, 'foo');
+                expect(isInvalid(hs), 'Check - `only-one-of` #2');
+
+                // other filled out
+                setValue(hs, '');
+                expect(isValid(ht), 'Check - `only-one-of` #3');
+
+                // None filled out
+                setValue(ht, '');
+                expect(isInvalid(hs), 'Check - `only-one-of` #4');
+                expect(isInvalid(ht), 'Check - `only-one-of` #5');
+
+
+                setValue(hq, 'f@b.com');
+                expect(isValid(hq), 'Multiple checks on one field. #1');
+
+                setValue(hq, 'f.com');
+                expect(isInvalid(hq), 'Multiple checks on one field. #2');
+                expect(hq.parentNode.lastChild.innerHTML === 'Not an email', 'Multiple checks on one field. #3 (showing correct error msg)');
+
+                setValue(hq, 'foo@bar.com');
+                expect(hq.parentNode.lastChild.innerHTML === 'too long', 'Multiple checks on one field. #4 (showing other correct error msg)');
+
+
+                setValue(hr, 'f@b.com');
+                expect(isValid(hr), 'Multiple checks on one field via an array. #1');
+
+                setValue(hr, 'f.com');
+                expect(isInvalid(hr), 'Multiple checks on one field via an array. #2');
+                expect(hr.parentNode.lastChild.innerHTML === 'Not an email', 'Multiple checks on one field via an array. #3 (showing correct error msg)');
+
+                setValue(hr, 'foo@bar.com');
+                expect(hr.parentNode.lastChild.innerHTML === 'too long', 'Multiple checks on one field via an array. #4 (showing other correct error msg)');
+
+                // We're done
+                removeElement(ha.parentNode.parentNode);
+            })();
+        </script>
+
+
+
+        <form action=''>
+            <div id='i-container'></div>
+            <span id='i-error-message-here' class='my-class'></span>
+            <input id='i' type='text'>
+        </form>
+
+        <script>
+            (function () {
+                var i_nod = nod();
+
+                i_nod.configure('delay', 0);
+
+                i_nod.add({
+                    selector: '#i',
+                    validate: 'presence',
+                    errorMessage: 'custom error span?'
+                });
+
+                i_nod.setMessageOptions({
+                    selector: '#i',
+                    parent: '#i-container',
+                    errorSpan: '#i-error-message-here'
+                });
+
+                var i = get('i'),
+                    i_msg = get('i-error-message-here'),
+                    i_container = get('i-container');
+
+                setValue(i, '');
+
+                expect(i_msg.innerHTML === 'custom error span?', 'Custom error is used for message');
+
+                expect(hasClass('my-class', i_msg), 'Custom error maintains its classes');
+                expect(hasClass(nod.classes.errorMessageClass, i_msg), 'Custom error maintains gets the error class');
+
+                expect(hasClass(nod.classes.errorClass, i_container), 'Custom container class is updated');
+
+                removeElement(i.parentNode);
+            })();
+        </script>
+
+
+        <form action=''>
+            <div><input type='text' id='ja'></div>
+            <div><input type='text' id='jb'></div>
+        </form>
+
+        <script>
+            (function () {
+                var j_nod = nod();
+
+                j_nod.add({
+                    selector: ['#ja', '#jb'],
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                setValue(ja, 'foo');
+                setValue(jb, '');
+
+                setTimeout(function () {
+                    expect(isValid(ja), 'selectors can take lists of selectors #1');
+                    expect(isInvalid(jb), 'selectors can take lists of selectors #2');
+
+                    removeElement(ja.parentNode.parentNode);
+                }, 800);
+            })();
+        </script>
+
+
+
+
+        <form action=''>
+            <input type='text' id='ka'>
+        </form>
+
+        <script>
+            (function () {
+                var k_nod = nod();
+
+                k_nod.configure("delay", 1000);
+
+                k_nod.add({
+                    selector: '#ka',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                setValue(ka, 'foo');
+
+                setTimeout(function () {
+                    expect(isUnchecked(ka), 'Check if setting a delay works properly #1');
+                }, 900);
+
+                setTimeout(function () {
+                    expect(isValid(ka), 'Check if setting a delay works properly #2');
+
+                    removeElement(ka.parentNode);
+                }, 1100);
+            })();
+        </script>
+
+
+
+        <form action=''>
+            <div><input type='radio' class='radio' name='radio' value='ma' id='ma'></div>
+            <div><input type='radio' class='radio' name='radio' value='mb' id='mb'></div>
+        </form>
+
+        <script>
+            (function () {
+                var m_nod = nod();
+
+                m_nod.configure('delay', 0);
+
+                m_nod.add({
+                    selector: '.radio',
+                    validate: 'some-radio',
+                    errorMessage: ERROR_MSG
+                });
+
+                var ma = get('ma'),
+                    mb = get('mb');
+
+                expect(isUnchecked(ma), 'Check - `some-radio` #1');
+
+                ma.checked = true;
+                trigger(mb, 'change');
+
+                expect(isValid(ma), 'Check - `some-radio` #2');
+
+                removeElement(ma.parentNode.parentNode);
+            })();
+        </script>
+
+
+
+        <form action=''>
+            <div id='myParent' class='myParent'>
+                <label><input type='text' id='myChild'></label>
+            </div>
+        </form>
+
+
+        <script>
+            (function () {
+                var n_nod = nod();
+
+                n_nod.configure({
+                    'delay': 0,
+                    parentClass: '.myParent'
+                });
+
+                n_nod.add({
+                    selector: '#myChild',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                var np = get('myParent'),
+                    nc = get('myChild');
+
+                setValue(nc, 'foo');
+
+                expect(hasClass('nod-success', np), 'configure `parentClass`');
+
+                removeElement(np.parentNode);
+            })();
+        </script>
+
+        <form action=''>
+            <input type='text' id='o'>
+        </form>
+
+
+        <script>
+            (function () {
+                var o_nod = nod();
+
+                o_nod.configure({'delay': 0});
+
+                o_nod.add({
+                    selector: '#o',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                var o = get('o');
+
+                expect(o_nod.getStatus('#o') === nod.constants.UNCHECKED, 'getStatus #1');
+
+                setValue(o, 'foo');
+
+                expect(o_nod.getStatus('#o') === nod.constants.VALID, 'getStatus #2');
+
+                removeElement(o.parentNode);
+            })();
+        </script>
+
+
+
+        <form action=''>
+            <div><input type='text' id='pa'></div>
+            <div><input type='text' id='pb'></div>
+        </form>
+
+
+        <script>
+            (function () {
+                var pa_nod = nod(),
+                    pb_nod = nod();
+
+                pa_nod.configure({'delay': 0});
+                pb_nod.configure({'delay': 0});
+
+                nod.checkFunctions['divByX'] = function (x) {
+                    x = +x;
+
+                    return function (callback, value) {
+                        callback(value % x === 0);
+                    };
+                };
+
+                pa_nod.add({
+                    selector: '#pa',
+                    validate: 'divByX:2',
+                    errorMessage: ERROR_MSG
+                });
+
+                pb_nod.add({
+                    selector: '#pb',
+                    validate: 'divByX:3',
+                    errorMessage: ERROR_MSG
+                });
+
+                var pa = get('pa'),
+                    pb = get('pb');
+
+                setValue(pa, 4);
+                setValue(pb, 3);
+
+                expect(isValid(pa), 'Manually extend nod.checkFunctions #1');
+                expect(isValid(pb), 'Manually extend nod.checkFunctions #2');
+
+                removeElement(pa.parentNode.parentNode);
+            })();
+        </script>
+
+
+
+
+
+    </body>
+</html>

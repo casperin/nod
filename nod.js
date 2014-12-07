@@ -1,433 +1,1097 @@
-(function($){
+
+/**
+ *
+ * This is a short breakdown of the code to help you find your way around.
+ *
+ *
+ * An `element` always refer to some input element defined by the user via the
+ * `selector` key.
+ *
+ * A `metric` is the user created objects that is used to add checks to
+ * nod.
+ *
+ * Each `element` will have at most one of a `listener`, a `checker`, a
+ * `checkHandler`, and a `domNode` "attached" to it. The `listener` listens
+ * for inputs or changes to the `element` and passes the new value on to to the
+ * `checker` which performs its checks and passes the the results on to the
+ * `checkHandler` which calculates the new state of the `element` which it
+ * passes on to the `domNode` which will update the dom.
+ *
+ * The four main parts, the listener, the checker, the checkHandler, and the
+ * domNode all communicate through the `mediator` by firing events identified
+ * by a unique id. They do not know of each other's existance, and so no
+ * communication flows directly between them.
+ *
+ * All listeners, checkers, handlers, and domNodes are grouped together in
+ * `collections`, which are basically a glorified array that makes it easy
+ * not to get duplicate items for each element (for instance two listeners
+ * listening to the same element).
+ *
+ * The communication flow looks like this:
+ * listener -> checker -> checkHandler -> domNode
+ *
+ * Between each part, you have the mediator.
+ *
+ *
+ * `Metrics` are added by the user, which sets up the system above. Notice
+ * that a metric can target multiple elements at once, and that there can
+ * be overlaps. One metric definitely does not equal one element or one
+ * check.
+ *
+ */
+
+function nod () {
+    var form,
+        configuration   = {},
+        mediator        = nod.makeMediator(),
+
+        // Creating (empty) collections
+        listeners       = nod.makeCollection(nod.makeListener),
+        checkers        = nod.makeCollection(nod.makeChecker),
+        checkHandlers   = nod.makeCollection(nod.makeCheckHandler),
+        domNodes        = nod.makeCollection(nod.makeDomNode);
 
 
-var Checker,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-Checker = (function() {
-  function Checker($el, field) {
-    this.run = __bind(this.run, this);
-    var sel;
-    sel = field[0], this.metric = field[1];
-    this.getVal = this.makeGetVal($el, sel);
-  }
+    /**
+     * Entry point for the user. The user passes in an array of metrics (an
+     * object containing a selector, a validate string/function, etc.) and it
+     * gets processed from here.
+     *
+     * This function, is mostly about cleaning up what the user passed us.
+     */
+    function addMetrics (metrics) {
+        // Make sure we are dealing with an array of metrics.
+        var arrayMetrics = Array.isArray(metrics) ? metrics : [metrics];
 
-  Checker.prototype.run = function() {
-    return this.verify(this.metric, this.getVal());
-  };
+        arrayMetrics.forEach(function (metric) {
+            var validateArray, errorMessageArray;
 
-  Checker.prototype.makeGetVal = function($el, sel) {
-    var inputs, name, type;
-    type = $el.attr('type');
-    if (type === 'checkbox') {
-      return function() {
-        return $el.is(':checked');
-      };
-    } else if (type === 'radio') {
-      name = $el.attr('name');
-      return function() {
-        return $('[name="' + name + '"]').filter(':checked').val();
-      };
-    } else {
-      if (this.metric === 'one-of') {
-        inputs = $(sel);
-        return function() {
-          return inputs.map(function() {
-            return $.trim(this.value);
-          }).get().join('');
-        };
-      } else {
-        return function() {
-          return $.trim($el.val());
-        };
-      }
+            // If the 'validate' is not an array, then we're good to go.
+            if (!Array.isArray(metric.validate)) {
+                addMetric(metric);
+
+            // If it is an array (e.g., validate: ['email', 'max-length:10']),
+            // then we need to split them up into multiple metrics, and add
+            // them individually.
+            } else {
+                if (!Array.isArray(metric.errorMessage)) {
+                    throw 'If you pass in `validate:...` as an array, then `errorMessage:...` also needs to be an array. "' + metric.validate + '", and "' + metric.errorMessage + '"';
+                }
+
+                // We store each as arrays, and then run through them,
+                // overwriting each of the keys accordingly.
+                validateArray     = metric.validate;
+                errorMessageArray = metric.errorMessage;
+
+                validateArray.forEach(function (validate, i) {
+                    // Overwrite the array with the individual 'validate' and
+                    // 'errorMessage'.
+                    metric.validate     = validate;
+                    metric.errorMessage = errorMessageArray[i];
+
+                    addMetric(metric);
+                });
+            }
+        });
     }
-  };
 
-  Checker.prototype.verify = function(m, v) {
-    var arg, sec, type, _ref;
-    if (!!(m && m.constructor && m.call && m.apply)) {
-      return m(v);
+
+    function addMetric (metric) {
+        var specialTriggers = [],
+
+
+            // The function that will check the value of the element.
+            checkFunction = nod.getCheckFunction(metric),
+
+
+            // A list of elements that this metric will target.
+            elements = nod.getElements(metric.selector),
+
+
+            // A "set" here, refers to an obj with one listener, one checker,
+            // and one checkHandler. Only every one for each element in the
+            // dom.
+            metricSets = elements.map(function (element) {
+                return {
+                    listener:       listeners.findOrMake(element, mediator),
+                    checker:        checkers.findOrMake(element, mediator),
+                    checkHandler:   checkHandlers.findOrMake(element, mediator, configuration),
+                    domNode:        domNodes.findOrMake(element, mediator, configuration)
+                };
+            });
+
+
+        // Saved for later reference in case the user has a `tap` function
+        // defined.
+        checkFunction.validate = (typeof metric.validate === 'function') ? metric.validate.toString() : metric.validate;
+
+
+
+        // Special cases. These `validates` affect each other, and their state
+        // needs to update each time either of the elements' values change.
+        if (metric.validate === 'one-of' || metric.validate === 'only-one-of' || metric.validate === 'some-radio') {
+            specialTriggers.push(metric.selector);
+        }
+
+        if (typeof metric.validate === 'string' && metric.validate.indexOf('same-as') > -1) {
+            specialTriggers.push(metric.validate.split(':')[1]);
+        }
+
+
+
+        // Helper function, used in the loop below.
+        function subscribeToTriggers (checker, selector) {
+            var triggerElements = nod.getElements(selector);
+
+            triggerElements.forEach(function (element) {
+                var listener = listeners.findOrMake(element, mediator);
+
+                checker.subscribeTo(listener.id);
+            });
+        }
+
+
+
+        // Here we set up the "connections" between each of our main parts.
+        // They communicate only through the mediator.
+        metricSets.forEach(function (metricSet) {
+
+
+            // :: Listener -> Checker
+
+            // We want our checker to listen to the listener. A listener has an
+            // id, which it uses when it fires events to the mediator (which
+            // was set up when the listener was created).
+            metricSet.checker.subscribeTo(metricSet.listener.id);
+
+            // If the user set a `triggeredBy`, the checker need to listen to
+            // changes on this element as well.
+            // Same goes for special triggers that we set.
+            subscribeToTriggers(metricSet.checker, metric.triggeredBy);
+            subscribeToTriggers(metricSet.checker, specialTriggers);
+
+
+            // :: Checker -> checkHandler
+
+            var checkId = nod.unique();
+
+            // We add the check function as one to be checked when the user
+            // inputs something. (There might be more than this one).
+            metricSet.checker.addCheck(checkFunction, checkId);
+
+            // We want the check handler to listen for results from the checker
+            metricSet.checkHandler.subscribeTo(checkId, metric.errorMessage);
+
+
+
+            // :: checkHandler -> domNode
+
+            // The checkHandler has its own id (and only ever needs one), so we
+            // just ask the domNode to listen for that.
+            metricSet.domNode.subscribeTo(metricSet.checkHandler.id);
+        });
+
+
+
+        // After all is done, we may have to enable/disable a submit button.
+        toggleSubmit();
     }
-    if (m instanceof RegExp) {
-      return m.test(v);
+
+
+
+    /**
+     * If a form is added, we listen for submits, and if the has also set
+     * `preventSubmit` in the configuration, then we stop the commit from
+     * happening unless all the elements are valid.
+     */
+    function addForm (selector, remove) {
+        var form = nod.getElement(selector);
+
+       form.addEventListener('submit', possiblePreventSubmit, false);
     }
-    _ref = $.map(m.split(':'), $.trim), type = _ref[0], arg = _ref[1], sec = _ref[2];
-    if (type === 'same-as' && $(arg).length !== 1) {
-      throw new Error('same-as selector must target one and only one element');
+
+    // Prevent function, used above
+    function possiblePreventSubmit (event) {
+        if (configuration.preventSubmit && !isAllValid()) {
+            event.preventDefault();
+
+            // Show errors to the user
+            checkers.collection.forEach(function (checker) {
+                checker.performCheck({
+                    event: event
+                });
+            });
+        }
     }
-    if (!v && type !== 'presence' && type !== 'one-of') {
-      return true;
+
+
+
+    /**
+     * Removes elements completely.
+     */
+    function removeElement (selector) {
+        var elements = nod.getElements(selector);
+
+        elements.forEach(function (element) {
+            listeners.removeItem(element);
+            checkers.removeItem(element);
+            checkHandlers.removeItem(element);
+            domNodes.removeItem(element);
+        });
     }
-    switch (type) {
-      case 'presence':
-        return !!v;
-      case 'one-of':
-        return !!v;
-      case 'exact':
-        return v === arg;
-      case 'not':
-        return v !== arg;
-      case 'same-as':
-        return v === $(arg).val();
-      case 'min-num':
-        return +v >= +arg;
-      case 'max-num':
-        return +v <= +arg;
-      case 'between-num':
-        return +v >= +arg && +v <= +sec;
-      case 'min-length':
-        return v.length >= +arg;
-      case 'max-length':
-        return v.length <= +arg;
-      case 'exact-length':
-        return v.length === +arg;
-      case 'between':
-        return v.length >= +arg && v.length <= +sec;
-      case 'integer':
-        return /^\s*\d+\s*$/.test(v);
-      case 'float':
-        return /^[-+]?[0-9]+(\.[0-9]+)?$/.test(v);
-      case 'email':
-        return this.email(v);
-      default:
-        throw new Error('I don\'t know ' + type + ', sorry.');
+
+
+
+    /**
+     * configure
+     *
+     * Changes the configuration object used throughout the code for classes,
+     * delays, messages, etc.
+     *
+     * It can either be called with a key/value pair (two arguments), or with
+     * an object with key/value pairs.
+     */
+    function configure (attributes, value) {
+        if (arguments.length > 1) {
+            var k = attributes;
+            attributes = {};
+
+            attributes[k] = value;
+        }
+
+        for (var key in attributes) {
+            configuration[key] = attributes[key];
+        }
+
+        if (attributes.submit || attributes.disableSubmit) {
+            toggleSubmit();
+        }
+
+        if (attributes.form) {
+            addForm(attributes.form);
+        }
     }
-  };
 
-  Checker.prototype.email = function(v) {
-    var RFC822;
-    RFC822 = /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/;
-    return RFC822.test(v);
-  };
 
-  return Checker;
 
-})();
-
-var Listener,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-Listener = (function() {
-  function Listener(el, get, field) {
-    this.get = get;
-    this.field = field;
-    this.change_status = __bind(this.change_status, this);
-    this.runCheck = __bind(this.runCheck, this);
-    this.delayedCheck = __bind(this.delayedCheck, this);
-    this.events = __bind(this.events, this);
-    this.$el = $(el);
-    this.delayId = "";
-    this.status = null;
-    this.checker = new Checker(this.$el, this.field);
-    this.msg = new Msg(this.$el, this.get, this.field);
-    this.events();
-  }
-
-  Listener.prototype.events = function() {
-    if (this.$el.attr('type') === 'radio') {
-      return $('[name="' + this.$el.attr("name") + '"]').on('change', this.runCheck);
-    } else {
-      this.$el.on('change', this.runCheck);
-      this.$el.on('blur', this.runCheck);
-      if (this.field[1] === 'one-of') {
-        $(window).on('nod-run-one-of', this.runCheck);
-      }
-      if (this.get.delay) {
-        return this.$el.on('keyup', this.delayedCheck);
-      }
+    /**
+     * toggleSubmit
+     *
+     * Toggles the submit button (enabled if every element is valid, otherwise
+     * disabled).
+     */
+    function toggleSubmit () {
+        if (configuration.submit && configuration.disableSubmit) {
+            nod.getElement(configuration.submit).disabled = !isAllValid();
+        }
     }
-  };
 
-  Listener.prototype.delayedCheck = function() {
-    clearTimeout(this.delayId);
-    return this.delayId = setTimeout(this.runCheck, this.get.delay);
-  };
 
-  Listener.prototype.runCheck = function() {
-    return $.when(this.checker.run()).then(this.change_status);
-  };
+    /*
+     * Listen to all checks, and if the user has set in the configuration to
+     * enable/disabled the submit button, we do that.
+     */
+    mediator.subscribe('all', toggleSubmit);
 
-  Listener.prototype.change_status = function(status) {
-    var isCorrect;
-    try {
-      status = eval(status);
-    } catch (_error) {}
-    isCorrect = !!status;
-    if (this.status === isCorrect) {
-      return;
+
+    /**
+     * Returns true if every element is considered valid.
+     */
+    function isAllValid () {
+        return checkHandlers.collection.reduce(function (memo, checkHandler) {
+            return memo && checkHandler.isValid();
+        }, true);
     }
-    this.status = isCorrect;
-    this.msg.toggle(this.status);
-    $(this).trigger('nod_toggle');
-    if (this.field[1] === 'one-of' && status) {
-      return $(window).trigger('nod-run-one-of');
+
+
+    function setMessageOptions (options) {
+        var elements = nod.getElements(options.selector);
+
+        elements.forEach(function (element) {
+            var domNode = domNodes.findOrMake(element);
+
+            domNode.setMessageOptions(options.parent, options.errorSpan);
+        });
     }
-  };
 
-  return Listener;
-
-})();
-
-var Msg,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-Msg = (function() {
-  function Msg($el, get, field) {
-    this.$el = $el;
-    this.get = get;
-    this.createShowMsg = __bind(this.createShowMsg, this);
-    this.toggle = __bind(this.toggle, this);
-    this.createMsg = __bind(this.createMsg, this);
-    this.$msg = this.createMsg(field[2]);
-    this.showMsg = this.createShowMsg();
-  }
-
-  Msg.prototype.createMsg = function(msg) {
-    return $('<span/>', {
-      'html': msg,
-      'class': this.get.helpSpanDisplay + ' ' + this.get.errorClass
+    /**
+     * Listen to all checks and allow the user to listen in, if he set a `tap`
+     * function in the configuration.
+     */
+    mediator.subscribe('all', function (options) {
+        if (typeof configuration.tap === 'function' && options.type === 'check') {
+            configuration.tap(options);
+        }
     });
-  };
 
-  Msg.prototype.toggle = function(status) {
-    if (status) {
-      return this.$msg.remove();
-    } else {
-      this.showMsg();
-      if (this.get.broadcastError) {
-        return this.broadcast();
-      }
+
+
+    function getStatus (selector) {
+        var element = nod.getElement(selector);
+
+        return domNodes.findOrMake(element).getStatus();
     }
-  };
 
-  Msg.prototype.createShowMsg = function() {
-    var pos, type;
-    type = this.$el.attr('type');
-    if (type === 'checkbox' || type === 'radio') {
-      return function() {
-        return this.$el.parent().append(this.$msg);
-      };
-    } else {
-      pos = this.findPos(this.$el);
-      return function() {
-        return pos.after(this.$msg);
-      };
-    }
-  };
 
-  Msg.prototype.findPos = function($el) {
-    if (this.elHasClass('parent', $el)) {
-      return this.findPos($el.parent());
-    }
-    if (this.elHasClass('next', $el)) {
-      return this.findPos($el.next());
-    }
-    return $el;
-  };
 
-  Msg.prototype.elHasClass = function(dir, $el) {
-    var sel, _i, _len, _ref;
-    _ref = this.get.errorPosClasses;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      sel = _ref[_i];
-      if ($el[dir](sel).length) {
-        return true;
-      }
-    }
-    return false;
-  };
+    /**
+     * Internal functions that are exposed to the public.
+     */
+    return {
+        add:                    addMetrics,
+        remove:                 removeElement,
+        isAllValid:             isAllValid,
+        getStatus:              getStatus,
+        configure:              configure,
+        setMessageOptions:      setMessageOptions
+    };
+}
 
-  Msg.prototype.broadcast = function() {
-    return $(window).trigger('nod_error_fired', {
-      el: this.$el,
-      msg: this.$msg.html()
-    });
-  };
 
-  return Msg;
-
-})();
-
-var Nod,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-
-Nod = (function() {
-  function Nod(form, fields, options) {
-    this.form = form;
-    this.formIsErrorFree = __bind(this.formIsErrorFree, this);
-    this.submitForm = __bind(this.submitForm, this);
-    this.toggleSubmitBtnText = __bind(this.toggleSubmitBtnText, this);
-    this.toggleSubmitBtn = __bind(this.toggleSubmitBtn, this);
-    this.toggleGroupClass = __bind(this.toggleGroupClass, this);
-    this.toggle_status = __bind(this.toggle_status, this);
-    this.massCheck = __bind(this.massCheck, this);
-    this.listenForEnter = __bind(this.listenForEnter, this);
-    this.events = __bind(this.events, this);
-    this.createListeners = __bind(this.createListeners, this);
-    if (!fields) {
-      return;
-    }
-    this.form[0].__nod = this;
-    this.get = $.extend({
-      'delay': 700,
-      'disableSubmitBtn': true,
-      'helpSpanDisplay': 'help-inline',
-      'groupClass': 'has-error',
-      'submitBtnSelector': '[type=submit]',
-      'metricsSplitter': ':',
-      'errorPosClasses': ['.help-inline', '.add-on', 'button', '.input-append'],
-      'silentSubmit': false,
-      'broadcastError': false,
-      'errorClass': 'nod_msg',
-      'groupSelector': '.form-group'
-    }, options);
-    this.listeners = this.createListeners(fields);
-    this.submit = this.form.find(this.get.submitBtnSelector);
-    this.checkIfElementsExist(this.form, this.submit, this.get.disableSubmitBtn);
-    this.events();
-  }
-
-  Nod.prototype.createListeners = function(fields) {
-    var el, field, listeners, _i, _j, _len, _len1, _ref;
-    listeners = [];
-    for (_i = 0, _len = fields.length; _i < _len; _i++) {
-      field = fields[_i];
-      if (field.length !== 3) {
-        this["throw"]('field', field);
-      }
-      _ref = this.form.find(field[0]);
-      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-        el = _ref[_j];
-        listeners.push(new Listener(el, this.get, field));
-      }
-    }
-    return listeners;
-  };
-
-  Nod.prototype.events = function() {
-    var l, _i, _len, _ref;
-    _ref = this.listeners;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      l = _ref[_i];
-      $(l).on('nod_toggle', this.toggle_status);
-    }
-    if (this.submit.length) {
-      return this.submit.on('click', this.massCheck);
-    } else {
-      return this.form.on('keyup', this.listenForEnter);
-    }
-  };
-
-  Nod.prototype.listenForEnter = function(event) {
-    if (event.keyCode === 13) {
-      return this.massCheck();
-    }
-  };
-
-  Nod.prototype.massCheck = function(event) {
-    var checks, l, _i, _len, _ref;
-    if (event != null) {
-      event.preventDefault();
-    }
-    checks = [];
-    _ref = this.listeners;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      l = _ref[_i];
-      checks.push(l.runCheck());
-    }
-    this.toggleSubmitBtnText();
-    return $.when.apply($, checks).then(this.submitForm).then(this.toggleSubmitBtnText);
-  };
-
-  Nod.prototype.toggle_status = function(event) {
-    this.toggleGroupClass(event.target.$el.parents(this.get.groupSelector));
-    if (this.get.disableSubmitBtn) {
-      return this.toggleSubmitBtn();
-    }
-  };
-
-  Nod.prototype.toggleGroupClass = function($group) {
-    if ($group.find('.' + this.get.errorClass).length) {
-      return $group.addClass(this.get.groupClass);
-    } else {
-      return $group.removeClass(this.get.groupClass);
-    }
-  };
-
-  Nod.prototype.toggleSubmitBtn = function() {
-    if (this.formIsErrorFree()) {
-      return this.submit.removeClass('disabled').removeAttr('disabled');
-    } else {
-      return this.submit.addClass('disabled').attr('disabled', 'disabled');
-    }
-  };
-
-  Nod.prototype.toggleSubmitBtnText = function() {
-    var tmp;
-    tmp = this.submit.attr('data-loading-text');
-    if (tmp) {
-      this.submit.attr('data-loading-text', this.submit.html());
-      return this.submit.html(tmp);
-    }
-  };
-
-  Nod.prototype.submitForm = function() {
-    var $form;
-    if (!this.formIsErrorFree()) {
-      return;
-    }
-    if (this.get.silentSubmit) {
-      $form = $(this.form);
-      return $form.trigger('silentSubmit', $form.serialize());
-    } else {
-      return this.form.submit();
-    }
-  };
-
-  Nod.prototype.formIsErrorFree = function() {
-    return !$(this.listeners).filter(function() {
-      if (this.status === null) {
-        this.runCheck();
-      }
-      return !this.status;
-    }).length;
-  };
-
-  Nod.prototype.checkIfElementsExist = function(form, submit, disableSubmitBtn) {
-    if (!form.selector || !form.length) {
-      this["throw"]('form', form);
-    }
-    if (!submit.length && disableSubmitBtn) {
-      return this["throw"]('submit', submit);
-    }
-  };
-
-  Nod.prototype["throw"] = function(type, el) {
-    var txt;
-    switch (type) {
-      case 'form':
-        txt = 'Couldn\'t find form: ';
-        break;
-      case 'submit':
-        txt = 'Couldn\'t find submit button: ';
-        break;
-      case 'field':
-        txt = 'Metrics for each field must have three parts: ';
-    }
-    throw new Error(txt + el);
-  };
-
-  return Nod;
-
-})();
-
-$.fn.nod = function(fields, settings) {
-  if (!(fields || settings)) {
-    return this[0].__nod;
-  }
-  new Nod(this, fields, settings);
-  return this;
+nod.constants = {
+    VALID:          'valid',
+    INVALID:        'invalid',
+    UNCHECKED:      'unchecked'
 };
 
-})(jQuery);
+
+nod.classes = {
+    successClass:         'nod-success',
+    successMessageClass:  'nod-success-message',
+    errorClass:           'nod-error',
+    errorMessageClass:    'nod-error-message'
+};
+
+
+
+// Helper function to create unique id's
+nod.unique = (function () {
+    var uniqueCounter = 0;
+
+    return function () {
+        return uniqueCounter++;
+    };
+})();
+
+
+
+
+/**
+ * makeMediator
+ *
+ * Minimal implementation of a mediator pattern, used for communication
+ * between checkers and checkHandlers (checkers fires events which
+ * handlers can subscribe to). Unique ID's are used to tell events apart.
+ *
+ * Subscribing to 'all' will give you all results from all checks.
+ */
+nod.makeMediator = function () {
+    var subscribers = [],
+        all = [];
+
+    return {
+        subscribe: function subscribe (id, fn) {
+            if (id === 'all') {
+                all.push(fn);
+            } else {
+                if (!subscribers[id]) {
+                    subscribers[id] = [];
+                }
+
+                if (subscribers[id].indexOf(fn) === -1) {
+                    subscribers[id].push(fn);
+                }
+            }
+        },
+
+        fire: function fire (options) {
+            var subscribedFunctions = subscribers[options.id].concat(all);
+
+            subscribedFunctions.forEach(function (subscribedFunction) {
+                subscribedFunction(options);
+            });
+        }
+    };
+};
+
+
+
+
+/**
+ * makeCollection
+ *
+ * A minimal implementation of a "collection", inspired by collections from
+ * BackboneJS. Used by listeners, checkers, and checkHandlers.
+ */
+nod.makeCollection = function (maker) {
+    var collection = [];
+
+    function findIndex (el) {
+        for (var i in collection) {
+            if (collection[i].element === el) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    function findOrMake (el, mediator) {
+        var index = findIndex(el);
+
+        if (index !== -1) {
+            return collection[index];
+        }
+
+        // None found, let's make one then.
+        var item = maker.apply(null, arguments);
+        collection.push(item);
+        return item;
+    }
+
+    function removeItem (element) {
+        var index = findIndex(element),
+            item = collection[index];
+
+        if (index === -1) {
+            return;
+        }
+
+        // Call .dispose() if it exists
+        if (typeof item.dispose === 'function') {
+            item.dispose();
+        }
+
+        // Remove item
+        collection.splice(index, 1);
+    }
+
+    return {
+        findOrMake: findOrMake,
+        removeItem: removeItem,
+        collection: collection
+    };
+};
+
+
+
+/**
+ * makeListener
+ *
+ * Takes care of listening to changes to its element and fire them off as
+ * events on the mediator for checkers to listen to.
+ */
+nod.makeListener = function (element, mediator) {
+    var id = nod.unique();
+
+    function changed (event) {
+        mediator.fire({
+            id:     id,
+            event:  event,
+            type:   'change'
+        });
+    }
+
+    element.addEventListener('input', changed, false);
+    element.addEventListener('change', changed, false);
+    element.addEventListener('blur', changed, false);
+
+    function dispose () {
+        element.removeEventListener('input', changed, false);
+        element.removeEventListener('change', changed, false);
+        element.removeEventListener('blur', changed, false);
+    }
+
+    return {
+        element:    element,
+        dispose:    dispose,
+        id:         id
+    };
+};
+
+
+
+
+/**
+ * makeChecker
+ *
+ * An "checker" communicates primarily with the mediator. It listens
+ * for input changes (coming from listeners), performs its checks
+ * and fires off results back to the mediator for checkHandlers to
+ * handle.
+ *
+ * The checker has a 1 to 1 relationship with an element, an
+ * listeners, and an checkHandler; although they may
+ * communicate with other "sets" of listeners, checkers and handlers.
+ *
+ * Checks are added, from the outside, and consists of a checkFunction (see
+ * nod.checkFunctions) and a unique id.
+ */
+nod.makeChecker = function (element, mediator) {
+    var checks = [];
+
+    function subscribeTo (id) {
+        mediator.subscribe(id, performCheck);
+    }
+
+    // Run every check function against the value of the element.
+    function performCheck (options) {
+        checks.forEach(function (check) {
+            check(options || {});
+        });
+    }
+
+    // Add a check function to the element. The result will be handed off
+    // to the mediator (for checkHandlers to evaluate).
+    function addCheck (checkFunction, id) {
+        function callback (result) {
+            mediator.fire({
+                id: id,
+                type: 'check',
+                result: result,
+                element: element,
+                validate: checkFunction.validate
+            });
+        }
+
+        checks.push(function (options) {
+            options.element = element;
+
+            checkFunction(callback, element.value, options);
+        });
+    }
+
+
+    return {
+        subscribeTo:    subscribeTo,
+        addCheck:       addCheck,
+        performCheck:   performCheck,
+        element:        element
+    };
+};
+
+
+
+/**
+ * makeCheckHandler
+ *
+ * Handles checks coming in from the mediator and takes care of calculating
+ * the state and error messages.
+ *
+ * The checkHandlers lives in one to one with the element parsed in,
+ * and listens for (usually) multiple error checks.
+ */
+nod.makeCheckHandler = function (element, mediator, configuration) {
+    var results     = {},
+        id          = nod.unique();
+
+    function subscribeTo (id, errorMessage) {
+        // Create a representation of the type of error in the results
+        // object.
+        if (!results[id]) {
+            results[id] = {
+                status: nod.constants.UNCHECKED,
+                errorMessage: errorMessage
+            };
+        }
+
+        // Subscribe to error id.
+        mediator.subscribe(id, checkHandler);
+    }
+
+    function checkHandler (result) {
+        results[result.id].status = result.result ? nod.constants.VALID : nod.constants.INVALID;
+
+        notifyMediator();
+    }
+
+    // Runs through all results to see what kind of feedback to show the
+    // user.
+    function notifyMediator () {
+        var result = nod.constants.VALID, // We assume it's valid
+            errorMessage;
+
+        // Check all results to see if we need to show the error message.
+        for (var result_id in results) {
+            if (results[result_id].status === nod.constants.INVALID) {
+                result = nod.constants.INVALID;
+                errorMessage = results[result_id].errorMessage;
+                break; // Break out of the loop. No reason to check more
+            }
+        }
+
+        // Event if might be valid we pass along an undefined errorMessage.
+        mediator.fire({
+            id:             id,
+            type:           'result',
+            result:         result,
+            errorMessage:   errorMessage
+        });
+    }
+
+    function isValid () {
+        for (var key in results) {
+            if (results[key].status !== nod.constants.VALID) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    return {
+        id:             id,
+        subscribeTo:    subscribeTo,
+        checkHandler:   checkHandler,
+        isValid:        isValid,
+        element:        element
+    };
+};
+
+
+
+
+// Helper functions for `makeDomNode`.
+nod.hasClass = function (className, el) {
+    return !!el.className.match(new RegExp('(\\s|^)'+className+'(\\s|$)'));
+};
+
+nod.removeClass = function (className, el) {
+    if (nod.hasClass(className, el)) {
+        el.className = el.className.replace(new RegExp('(\\s|^)'+className+'(\\s|$)'), '');
+    }
+};
+
+nod.addClass = function (className, el) {
+    if (!nod.hasClass(className, el)) {
+        el.className += ' ' + className;
+    }
+};
+
+
+nod.getParent = function (element, configuration) {
+    var klass = configuration.parentClass;
+
+    if (!klass) {
+        return element.parentNode;
+    } else {
+        klass = klass.charAt(0) === '.' ? klass.slice(1) : klass;
+
+        return nod.findParentWithClass(element.parentNode, klass);
+    }
+};
+
+nod.findParentWithClass = function (parent, klass) {
+    // Guard (only the `window` does not have a parent).
+    if (!parent.parentNode) {
+        return parent;
+    }
+
+    // Found it
+    if (nod.hasClass(klass, parent)) {
+        return parent;
+    }
+
+    // Try next parent (recursion)
+    return nod.findParentWithClass(parent.parentNode, klass);
+};
+
+/**
+ * makeDomNode
+ *
+ * This creates the error/success message behind the input element, as well
+ * as takes care of updating classes and taking care of its own state.
+ *
+ * The dom node is owned by checkHandler, and has a one to one
+ * relationship with both the checkHandler and the input element
+ * being checked.
+ *
+ */
+nod.makeDomNode = function (element, mediator, configuration) {
+    // A 'domNode' consists of two elements: a 'parent', and a 'span'. The
+    // parent is given as a paremeter, while the span is created and added
+    // as a child to the parent.
+    var parent              = nod.getParent(element, configuration),
+        _status             = nod.constants.UNCHECKED,
+        pendingUpdate       = null,
+        span                = document.createElement('span'),
+        customSpan          = false;
+
+    span.style.display = 'none';
+    parent.appendChild(span);
+
+    // Updates the class of the parent to match the status of the element.
+    function updateParent (status) {
+        var successClass    = configuration.successClass || nod.classes.successClass,
+            errorClass      = configuration.errorClass || nod.classes.errorClass;
+
+        switch (status) {
+        case nod.constants.VALID:
+            nod.removeClass(errorClass, parent);
+            nod.addClass(successClass, parent);
+            break;
+        case nod.constants.INVALID:
+            nod.removeClass(successClass, parent);
+            nod.addClass(errorClass, parent);
+            break;
+        }
+    }
+
+    // Updates the text and class according to the status.
+    function updateSpan (status, errorMessage) {
+        var successMessageClass = configuration.successMessageClass || nod.classes.successMessageClass,
+            errorMessageClass   = configuration.errorMessageClass || nod.classes.errorMessageClass;
+
+        span.style.display = 'none';
+
+        switch (status) {
+        case nod.constants.VALID:
+            nod.removeClass(errorMessageClass, span);
+            nod.addClass(successMessageClass, span);
+            if (configuration.successMessage) {
+                span.textContent = configuration.successMessage;
+                span.style.display = '';
+            }
+            break;
+        case nod.constants.INVALID:
+            nod.removeClass(successMessageClass, span);
+            nod.addClass(errorMessageClass, span);
+            span.textContent = errorMessage;
+            span.style.display = '';
+            break;
+        }
+    }
+
+    function set (options) {
+        var status              = options.result,
+            errorMessage        = options.errorMessage;
+
+        // If the dom is showing an invalid message, we want to update the
+        // dom right away.
+        if (_status === nod.constants.INVALID || configuration.delay === 0) {
+
+            _status = status;
+            updateParent(status);
+            updateSpan(status, errorMessage);
+
+        } else {
+
+            // If the dom shows either an unchecked or a valid state
+            // we won't rush to tell them they are wrong. Instead
+            // we use a method similar to "debouncing" the update
+            clearTimeout(pendingUpdate);
+
+            pendingUpdate = setTimeout(function () {
+
+                _status = status;
+                updateParent(status);
+                updateSpan(status, errorMessage);
+
+                pendingUpdate = null;
+
+            }, configuration.delay || 700);
+
+        }
+    }
+
+    function subscribeTo (id) {
+        mediator.subscribe(id, set);
+    }
+
+
+    function setMessageOptions (parentContainer, message) {
+        if (parentContainer) {
+            parent = nod.getElement(parentContainer);
+        }
+
+        if (message) {
+            span.parentNode.removeChild(span);      // Remove old span.
+            span = nod.getElement(message);         // Set the new one.
+            customSpan = true;                      // So we won't delete it.
+        }
+    }
+
+
+    function getStatus () {
+        return _status;
+    }
+
+
+    function dispose () {
+        // First remove any classes
+        nod.removeClass(configuration.errorClass || nod.classes.errorClass, parent);
+        nod.removeClass(configuration.successClass || nod.classes.successClass, parent);
+
+        // Then we remove the span if it wasn't one that was set by the user.
+        if (!customSpan) {
+            span.parentNode.removeChild(span);
+        }
+    }
+
+    return {
+        subscribeTo:        subscribeTo,
+        element:            element,
+        setMessageOptions:  setMessageOptions,
+        getStatus:          getStatus,
+        dispose:            dispose
+    };
+};
+
+
+/**
+ * getElement
+ *
+ * Returns the first element targeted by the selector. (see `getElements`)
+ */
+nod.getElement = function (selector) {
+    return nod.getElements(selector)[0];
+};
+
+
+/**
+ * getElements
+ *
+ * Takes some sort of selector, and returns an array of element(s). The applied
+ * selector can be one of:
+ *
+ * - Css type selector (e.g., ".foo")
+ * - A jQuery element (e.g., $('.foo))
+ * - A single raw dom element (e.g., document.getElementById('foo'))
+ * - A list of raw dom element (e.g., $('.foo').get())
+ */
+nod.getElements = function (selector) {
+    if (!selector) {
+        return [];
+    }
+
+    // Normal css type selector is assumed
+    if (typeof selector === 'string') {
+        // If we have jQuery, then we use that to create a dom list for us.
+        if (window.jQuery) {
+            return window.jQuery(selector).get();
+        }
+
+        // If not, then we do it the manual way.
+        var nodeList = document.querySelectorAll(selector);
+
+        return [].map.call(nodeList, function (el) { return el; });
+    }
+
+    // if user gave us jQuery elements
+    if (selector.jquery) {
+        return selector.get();
+    }
+
+    // Raw DOM element
+    if (selector.nodeType === 1) {
+        return [selector];
+    }
+
+    if (Array.isArray(selector)) {
+        var result = [];
+
+        selector.forEach(function (sel) {
+            var elements = nod.getElements(sel);
+
+            result = result.concat(elements);
+        });
+
+        return result;
+    }
+
+    throw 'Unknown type of elements in your `selector`: ' + selector;
+};
+
+
+
+
+nod.getCheckFunction = function (metric) {
+    if (typeof metric.validate === 'function') {
+        return metric.validate;
+    }
+
+    if (metric.validate instanceof RegExp) {
+        return nod.checkFunctions.regexp(metric.validate);
+    }
+
+    var args   = metric.validate.split(':'),
+        fnName = args.shift();
+
+    if (fnName === 'one-of' || fnName === 'only-one-of' ||
+        fnName === 'same-as' || fnName === 'some-radio') {
+
+        args.push(metric.selector);
+    }
+
+    if (typeof nod.checkFunctions[fnName] === 'function') {
+        return nod.checkFunctions[fnName].apply(null, args);
+    } else {
+        throw 'Couldn\'t find your validator function "' + fnName + '" for "' + metric.selector + '"';
+    }
+};
+
+// Collection of built-in check functions
+nod.checkFunctions = {
+    'presence': function () {
+        return function presence (callback, value) {
+            callback(value.length > 0);
+        };
+    },
+
+    'exact': function (exactValue) {
+        return function exact (callback, value) {
+            callback(value === exactValue);
+        };
+    },
+
+    'contains': function (containsValue) {
+        return function contains (callback, value) {
+            callback(value.indexOf(containsValue) > -1);
+        };
+    },
+
+    'not': function (exactValue) {
+        return function not (callback, value) {
+            callback(value !== exactValue);
+        };
+    },
+
+    'min-length': function (minimumLength) {
+        return function minLength (callback, value) {
+            callback(value.length >= minimumLength);
+        };
+    },
+
+    'max-length': function (maximumLength) {
+        return function maxLength (callback, value) {
+            callback(value.length <= maximumLength);
+        };
+    },
+
+    'exact-length': function (exactLen) {
+        return function exactLength (callback, value) {
+            callback(value.length === +exactLen);
+        };
+    },
+
+    'between-length': function (minimumLength, maximumLength) {
+        return function betweenLength (callback, value) {
+            callback(value.length >= minimumLength && value.length <= maximumLength);
+        };
+    },
+
+    'max-number': function (maximumNumber) {
+        return function maxNumber (callback, value) {
+            callback(+value <= maximumNumber);
+        };
+    },
+
+    'min-number': function (minimumNumber) {
+        return function minNumber (callback, value) {
+            callback(+value <= minimumNumber);
+        };
+    },
+
+    'between-number': function (minimumNumber, maximumNumber) {
+        return function betweenNumber (callback, value) {
+            callback(+value >= minimumNumber && +value <= maximumNumber);
+        };
+    },
+
+    'integer': function () {
+        return function (callback, value) {
+            callback(/^\s*\d+\s*$/.test(value));
+        };
+    },
+
+    'float': function () {
+        return function (callback, value) {
+            callback(/^[-+]?[0-9]+(\.[0-9]+)?$/.test(value));
+        };
+    },
+
+    'same-as': function (selector) {
+        var sameAsElement = nod.getElement(selector);
+
+        return function sameAs (callback, value, options) {
+            // 'same-as' is special, in that if it is triggered by another
+            // field (the one it should be similar to), and the field itself is
+            // empty, then it bails out without a check. This is to avoid
+            // showing an error message before the user has even reached the
+            // element.
+            if (    options &&
+                    options.event &&
+                    options.event.target &&
+                    options.event.target !== options.element &&
+                    value.length === 0) {
+                return;
+            }
+
+            callback(value === sameAsElement.value);
+        };
+    },
+
+    'one-of': function (selector) {
+        var elements = nod.getElements(selector);
+
+        function getValues () {
+            return elements.reduce(function (memo, element) {
+                return memo + "" + (element.value || "");
+            }, "");
+        }
+
+        return function oneOf (callback) {
+            callback(getValues().trim().length > 0);
+        };
+    },
+
+    'only-one-of': function (selector) {
+        var elements = nod.getElements(selector);
+
+        return function onlyOneOf (callback, value) {
+            var numOfValues = 0;
+
+            elements.forEach(function (element) {
+                if (element.value) {
+                    numOfValues++;
+                }
+            });
+
+            callback(numOfValues === 1);
+        };
+    },
+
+    'checked': function () {
+        return function checked (callback, value, options) {
+            callback(options.element.checked);
+        };
+    },
+
+    'some-radio': function (selector) {
+        var radioElements = nod.getElements(selector);
+
+        return function someRadio (callback, value, options) {
+            var result = radioElements.reduce(function (memo, element) {
+                return memo || options.element.checked;
+            }, false);
+
+            callback(result);
+        };
+    },
+
+    'regexp': function (reg) {
+        return function regExp (callback, value) {
+            callback(reg.test(value));
+        };
+    },
+
+    'email': function () {
+        var RFC822 = /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/;
+
+        return function email (callback, value) {
+            callback(RFC822.test(value));
+        };
+    },
+};

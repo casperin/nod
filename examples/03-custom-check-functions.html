@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <title>Custom check functions</title>
+        <link href='styles.css' rel='stylesheet'>
+        <script src='../nod.js'></script>
+    </head>
+    <body>
+
+        <div>
+            <input class='foo'>
+        </div>
+
+        <script>
+            var myNod = nod();
+
+            // Check functions uses a callback to notify its result. This makes
+            // it easy to do async checks stuff.
+            function mustBeEven (callback, value) {
+                var result = +value % 2 === 0;
+
+                callback(result);
+            }
+
+            myNod.add([{
+                selector: '.foo',
+                validate: mustBeEven,
+                errorMessage: 'Has to be an even number.'
+            }]);
+        </script>
+
+    </body>
+</html>

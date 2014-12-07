@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <title>Configurations</title>
+        <link href='styles.css' rel='stylesheet'>
+        <script src='../nod.js'></script>
+        <style>
+            .bravo-class { background: yellow; }
+            .bravo-message-class { background: forestgreen; color: white; }
+            .bummer-class { background: orange; }
+            .bummer-message-class { background: purple; color: yellow; }
+        </style>
+    </head>
+    <body>
+
+        <div>
+            <input class='foo'>
+        </div>
+
+        <div>
+            <input class='bar'>
+        </div>
+
+        <button class='submit-btn'>submit button</button>
+
+        <script>
+            var myNod = nod();
+
+
+
+            myNod.configure({
+                // Let's remove the delay on showing error messages.
+                delay: 0,
+
+                // Adding a custom success message (will be shown for every
+                // field).
+                successMessage: 'Bravo!',
+
+                // Adding our own classes.
+                successClass: 'bravo-class',
+                successMessageClass: 'bravo-message-class',
+                errorClass: 'bummer-class',
+                errorMessageClass: 'bummer-message-class',
+
+                // Let's make nod disable the submit button if there are errors
+                submit: '.submit-btn',
+                disableSubmit: true,
+
+                // We can also set a `tap` function, which listens in when
+                // elements are being checked. Open your console and type in
+                // stuff.
+                tap: function (element, validate, result) {
+                    console.log({
+                        element: element,
+                        validate: validate,
+                        result: result,
+                        value: element.value
+                    });
+                }
+            });
+
+
+
+            myNod.add([{
+                selector: '.foo',
+                validate: 'contains:hello',
+                errorMessage: 'a "hello" must be in there somewhere...'
+            }, {
+                selector: '.bar',
+                validate: 'same-as:.foo',
+                errorMessage: 'Has to be the same as above'
+            }]);
+        </script>
+
+    </body>
+</html>
