@@ -465,6 +465,7 @@ myNod.add({
     validate: 'divBy2',
     errorMessage: 'Must be divisable by 2'
 });
+```
 
 We can also use arguments when setting up the function. Like so:
 
