@@ -370,7 +370,76 @@ if (myNod.getStatus('.foo') === nod.constants.VALID) {
 
 ### List of check functions.
 
-Coming. For now, search for "nod.checkFunctions" in nod.js.
+Most should be pretty self explaining.
 
+`[String]` should be replaced with whatever string you feel is appropriate. See
+examples below (or in the examples folder).
 
+* `"presence"`
+* `"exact:[String]"`
+* `"contains:[String]"`
+* `"not:[String]"`
+* `"min-length:[Number]"`
+* `"max-length:[Number]"`
+* `"exact-length:[Number]"`
+* `"between-length:[Number]:[Number]"`
+* `"max-number:[Number]"`
+* `"min-number:[Number]"`
+* `"between-number:[Number]:[Number]"`
+* `"integer"`
+* `"float"`
+* `"same-as:[Sring]"` (A css type selector)
+* `"one-of"`
+* `"only-one-of"`
+* `"checked"` (For checkboxes only)
+* `"some-radio"` (For a group of radio buttons)
+* `"email"` (Uses the RFC822 spec to check validity)
+
+#### A few examples of how to use the above list
+
+```javascript
+myNod.add({
+    selector: '.foo',
+    validate: 'exact:foo'
+    errorMessage: 'You must write exalctly "foo" in the input field'
+});
+```
+
+All are accessed through the `validate` property of adding an element.
+
+Some more examples:
+
+```javascript
+// ...
+{
+    selector: '.foo',
+    validate: 'between-length:2:4',
+    errorMessage: 'Must be between 2 and 4 characters long'
+}
+// ...
+{
+    // This will check that at least one of the inputs in the selector has a
+    // value.
+    selector: '.phone-number-inputs',
+    validate: 'one-of',
+    errorMessage: 'You need to type in at least one phone number'
+}
+// ...
+{
+    // You can add validate functions in a list. Just remember to also have
+    // errorMessages be a list with corresponding texts.
+    selector: '.foo',
+    validate: ['email', 'max-length:8'],
+    errorMessage: ['Must be a valid email', 'Your email is too long. Sorry.']
+}
+// ...
+{
+    selector: '.foo',
+    validate: 'same-as:.bar',
+    errorMessage: 'Must be the same as in .bar'
+}
+```
+
+`one-of`, `only-one-of`, and `some-radio` all match on their `selector`.
+`same-as` is called as `same-as:[selector]`.
 
