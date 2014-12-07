@@ -487,6 +487,7 @@ myNod.add({
     validate: 'divByX:3',
     errorMessage: 'Must be divisable by 3'
 });
+```
 
 If you need more arguments, you just separate them with ":".
 
