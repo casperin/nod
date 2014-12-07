@@ -334,7 +334,7 @@ dom element to use as its error span:
     myNod.setMessageOptions({
         selector: '.foo',
         parent: '.myCustomParent',
-        message: '.myCustomErrorSpan'
+        errorSpan: '.myCustomErrorSpan'
     });
 ```
 

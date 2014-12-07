@@ -311,7 +311,7 @@ function nod () {
         elements.forEach(function (element) {
             var domNode = domNodes.findOrMake(element);
 
-            domNode.setMessageOptions(options.parent, options.message);
+            domNode.setMessageOptions(options.parent, options.errorSpan);
         });
     }
 
