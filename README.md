@@ -499,9 +499,11 @@ A little more comprehensive example. Say we want to make a game where the user
 has to add up numbers. We have some html:
 
 ```html
-<span class='a'>21</span> +
-<span class='b'>5</span> =
-<input type='number' class='result'>
+<div>
+    <span class='a'>21</span> +
+    <span class='b'>13</span> =
+    <input type='number' class='result'>
+</div>
 ```
 
 And let's see some check function:
