@@ -342,6 +342,32 @@ Notice, that the "parent" (despite its name) does not have to strictly be a
 parent. There is also no need to set both the parent and the message.
 
 
+### Manually checking validity
+
+`nod` currently exposes two functions for for manually checking validity of the
+elements. One for checking all elements (this is the same used, to
+enable/disable the submit button internally:
+
+```javascript
+myNod.isAllValid(); // Returns a boolean
+```
+
+And you can also query one element specifically like so:
+
+```javascript
+myNod.getStatus('.foo'); // Returns: 'unchecked', 'valid', or 'invalid'
+```
+
+If you need to check them up against something, I suggest you use
+`nod.constants` to do so. Like this:
+
+```javascript
+if (myNod.getStatus('.foo') === nod.constants.VALID) {
+    // Do something
+}
+```
+
+
 ### List of check functions.
 
 Coming. For now, search for "nod.checkFunctions" in nod.js.

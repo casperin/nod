@@ -327,6 +327,13 @@ function nod () {
 
 
 
+    function getStatus (selector) {
+        var element = nod.getElement(selector);
+
+        return domNodes.findOrMake(element).getStatus();
+    }
+
+
 
     /**
      * Internal functions that are exposed to the public.
@@ -335,6 +342,7 @@ function nod () {
         add:                    addMetrics,
         remove:                 removeElement,
         isAllValid:             isAllValid,
+        getStatus:              getStatus,
         configure:              configure,
         setMessageOptions:      setMessageOptions
     };
@@ -806,6 +814,11 @@ nod.makeDomNode = function (element, mediator, configuration) {
     }
 
 
+    function getStatus () {
+        return _status;
+    }
+
+
     function dispose () {
         // First remove any classes
         nod.removeClass(configuration.errorClass || nod.classes.errorClass, parent);
@@ -821,6 +834,7 @@ nod.makeDomNode = function (element, mediator, configuration) {
         subscribeTo:        subscribeTo,
         element:            element,
         setMessageOptions:  setMessageOptions,
+        getStatus:          getStatus,
         dispose:            dispose
     };
 };
