@@ -418,8 +418,8 @@ Some more examples:
 }
 // ...
 {
-    // This will check that at least one of the inputs in the selector has a
-    // value.
+    // This will check that at least one of the inputs matched by the selector
+    // has a value.
     selector: '.phone-number-inputs',
     validate: 'one-of',
     errorMessage: 'You need to type in at least one phone number'
@@ -442,4 +442,54 @@ Some more examples:
 
 `one-of`, `only-one-of`, and `some-radio` all match on their `selector`.
 `same-as` is called as `same-as:[selector]`.
+
+
+### Extending nod.checkFunctions
+
+You can extend the available check functions in `nod` like this:
+
+```javascript
+    // Note that this is the general `nod` function. Not a particular instance.
+    nod.checkFunctions['divBy2'] = function () {
+        return function (callback, value) {
+            callback(value % 2 === 0);
+        };
+    };
+```
+
+This function can then be reused:
+
+```javascript
+myNod.add({
+    selector: '.foo',
+    validate: 'divBy2',
+    errorMessage: 'Must be divisable by 2'
+});
+
+We can also use arguments when setting up the function. Like so:
+
+```javascript
+    nod.checkFunctions['divByX'] = function (x) {
+        x = parseInt(x, 10);
+
+        return function (callback, value) {
+            callback(value % x === 0);
+        };
+    };
+```
+
+And to define "x", we use it like so:
+
+```javascript
+myNod.add({
+    selector: '.foo',
+    validate: 'divByX:3',
+    errorMessage: 'Must be divisable by 3'
+});
+
+If you need more arguments, you just separate them with ":".
+
+```javascript
+    validate: 'myFunc:a:b:c:d:e'
+```
 

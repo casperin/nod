@@ -817,6 +817,55 @@
 
 
 
+        <form action=''>
+            <div><input type='text' id='pa'></div>
+            <div><input type='text' id='pb'></div>
+        </form>
+
+
+        <script>
+            (function () {
+                var pa_nod = nod(),
+                    pb_nod = nod();
+
+                pa_nod.configure({'delay': 0});
+                pb_nod.configure({'delay': 0});
+
+                nod.checkFunctions['divByX'] = function (x) {
+                    x = +x;
+
+                    return function (callback, value) {
+                        callback(value % x === 0);
+                    };
+                };
+
+                pa_nod.add({
+                    selector: '#pa',
+                    validate: 'divByX:2',
+                    errorMessage: ERROR_MSG
+                });
+
+                pb_nod.add({
+                    selector: '#pb',
+                    validate: 'divByX:3',
+                    errorMessage: ERROR_MSG
+                });
+
+                var pa = get('pa'),
+                    pb = get('pb');
+
+                setValue(pa, 4);
+                setValue(pb, 3);
+
+                expect(isValid(pa), 'Manually extend nod.checkFunctions #1');
+                expect(isValid(pb), 'Manually extend nod.checkFunctions #2');
+
+                removeElement(pa.parentNode.parentNode);
+            })();
+        </script>
+
+
+
 
 
     </body>
