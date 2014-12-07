@@ -116,7 +116,7 @@ myNod.add([{
     selector: document.getElementById('foo'),
 
     // Custom function. Notice that a call back is used. This means it should
-    work just fine with ajax requests (is user name already in use?).
+    // work just fine with ajax requests (is user name already in use?).
     validate: function (callback, value) {
         callback(value % 2 === 0);
     },
