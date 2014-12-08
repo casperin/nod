@@ -349,13 +349,23 @@ elements. One for checking all elements (this is the same used, to
 enable/disable the submit button internally:
 
 ```javascript
-myNod.isAllValid(); // Returns a boolean
+myNod.areAll('unchecked');  // Returns a boolean
+myNod.areAll('valid');
+myNod.areAll('invalid');
+
+// Safer way to call it:
+myNod.areAll(nod.constants.UNCHECKED);
 ```
 
 And you can also query one element specifically like so:
 
 ```javascript
-myNod.getStatus('.foo'); // Returns: 'unchecked', 'valid', or 'invalid'
+myNod.getStatus('.foo'); // 'unchecked', 'valid', or 'invalid'
+```
+
+If you want to get the error message as well, you can call it like this:
+```javascript
+myNod.getStatus('.foo', true); // {status: 'invalid', errorMessage: 'some error msg'}
 ```
 
 If you need to check them up against something, I suggest you use
