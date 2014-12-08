@@ -1,6 +1,12 @@
 
 /**
  *
+ *
+ * nod v.2.0
+ * Gorm Casper
+ *
+ *
+ *
  * This is a short breakdown of the code to help you find your way around.
  *
  *
@@ -417,6 +423,17 @@ nod.makeMediator = function () {
 
 
 
+nod.findCollectionIndex = function (collection, element) {
+    for (var i in collection) {
+        if (collection[i].element === element) {
+            return i;
+        }
+    }
+
+    return -1;
+};
+
+
 
 /**
  * makeCollection
@@ -427,19 +444,10 @@ nod.makeMediator = function () {
 nod.makeCollection = function (maker) {
     var collection = [];
 
-    function findIndex (el) {
-        for (var i in collection) {
-            if (collection[i].element === el) {
-                return i;
-            }
-        }
+    function findOrMake (element) {
+        var index = nod.findCollectionIndex(collection, element);
 
-        return -1;
-    }
-
-    function findOrMake (el, mediator) {
-        var index = findIndex(el);
-
+        // Found
         if (index !== -1) {
             return collection[index];
         }
@@ -451,10 +459,10 @@ nod.makeCollection = function (maker) {
     }
 
     function removeItem (element) {
-        var index = findIndex(element),
+        var index = nod.findCollectionIndex(collection, element),
             item = collection[index];
 
-        if (index === -1) {
+        if (!item) {
             return;
         }
 
