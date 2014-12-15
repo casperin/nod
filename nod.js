@@ -120,7 +120,7 @@ function nod () {
             // dom.
             metricSets = elements.map(function (element) {
                 return {
-                    listener:       listeners.findOrMake(element, mediator),
+                    listener:       listeners.findOrMake(element, mediator, metric.triggerEvents),
                     checker:        checkers.findOrMake(element, mediator),
                     checkHandler:   checkHandlers.findOrMake(element, mediator, configuration),
                     domNode:        domNodes.findOrMake(element, mediator, configuration)
@@ -492,7 +492,7 @@ nod.makeCollection = function (maker) {
  * Takes care of listening to changes to its element and fire them off as
  * events on the mediator for checkers to listen to.
  */
-nod.makeListener = function (element, mediator) {
+nod.makeListener = function (element, mediator, triggerEvents) {
     var id = nod.unique();
 
     function changed (event) {
@@ -507,10 +507,24 @@ nod.makeListener = function (element, mediator) {
     element.addEventListener('change', changed, false);
     element.addEventListener('blur', changed, false);
 
+    if (triggerEvents) {
+        triggerEvents = Array.isArray(triggerEvents) ? triggerEvents : [triggerEvents];
+
+        triggerEvents.forEach(function (eventName) {
+            element.addEventListener(eventName, changed, false);
+        });
+    }
+
     function dispose () {
         element.removeEventListener('input', changed, false);
         element.removeEventListener('change', changed, false);
         element.removeEventListener('blur', changed, false);
+
+        if (triggerEvents) {
+            triggerEvents.forEach(function (eventName) {
+                element.removeEventListener(eventName, changed, false);
+            });
+        }
     }
 
     return {
