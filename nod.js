@@ -580,9 +580,13 @@ nod.makeChecker = function (element, mediator) {
         }
 
         checks.push(function (options) {
+            // If element.value is undefined, then we might be dealing with
+            // another type of element; like <div contenteditable='true'>
+            var value = element.value !== undefined ? element.value : element.innerHTML;
+
             options.element = element;
 
-            checkFunction(callback, element.value, options);
+            checkFunction(callback, value, options);
         });
     }
 

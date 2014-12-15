@@ -1,11 +1,9 @@
-Nod v.2.0
-=========
+# Nod v.2.0.1
 
 Frontend input validation
 
 
-Practical info
---------------
+## Practical info
 
 * **License:** MIT.
 * **Dependencies:** None.
@@ -14,8 +12,7 @@ Practical info
 * **Backwards compatibility:** ver. 2 is *not* compatible with previous versions.
 
 
-Example
--------
+## Example
 
 Cloning the project, and checking out the examples is the best way to go. But here are some basic stuff to give you and idea and get you going.
 
@@ -72,8 +69,7 @@ n.add([{
 ```
 
 
-Documentation
--------------
+## Documentation
 
 
 ### Adding input fields
@@ -136,6 +132,8 @@ myNod.add([{
 }]);
 ```
 
+#### triggeredBy
+
 There is one more setting you can add; `triggeredBy`. This is a selector for
 another element (it will only match the first matched element), where changes
 will also trigger a check on the current element. Example:
@@ -161,6 +159,23 @@ myNod.add({
     errorMessage: 'If the checkbox is checked, then we need your name'
 });
 ```
+
+#### triggerEvents
+
+By default, nod listens for `input`, `change`, and `blur` events; however you
+can add your own as well. This can be done with `triggerEvents` like so:
+
+```javascript
+myNod.add({
+    selector: '.foo',
+    validate: 'presence',
+    errorMessage: '...',
+    triggerEvents: 'keyup' // can also be an array of event names
+});
+```
+
+This is especially helpful if you manually need to trigger a check, or if
+you're validating a normal element with `contenteditable='true'`.
 
 
 ### Removing input fields
