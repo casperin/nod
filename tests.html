@@ -869,6 +869,67 @@
 
 
 
+        <form action=''>
+            <input type='text' id='q'>
+            <button type='submit' id='q-btn'>btn</button>
+        </form>
+
+
+        <script>
+            (function () {
+                var q_nod = nod();
+
+                q_nod.configure({
+                    delay: 0,
+                    submit: '#q-btn',
+                    disableSubmit: true
+                });
+
+                q_nod.add({
+                    selector: '#q',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG,
+                    defaultStatus: 'valid'
+                });
+
+                var q_btn = get('q-btn');
+
+                expect(q_btn.disabled === false, 'defaultStatus');
+
+                removeElement(q_btn.parentNode);
+            })();
+        </script>
+
+
+
+
+        <form action=''>
+            <input type='text' id='r' value='foo'>
+        </form>
+
+
+        <script>
+            (function () {
+                var r_nod = nod();
+
+                r_nod.configure({delay: 0});
+
+                r_nod.add({
+                    selector: '#r',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG,
+                    triggerEvents: 'foo'
+                });
+
+                var r = get('r');
+
+                trigger(r, 'foo');
+
+                expect(isValid(r), 'triggerEvents');
+
+                removeElement(r.parentNode);
+            })();
+        </script>
 
 
     </body>

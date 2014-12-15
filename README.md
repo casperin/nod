@@ -177,6 +177,52 @@ myNod.add({
 This is especially helpful if you manually need to trigger a check, or if
 you're validating a normal element with `contenteditable='true'`.
 
+#### defaultStatus
+
+By default, nod considers an element `unchecked` until a user types something
+into it (or in some other way triggers a check). You can change this, by adding
+a `defaultStatus`:
+
+```javascipt
+myNod.add({
+    selector: '.foo',
+    validate: 'presence',
+    errorMessage: '...',
+    defaultStatus: 'valid'
+});
+```
+
+This is useful because an "unchecked" element will disable a submit button,
+whereas a "valid" button won't.
+
+Consider this example. First some html with a page where I can change my name
+(it's currently "John Doe").
+
+```html
+<label>
+    <span>Your name</span>
+    <input type='text' value='John Doe' class='name'>
+</label>
+
+<button type='submit' class='submit-name'>Change your name</button>
+```
+
+```javascipt
+var myNod = nod();
+
+myNod.configure({
+    submit: 'submit-name',
+    disableSubmit: true
+});
+
+myNod.add({
+    selector: '.name',
+    validate: 'presence',
+    errorMessage: 'You need a name.',
+    defaultStatus: 'valid' // Without this, the submit button would be disabled
+});
+```
+
 
 ### Removing input fields
 
@@ -346,11 +392,11 @@ You can specifically for each element tell `nod` which is its parent and which
 dom element to use as its error span:
 
 ```javascript
-    myNod.setMessageOptions({
-        selector: '.foo',
-        parent: '.myCustomParent',
-        errorSpan: '.myCustomErrorSpan'
-    });
+myNod.setMessageOptions({
+    selector: '.foo',
+    parent: '.myCustomParent',
+    errorSpan: '.myCustomErrorSpan'
+});
 ```
 
 Notice, that the "parent" (despite its name) does not have to strictly be a
@@ -517,7 +563,7 @@ myNod.add({
 If you need more arguments, you just separate them with ":".
 
 ```javascript
-    validate: 'myFunc:a:b:c:d:e'
+validate: 'myFunc:a:b:c:d:e'
 ```
 
 A little more comprehensive example. Say we want to make a game where the user
