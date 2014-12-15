@@ -183,7 +183,7 @@ By default, nod considers an element `unchecked` until a user types something
 into it (or in some other way triggers a check). You can change this, by adding
 a `defaultStatus`:
 
-```javascipt
+```javascript
 myNod.add({
     selector: '.foo',
     validate: 'presence',
@@ -207,7 +207,7 @@ Consider this example. First some html with a page where I can change my name
 <button type='submit' class='submit-name'>Change your name</button>
 ```
 
-```javascipt
+```javascript
 var myNod = nod();
 
 myNod.configure({
