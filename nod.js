@@ -214,7 +214,7 @@ function nod () {
     function addForm (selector, remove) {
         var form = nod.getElement(selector);
 
-       form.addEventListener('submit', possiblePreventSubmit, false);
+        form.addEventListener('submit', possiblePreventSubmit, false);
     }
 
     // Prevent function, used above
@@ -223,11 +223,21 @@ function nod () {
             event.preventDefault();
 
             // Show errors to the user
-            checkers.collection.forEach(function (checker) {
+            checkers.forEach(function (checker) {
                 checker.performCheck({
                     event: event
                 });
             });
+
+            // Focus on the first invalid element
+            for (var i = 0, len = checkHandlers.length; i < len; i++) {
+                var checkHandler = checkHandlers[i];
+
+                if (checkHandler.getStatus().status === nod.constants.INVALID) {
+                    checkHandler.element.focus();
+                    break;
+                }
+            }
         }
     }
 
@@ -302,8 +312,8 @@ function nod () {
 
 
     function areAll (status) {
-        for (var i = 0, len = checkHandlers.collection.length; i < len; i++) {
-            if (checkHandlers.collection[i].getStatus().status !== status) {
+        for (var i = 0, len = checkHandlers.length; i < len; i++) {
+            if (checkHandlers[i].getStatus().status !== status) {
                 return false;
             }
         }
@@ -446,7 +456,7 @@ nod.findCollectionIndex = function (collection, element) {
 nod.makeCollection = function (maker) {
     var collection = [];
 
-    function findOrMake (element) {
+    collection.findOrMake = function (element) {
         var index = nod.findCollectionIndex(collection, element);
 
         // Found
@@ -458,9 +468,9 @@ nod.makeCollection = function (maker) {
         var item = maker.apply(null, arguments);
         collection.push(item);
         return item;
-    }
+    };
 
-    function removeItem (element) {
+    collection.removeItem = function (element) {
         var index = nod.findCollectionIndex(collection, element),
             item = collection[index];
 
@@ -475,13 +485,9 @@ nod.makeCollection = function (maker) {
 
         // Remove item
         collection.splice(index, 1);
-    }
-
-    return {
-        findOrMake: findOrMake,
-        removeItem: removeItem,
-        collection: collection
     };
+
+    return collection;
 };
 
 
