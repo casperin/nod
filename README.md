@@ -1,4 +1,4 @@
-# Nod v.2.0.1
+# Nod v.2.0.2
 
 Frontend input validation
 
@@ -352,16 +352,24 @@ disabled submit button will not do anything to prevent that (see next section).
 
 #### Prevent Submits
 
-If you tell `nod` about the form, then it will prevent submits entirely, until
-all added elements are considered valid.
+If you tell `nod` about the form and set `preventSubmit: true` in configure,
+then it will prevent submits entirely, until all added elements are considered
+valid.
+
+If an error is detected (and submition prevented), then we show error messages
+for all non-valid elements, and focus on the first of those elements.
 
 ```javascript
 myNod.configure({
-    form: '.myForm'
+    form: '.myForm',
+    preventSubmit: true
 });
 ```
 
-I should caution the use of this however, as it is hard to get it right in every case (from me, the designer's perspective). So test it well, and make sure it is working correctly in your use case. The last thing you want (I assume) is to prevent your users from submitting your form entirely.
+I should caution the use of this however, as it is hard to get it right in
+every case (from me, the designer's perspective). So test it well, and make
+sure it is working correctly in your use case. The last thing you want (I
+assume) is to prevent your users from submitting your form entirely.
 
 
 
