@@ -1,0 +1,16 @@
+{
+  "name": "nod-validate",
+  "version": "2.0.2",
+  "description": "Frontend input validation",
+  "main": "nod.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/casperin/nod.git"
+  },
+  "author": "Gorm Casper",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/casperin/nod/issues"
+  },
+  "homepage": "https://github.com/casperin/nod"
+}
