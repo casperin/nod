@@ -6,6 +6,7 @@ Frontend input validation
 ## Practical info
 
 * **License:** MIT.
+* **npm:** `npm install nod-validate`
 * **Dependencies:** None.
 * **Browser support:** Chrome (newest) / FF (newest) / ie9+.
   * Please help me test in ie (9 and up). I have very limited access to windows machines.
