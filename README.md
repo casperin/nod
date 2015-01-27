@@ -4,7 +4,7 @@ Frontend input validation
 
 
 ## Practical info
-
+* **Introduction and Examples:** <a href='http://casperin.github.io/nod/'>nod introduction</a>
 * **License:** MIT.
 * **npm:** `npm install nod-validate`
 * **Dependencies:** None.
