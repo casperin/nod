@@ -50,6 +50,7 @@ function nod () {
     var form,
         configuration   = {},
         mediator        = nod.makeMediator(),
+        eventEmitter    = nod.makeEventEmitter(mediator),
 
         // Creating (empty) collections
         listeners       = nod.makeCollection(nod.makeListener),
@@ -190,12 +191,15 @@ function nod () {
             metricSet.checkHandler.subscribeTo(checkId, metric.errorMessage, metric.defaultStatus);
 
 
+            if (configuration.noDom) {
+                eventEmitter.subscribe(metricSet.checkHandler.id);
+            } else {
+                // :: checkHandler -> domNode
 
-            // :: checkHandler -> domNode
-
-            // The checkHandler has its own id (and only ever needs one), so we
-            // just ask the domNode to listen for that.
-            metricSet.domNode.subscribeTo(metricSet.checkHandler.id);
+                // The checkHandler has its own id (and only ever needs one), so we
+                // just ask the domNode to listen for that.
+                metricSet.domNode.subscribeTo(metricSet.checkHandler.id);
+            }
         });
 
 
@@ -650,6 +654,7 @@ nod.makeCheckHandler = function (element, mediator, configuration) {
             id:             id,
             type:           'result',
             result:         status.status,
+            element:        element,
             errorMessage:   status.errorMessage
         });
     }
@@ -752,7 +757,10 @@ nod.makeDomNode = function (element, mediator, configuration) {
         customSpan          = false;
 
     span.style.display = 'none';
-    parent.appendChild(span);
+
+    if (!configuration.noDom) {
+        parent.appendChild(span);
+    }
 
     // Updates the class of the parent to match the status of the element.
     function updateParent (status) {
@@ -862,6 +870,29 @@ nod.makeDomNode = function (element, mediator, configuration) {
         element:            element,
         setMessageOptions:  setMessageOptions,
         dispose:            dispose
+    };
+};
+
+
+nod.makeEventEmitter = function (mediator) {
+    var customEvent;
+
+    function emit (options) {
+        if (CustomEvent) {
+            customEvent = new CustomEvent('nod.validation', {detail: options});
+
+            options.element.dispatchEvent(customEvent);
+        } else {
+            throw('nod.validate tried to fire a custom event, but the browser does not support CustomEvent\'s');
+        }
+    }
+
+    function subscribe (id) {
+        mediator.subscribe(id, emit);
+    }
+
+    return {
+        subscribe: subscribe
     };
 };
 

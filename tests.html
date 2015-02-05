@@ -932,5 +932,41 @@
         </script>
 
 
+
+        <form action='' id='s_form'>
+            <input tpye='text' id='s'>
+        </form>
+
+        <script>
+            (function () {
+                var r_nod = nod();
+
+                r_nod.configure('noDom', true);
+
+                r_nod.add({
+                    selector: '#s',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                var s = get('s'),
+                    s_form = get('s_form');
+
+                expect(s_form.children.length === 1, 'DOM Was not touch with `noDom`');
+
+                var s_check = false;
+
+                s.addEventListener('nod.validation', function () { s_check = true; }, false);
+
+                setValue(s, 'foo');
+
+                expect(s_check, 'Event is fired on the element with `noDom` set');
+
+                s.removeEventListener('nod.validation');
+
+                removeElement(s.parentNode);
+            })();
+        </script>
+
     </body>
 </html>
