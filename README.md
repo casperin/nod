@@ -178,6 +178,21 @@ myNod.add({
 This is especially helpful if you manually need to trigger a check, or if
 you're validating a normal element with `contenteditable='true'`.
 
+If you are using ***jQuery*** and need to update the element by other means,
+then calling `$('.foo').trigger('change');` won't work out of box. You have to
+manually tell `nod` that jQuery is available and where to find it before it
+will listen for jQuery events:
+
+```javascript
+myNod.configure({
+    jQuery: $
+});
+```
+
+After that is configured, elements being added will listen for the jQuery
+change event.
+
+
 #### defaultStatus
 
 By default, nod considers an element `unchecked` until a user types something
@@ -240,7 +255,25 @@ If `'.foo'` matches more than one element, they will all be removed.
 
 ### Some configuration
 
-Let's go through each of the options in `nod.configure()`.
+Each instance of `nod` can be configured to suit specific needs. This is done
+either via
+
+```javascript
+myNod.configure({
+    delay: 400
+})
+```
+
+or when creating the instance
+
+```javascript
+var myNod = nod({
+    delay: 400
+});
+```
+
+Below, I will walk you through each of the options available.
+
 
 #### Classes
 
@@ -316,6 +349,32 @@ by changing the parentClass, see above). You can, specifically for each element
 tell nod which dom element to use as the error span. See `setMessageOptions`
 below.
 
+
+#### no DOM mode
+
+If you want to prevent nod from inserting error spans in your dom, but rather
+take care of showing/hiding error messages yourself, you can pass in a `noDom`
+property in configure:
+
+```javascript
+myNod.configure({
+    noDom: true
+});
+```
+
+`nod` will then instead fire an event named `nod.validation` on the actual
+element that you can listen for:
+
+```javascript
+function myFunc (event) {
+    console.log(event.details);
+}
+
+myElement.addEventListener('nod.validation', myFunc, false);
+```
+
+The content of `event.details` should be enough for you to handle the error.
+
     
 
 #### Delay
@@ -325,7 +384,7 @@ the user isn't being bothered with error messages about something that he or
 she is not done typing. This delay can be changed via `configure` method:
 
 ```javascript
-myNod.configure('delay', 300);
+myNod.configure({delay: 300});
 ```
 
 Notice, however, that this delay only deals with the time before *showing* an
@@ -381,7 +440,7 @@ elements by adding a "tap" function via `configure`.
 
 ```javascript
 myNod.configure({
-    'tap': function (options) {
+    tap: function (options) {
         console.log(options);
     }
 });
@@ -446,6 +505,21 @@ if (myNod.getStatus('.foo') === nod.constants.VALID) {
     // Do something
 }
 ```
+
+
+### Force nod to perform a check
+
+`nod` provides you with a method: `myNod.performCheck()` which forces `nod` to
+run through each element and checks its validity. This can be useful when
+updating the value manually by JavaScript.
+
+Alternatively, you can also pass in a selector, or the raw dom elements, to
+indicate that you only wish to force a check on those:
+
+```javascript
+myNod.performCheck(['.foo', '.bar']);
+```
+
 
 
 ### List of check functions.

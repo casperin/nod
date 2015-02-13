@@ -2,7 +2,7 @@
 /**
  *
  *
- * nod v.2.0.2
+ * nod v.2.0.4
  * Gorm Casper
  *
  *
@@ -46,7 +46,7 @@
  *
  */
 
-function nod () {
+function nod (config) {
     var form,
         configuration   = {},
         mediator        = nod.makeMediator(),
@@ -121,7 +121,7 @@ function nod () {
             // dom.
             metricSets = elements.map(function (element) {
                 return {
-                    listener:       listeners.findOrMake(element, mediator, metric.triggerEvents),
+                    listener:       listeners.findOrMake(element, mediator, metric.triggerEvents, configuration),
                     checker:        checkers.findOrMake(element, mediator),
                     checkHandler:   checkHandlers.findOrMake(element, mediator, configuration),
                     domNode:        domNodes.findOrMake(element, mediator, configuration)
@@ -152,7 +152,7 @@ function nod () {
             var triggerElements = nod.getElements(selector);
 
             triggerElements.forEach(function (element) {
-                var listener = listeners.findOrMake(element, mediator);
+                var listener = listeners.findOrMake(element, mediator, null, configuration);
 
                 checker.subscribeTo(listener.id);
             });
@@ -215,7 +215,7 @@ function nod () {
      * `preventSubmit` in the configuration, then we stop the commit from
      * happening unless all the elements are valid.
      */
-    function addForm (selector, remove) {
+    function addForm (selector) {
         var form = nod.getElement(selector);
 
         form.addEventListener('submit', possiblePreventSubmit, false);
@@ -357,17 +357,34 @@ function nod () {
 
 
 
+    function performCheck (selector) {
+        var cs = selector ? nod.getElements(selector).map(checkers.findOrMake) : checkers;
+
+        cs.forEach(function(checker) {
+            checker.performCheck();
+        });
+    }
+
+
+
     /**
      * Internal functions that are exposed to the public.
      */
-    return {
+    var nodInstace = {
         add:                    addMetrics,
         remove:                 removeElement,
         areAll:                 areAll,
         getStatus:              getStatus,
         configure:              configure,
-        setMessageOptions:      setMessageOptions
+        setMessageOptions:      setMessageOptions,
+        performCheck:           performCheck
     };
+
+    if (config) {
+        nodInstace.configure(config);
+    }
+
+    return nodInstace;
 }
 
 
@@ -502,8 +519,9 @@ nod.makeCollection = function (maker) {
  * Takes care of listening to changes to its element and fire them off as
  * events on the mediator for checkers to listen to.
  */
-nod.makeListener = function (element, mediator, triggerEvents) {
-    var id = nod.unique();
+nod.makeListener = function (element, mediator, triggerEvents, configuration) {
+    var id = nod.unique(),
+        $element;
 
     function changed (event) {
         mediator.fire({
@@ -517,6 +535,12 @@ nod.makeListener = function (element, mediator, triggerEvents) {
     element.addEventListener('change', changed, false);
     element.addEventListener('blur', changed, false);
 
+    if (configuration.jQuery) {
+        $element = configuration.jQuery(element);
+
+        $element.on('propertychange change click keyup input paste', changed);
+    }
+
     if (triggerEvents) {
         triggerEvents = Array.isArray(triggerEvents) ? triggerEvents : [triggerEvents];
 
@@ -529,6 +553,10 @@ nod.makeListener = function (element, mediator, triggerEvents) {
         element.removeEventListener('input', changed, false);
         element.removeEventListener('change', changed, false);
         element.removeEventListener('blur', changed, false);
+
+        if ($element) {
+            $element.off();
+        }
 
         if (triggerEvents) {
             triggerEvents.forEach(function (eventName) {

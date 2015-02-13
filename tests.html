@@ -11,6 +11,7 @@
             .good { color: #1cbf00; }
             .bad {  color: #c00; }
         </style>
+        <script src='https://code.jquery.com/jquery-2.1.3.js'></script>
         <script>
             window.onerror = function () {
                 var errorMsg = document.createElement('div');
@@ -939,11 +940,11 @@
 
         <script>
             (function () {
-                var r_nod = nod();
+                var s_nod = nod();
 
-                r_nod.configure('noDom', true);
+                s_nod.configure('noDom', true);
 
-                r_nod.add({
+                s_nod.add({
                     selector: '#s',
                     validate: 'presence',
                     errorMessage: ERROR_MSG
@@ -967,6 +968,81 @@
                 removeElement(s.parentNode);
             })();
         </script>
+
+        <form action=''>
+            <input tpye='text' id='t'>
+        </form>
+
+        <script>
+            (function () {
+                var t_nod = nod({
+                    delay: 0,
+                    jQuery: $
+                });
+
+                t_nod.add({
+                    selector: '#t',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                var t = get('t');
+
+                setValue(t, 'foo');
+
+                expect(isValid(t), 'Configuration can be added on instantiation');
+
+                $('#t').val('').trigger('change');
+
+                expect(isInvalid(t), 'jQuery trigger');
+
+                removeElement(t.parentNode);
+            })();
+        </script>
+
+
+        <form action=''>
+            <div><input tpye='text' id='u_a'></div>
+            <div><input tpye='text' id='u_b'></div>
+            <div><input tpye='text' id='u_c'></div>
+        </form>
+
+        <script>
+            (function () {
+                var u_nod = nod({
+                    delay: 0
+                });
+
+                u_nod.add({
+                    selector: ['#u_a', '#u_b', '#u_c'],
+                    validate: 'not:foo',
+                    errorMessage: ERROR_MSG
+                });
+
+                var u_a = get('u_a'),
+                    u_b = get('u_b'),
+                    u_c = get('u_c');
+
+                u_a.value = 'foo'; // Does not trigger a check
+
+                u_nod.performCheck();
+
+                expect(isInvalid(u_a), 'performCheck() - For all #1');
+                expect(isValid(u_b), 'performCheck() - For all #2');
+
+                u_b.value = 'foo';
+                u_c.value = 'foo';
+
+                u_nod.performCheck('#u_b');
+
+                expect(isInvalid(u_b), 'performCheck() - Specific element #1');
+                expect(isValid(u_c), 'performCheck() - Specific element #2');
+
+
+                removeElement(u_a.parentNode.parentNode);
+            })();
+        </script>
+
 
     </body>
 </html>
