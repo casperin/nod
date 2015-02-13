@@ -1,4 +1,4 @@
-# Nod v.2.0.3
+# Nod v.2.0.4
 
 Frontend input validation
 
@@ -285,7 +285,7 @@ through each referring to this html:
     <label>
         <span>What's the meaning of life?</span>
         <input type='text' class='foo'>
-        <!-- 
+        <!--
             error span gets added here:
             <span class='nod-error'><%= errorMessage %></span>
         -->
@@ -375,7 +375,7 @@ myElement.addEventListener('nod.validation', myFunc, false);
 
 The content of `event.details` should be enough for you to handle the error.
 
-    
+
 
 #### Delay
 
