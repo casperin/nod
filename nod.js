@@ -725,7 +725,7 @@ nod.hasClass = function (className, el) {
 
 nod.removeClass = function (className, el) {
     if (nod.hasClass(className, el)) {
-        el.className = el.className.replace(new RegExp('(\\s|^)'+className+'(\\s|$)'), '');
+        el.className = el.className.replace(new RegExp('(?:^|\\s)'+className+'(?!\\S)'), '');
     }
 };
 
