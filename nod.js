@@ -716,24 +716,43 @@ nod.makeCheckHandler = function (element, mediator, configuration) {
 };
 
 
-
-
 // Helper functions for `makeDomNode`.
-nod.hasClass = function (className, el) {
-    return !!el.className.match(new RegExp('(\\s|^)'+className+'(\\s|$)'));
-};
+// IIFE used to prevent leaking testing variables to the global scope
+(function() {
+    // test if classList is supported in this browser
+    var test               = document.createElement('div'),
+        classListSupported = typeof test.classList !== 'undefined';
 
-nod.removeClass = function (className, el) {
-    if (nod.hasClass(className, el)) {
-        el.className = el.className.replace(new RegExp('(?:^|\\s)'+className+'(?!\\S)'), '');
-    }
-};
+    if(classListSupported) {
+        nod.hasClass = function(className, el) {
+            return el.classList.contains(className);
+        };
 
-nod.addClass = function (className, el) {
-    if (!nod.hasClass(className, el)) {
-        el.className += ' ' + className;
+        nod.removeClass = function(className, el) {
+            el.classList.remove(className);
+        };
+
+        nod.addClass = function(className, el) {
+            el.classList.add(className);
+        };
+    } else {
+        nod.hasClass = function (className, el) {
+            return !!el.className.match(new RegExp('(\\s|^)'+className+'(\\s|$)'));
+        };
+
+        nod.removeClass = function (className, el) {
+            if (nod.hasClass(className, el)) {
+                el.className = el.className.replace(new RegExp('(?:^|\\s)'+className+'(?!\\S)'), '');
+            }
+        };
+
+        nod.addClass = function (className, el) {
+            if (!nod.hasClass(className, el)) {
+                el.className += ' ' + className;
+            }
+        };
     }
-};
+}());
 
 
 nod.getParent = function (element, configuration) {
