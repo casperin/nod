@@ -720,17 +720,25 @@ nod.makeCheckHandler = function (element, mediator, configuration) {
 
 // Helper functions for `makeDomNode`.
 nod.hasClass = function (className, el) {
-    return !!el.className.match(new RegExp('(\\s|^)'+className+'(\\s|$)'));
+    if (el.classList) {
+        return el.classList.contains(className);
+    } else {
+        return !!el.className.match(new RegExp('(\\s|^)'+className+'(\\s|$)'));
+    }
 };
 
 nod.removeClass = function (className, el) {
-    if (nod.hasClass(className, el)) {
-        el.className = el.className.replace(new RegExp('(?:^|\\s)'+className+'(?!\\S)'), '');
+    if (el.classList) {
+        el.classList.remove(className);
+    } else if (nod.hasClass(className, el)) {
+            el.className = el.className.replace(new RegExp('(?:^|\\s)'+className+'(?!\\S)'), '');
     }
 };
 
 nod.addClass = function (className, el) {
-    if (!nod.hasClass(className, el)) {
+    if (el.classList) {
+        el.classList.add(className);
+    } else if (!nod.hasClass(className, el)) {
         el.className += ' ' + className;
     }
 };
