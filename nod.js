@@ -1159,7 +1159,7 @@ nod.checkFunctions = {
 
         return function someRadio (callback, value, options) {
             var result = radioElements.reduce(function (memo, element) {
-                return memo || options.element.checked;
+                return memo || element.checked;
             }, false);
 
             callback(result);

@@ -746,10 +746,15 @@
 
                 expect(isUnchecked(ma), 'Check - `some-radio` #1');
 
+                m_nod.performCheck();
+
+                expect(isInvalid(ma), 'Check - `some-radio` #2');
+
                 ma.checked = true;
                 trigger(mb, 'change');
 
-                expect(isValid(ma), 'Check - `some-radio` #2');
+                expect(isValid(ma), 'Check - `some-radio` #3');
+                expect(isValid(mb), 'Check - `some-radio` #4');
 
                 removeElement(ma.parentNode.parentNode);
             })();
