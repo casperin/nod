@@ -367,13 +367,13 @@ element that you can listen for:
 
 ```javascript
 function myFunc (event) {
-    console.log(event.details);
+    console.log(event.detail);
 }
 
 myElement.addEventListener('nod.validation', myFunc, false);
 ```
 
-The content of `event.details` should be enough for you to handle the error.
+The content of `event.detail` should be enough for you to handle the error.
 
 
 
