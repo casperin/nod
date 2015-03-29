@@ -7,17 +7,12 @@ const util = require('./util');
  * Takes care of listening to changes to its element and fire them off as
  * events on the mediator for checkers to listen to.
  */
-module.exports = function makeListener (element, mediator, triggerEvents, configuration) {
-    var id = util.unique(),
-        $element;
+module.exports = (element, mediator, triggerEvents, configuration) => {
+    const id = util.unique(),
+         changed = event =>
+            mediator.fire({id, event, type: 'change'});
 
-    function changed (event) {
-        mediator.fire({
-            id:     id,
-            event:  event,
-            type:   'change'
-        });
-    }
+    let $element;
 
     element.addEventListener('input', changed, false);
     element.addEventListener('change', changed, false);
@@ -32,12 +27,11 @@ module.exports = function makeListener (element, mediator, triggerEvents, config
     if (triggerEvents) {
         triggerEvents = Array.isArray(triggerEvents) ? triggerEvents : [triggerEvents];
 
-        triggerEvents.forEach(function (eventName) {
-            element.addEventListener(eventName, changed, false);
-        });
+        triggerEvents.forEach(eventName =>
+            element.addEventListener(eventName, changed, false));
     }
 
-    function dispose () {
+    const dispose = () => {
         element.removeEventListener('input', changed, false);
         element.removeEventListener('change', changed, false);
         element.removeEventListener('blur', changed, false);
@@ -47,16 +41,11 @@ module.exports = function makeListener (element, mediator, triggerEvents, config
         }
 
         if (triggerEvents) {
-            triggerEvents.forEach(function (eventName) {
-                element.removeEventListener(eventName, changed, false);
-            });
+            triggerEvents.forEach(eventName =>
+                element.removeEventListener(eventName, changed, false));
         }
-    }
-
-    return {
-        element:    element,
-        dispose:    dispose,
-        id:         id
     };
+
+    return {element, dispose, id};
 };
 

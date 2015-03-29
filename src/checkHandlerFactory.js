@@ -3,7 +3,7 @@ const util = require('./util'),
 
 
 /**
- * makeCheckHandler
+ * checkHandlerFactory
  *
  * Handles checks coming in from the mediator and takes care of calculating
  * the state and error messages.

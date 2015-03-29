@@ -1,16 +1,3 @@
-const util                          = require('./util'),
-      constants                     = require('./constants'),
-      makeMediator                  = require('./makeMediator'),
-      makeEventEmitter              = require('./makeEventEmitter'),
-      makeCollection                = require('./makeCollection'),
-      makeListener                  = require('./makeListener'),
-      makeChecker                   = require('./makeChecker'),
-      makeCheckHandler              = require('./makeCheckHandler'),
-      makeDomNode                   = require('./makeDomNode'),
-      checkFunctions                = require('./checkFunctions');
-
-
-
 /**
  *
  *
@@ -58,17 +45,31 @@ const util                          = require('./util'),
  *
  */
 
-module.exports = function nod (config) {
+
+const util                          = require('./util'),
+      constants                     = require('./constants'),
+      mediatorFactory               = require('./mediatorFactory'),
+      emitterFactory                = require('./emitterFactory'),
+      collectionFactory             = require('./collectionFactory'),
+      listenerFactory               = require('./listenerFactory'),
+      checkerFactory                = require('./checkerFactory'),
+      checkHandlerFactory           = require('./checkHandlerFactory'),
+      domNodeFactory                = require('./domNodeFactory'),
+      checkFunctions                = require('./checkFunctions'),
+      getCheckFunction              = require('./getCheckFunction');
+
+
+function nod (config) {
     var form,
         configuration   = {},
-        mediator        = makeMediator(),
-        eventEmitter    = makeEventEmitter(mediator),
+        mediator        = mediatorFactory(),
+        emitter         = emitterFactory(mediator),
 
         // Creating (empty) collections
-        listeners       = makeCollection(makeListener),
-        checkers        = makeCollection(makeChecker),
-        checkHandlers   = makeCollection(makeCheckHandler),
-        domNodes        = makeCollection(makeDomNode);
+        listeners       = collectionFactory(listenerFactory),
+        checkers        = collectionFactory(checkerFactory),
+        checkHandlers   = collectionFactory(checkHandlerFactory),
+        domNodes        = collectionFactory(domNodeFactory);
 
 
 
@@ -121,7 +122,7 @@ module.exports = function nod (config) {
 
 
             // The function that will check the value of the element.
-            checkFunction = checkFunctions(metric),
+            checkFunction = getCheckFunction(metric),
 
 
             // A list of elements that this metric will target.
@@ -204,7 +205,7 @@ module.exports = function nod (config) {
 
 
             if (configuration.noDom) {
-                eventEmitter.subscribe(metricSet.checkHandler.id);
+                emitter.subscribe(metricSet.checkHandler.id);
             } else {
                 // :: checkHandler -> domNode
 
@@ -398,3 +399,12 @@ module.exports = function nod (config) {
 
     return nodInstace;
 }
+
+// Backwards compatibility
+nod.constants = constants;
+nod.classes = constants.classes;
+nod.checkFunctions = checkFunctions;
+
+module.exports = nod;
+
+window.nod = nod;

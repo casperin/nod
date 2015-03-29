@@ -1,5 +1,5 @@
 /**
- * makeMediator
+ * mediatorFactory
  *
  * Minimal implementation of a mediator pattern, used for communication
  * between checkers and checkHandlers (checkers fires events which
@@ -7,12 +7,12 @@
  *
  * Subscribing to 'all' will give you all results from all checks.
  */
-module.exports = function makeMediator () {
+module.exports = () => {
     var subscribers = [],
         all = [];
 
     return {
-        subscribe: function subscribe (id, fn) {
+        subscribe: (id, fn) => {
             if (id === 'all') {
                 all.push(fn);
             } else {
@@ -26,13 +26,8 @@ module.exports = function makeMediator () {
             }
         },
 
-        fire: function fire (options) {
-            var subscribedFunctions = subscribers[options.id].concat(all);
-
-            subscribedFunctions.forEach(function (subscribedFunction) {
-                subscribedFunction(options);
-            });
-        }
+        fire: options =>
+            subscribers[options.id].concat(all).forEach(fn => fn(options))
     };
 };
 

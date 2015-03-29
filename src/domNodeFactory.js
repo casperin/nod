@@ -2,7 +2,7 @@ const util = require('./util'),
       constants = require('./constants');
 
 /**
- * makeDomNode
+ * domNodeFactory
  *
  * This creates the error/success message behind the input element, as well
  * as takes care of updating classes and taking care of its own state.
@@ -12,11 +12,11 @@ const util = require('./util'),
  * being checked.
  *
  */
-module.exports = function (element, mediator, configuration) {
+module.exports = (element, mediator, configuration) => {
     // A 'domNode' consists of two elements: a 'parent', and a 'span'. The
     // parent is given as a paremeter, while the span is created and added
     // as a child to the parent.
-    var parent              = util.getParent(element, configuration),
+    let parent              = util.getParent(element, configuration),
         _status             = constants.UNCHECKED,
         pendingUpdate       = null,
         span                = document.createElement('span'),
@@ -29,9 +29,9 @@ module.exports = function (element, mediator, configuration) {
     }
 
     // Updates the class of the parent to match the status of the element.
-    function updateParent (status) {
-        var successClass    = configuration.successClass || constants.classes.successClass,
-            errorClass      = configuration.errorClass || constants.classes.errorClass;
+    const updateParent = status => {
+        const successClass    = configuration.successClass || constants.classes.successClass,
+              errorClass      = configuration.errorClass || constants.classes.errorClass;
 
         switch (status) {
         case constants.VALID:
@@ -43,12 +43,12 @@ module.exports = function (element, mediator, configuration) {
             util.addClass(errorClass, parent);
             break;
         }
-    }
+    };
 
     // Updates the text and class according to the status.
-    function updateSpan (status, errorMessage) {
-        var successMessageClass = configuration.successMessageClass || constants.classes.successMessageClass,
-            errorMessageClass   = configuration.errorMessageClass || constants.classes.errorMessageClass;
+    const updateSpan = (status, errorMessage) => {
+        const successMessageClass = configuration.successMessageClass || constants.classes.successMessageClass,
+              errorMessageClass   = configuration.errorMessageClass || constants.classes.errorMessageClass;
 
         span.style.display = 'none';
 
@@ -68,11 +68,11 @@ module.exports = function (element, mediator, configuration) {
             span.style.display = '';
             break;
         }
-    }
+    };
 
-    function set (options) {
-        var status              = options.result,
-            errorMessage        = options.errorMessage;
+    const set = options => {
+        const status              = options.result,
+              errorMessage        = options.errorMessage;
 
         // If the dom is showing an invalid message, we want to update the
         // dom right away.
@@ -89,7 +89,7 @@ module.exports = function (element, mediator, configuration) {
             // we use a method similar to "debouncing" the update
             clearTimeout(pendingUpdate);
 
-            pendingUpdate = setTimeout(function () {
+            pendingUpdate = setTimeout(() => {
 
                 _status = status;
                 updateParent(status);
@@ -100,14 +100,13 @@ module.exports = function (element, mediator, configuration) {
             }, configuration.delay || 700);
 
         }
-    }
+    };
 
-    function subscribeTo (id) {
+    const subscribeTo = id =>
         mediator.subscribe(id, set);
-    }
 
 
-    function setMessageOptions (parentContainer, message) {
+    const setMessageOptions = (parentContainer, message) => {
         if (parentContainer) {
             parent = util.getElement(parentContainer);
         }
@@ -117,10 +116,10 @@ module.exports = function (element, mediator, configuration) {
             span = util.getElement(message);         // Set the new one.
             customSpan = true;                      // So we won't delete it.
         }
-    }
+    };
 
 
-    function dispose () {
+    const dispose = () => {
         // First remove any classes
         util.removeClass(configuration.errorClass || constants.classes.errorClass, parent);
         util.removeClass(configuration.successClass || constants.classes.successClass, parent);
@@ -129,13 +128,8 @@ module.exports = function (element, mediator, configuration) {
         if (!customSpan) {
             span.parentNode.removeChild(span);
         }
-    }
-
-    return {
-        subscribeTo:        subscribeTo,
-        element:            element,
-        setMessageOptions:  setMessageOptions,
-        dispose:            dispose
     };
+
+    return {subscribeTo, element, setMessageOptions, dispose};
 };
 

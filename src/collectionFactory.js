@@ -1,25 +1,26 @@
-function findCollectionIndex (collection, element) {
-    for (var i in collection) {
+const findCollectionIndex = (collection, element) => {
+    for (let i in collection) {
         if (collection[i].element === element) {
             return i;
         }
     }
 
     return -1;
-}
+};
 
 
 /**
- * makeCollection
+ * collectionFactory
  *
  * A minimal implementation of a "collection", inspired by collections from
  * BackboneJS. Used by listeners, checkers, and checkHandlers.
  */
-module.exports = function makeCollection (maker) {
-    var collection = [];
+module.exports = maker => {
+    const collection = [];
 
-    collection.findOrMake = function (element) {
-        var index = findCollectionIndex(collection, element);
+    collection.findOrMake = (...args) => {
+        const element = args[0],
+            index = findCollectionIndex(collection, element);
 
         // Found
         if (index !== -1) {
@@ -27,13 +28,13 @@ module.exports = function makeCollection (maker) {
         }
 
         // None found, let's make one then.
-        var item = maker.apply(null, arguments);
+        const item = maker.apply(null, args);
         collection.push(item);
         return item;
     };
 
-    collection.removeItem = function (element) {
-        var index = findCollectionIndex(collection, element),
+    collection.removeItem = (element) => {
+        const index = findCollectionIndex(collection, element),
             item = collection[index];
 
         if (!item) {
