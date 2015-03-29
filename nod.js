@@ -327,12 +327,16 @@ function nod (config) {
 
 
     function setMessageOptions (options) {
-        var elements = nod.getElements(options.selector);
+        options = Array.isArray(options) ? options : [options];
 
-        elements.forEach(function (element) {
-            var domNode = domNodes.findOrMake(element);
+        options.forEach(function (option) {
+            var elements = nod.getElements(option.selector);
 
-            domNode.setMessageOptions(options.parent, options.errorSpan);
+            elements.forEach(function (element) {
+                var domNode = domNodes.findOrMake(element);
+
+                domNode.setMessageOptions(option.parent, option.errorSpan);
+            });
         });
     }
 
