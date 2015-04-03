@@ -2,7 +2,7 @@
 /**
  *
  *
- * nod v.2.0.6
+ * nod v.2.0.7
  * Gorm Casper
  *
  *
@@ -58,8 +58,6 @@ function nod (config) {
         checkHandlers   = nod.makeCollection(nod.makeCheckHandler),
         domNodes        = nod.makeCollection(nod.makeDomNode);
 
-
-
     /**
      * Entry point for the user. The user passes in an array of metrics (an
      * object containing a selector, a validate string/function, etc.) and it
@@ -103,18 +101,14 @@ function nod (config) {
         });
     }
 
-
     function addMetric (metric) {
         var specialTriggers = [],
-
 
             // The function that will check the value of the element.
             checkFunction = nod.getCheckFunction(metric),
 
-
             // A list of elements that this metric will target.
             elements = nod.getElements(metric.selector),
-
 
             // A "set" here, refers to an obj with one listener, one checker,
             // and one checkHandler. Only every one for each element in the
@@ -128,12 +122,9 @@ function nod (config) {
                 };
             });
 
-
         // Saved for later reference in case the user has a `tap` function
         // defined.
         checkFunction.validate = (typeof metric.validate === 'function') ? metric.validate.toString() : metric.validate;
-
-
 
         // Special cases. These `validates` affect each other, and their state
         // needs to update each time either of the elements' values change.
@@ -144,8 +135,6 @@ function nod (config) {
         if (typeof metric.validate === 'string' && metric.validate.indexOf('same-as') > -1) {
             specialTriggers.push(metric.validate.split(':')[1]);
         }
-
-
 
         // Helper function, used in the loop below.
         function subscribeToTriggers (checker, selector) {
@@ -158,13 +147,9 @@ function nod (config) {
             });
         }
 
-
-
         // Here we set up the "connections" between each of our main parts.
         // They communicate only through the mediator.
         metricSets.forEach(function (metricSet) {
-
-
             // :: Listener -> Checker
 
             // We want our checker to listen to the listener. A listener has an
@@ -178,7 +163,6 @@ function nod (config) {
             subscribeToTriggers(metricSet.checker, metric.triggeredBy);
             subscribeToTriggers(metricSet.checker, specialTriggers);
 
-
             // :: Checker -> checkHandler
 
             var checkId = nod.unique();
@@ -189,7 +173,6 @@ function nod (config) {
 
             // We want the check handler to listen for results from the checker
             metricSet.checkHandler.subscribeTo(checkId, metric.errorMessage, metric.defaultStatus);
-
 
             if (configuration.noDom) {
                 eventEmitter.subscribe(metricSet.checkHandler.id);
@@ -202,13 +185,9 @@ function nod (config) {
             }
         });
 
-
-
         // After all is done, we may have to enable/disable a submit button.
         toggleSubmit();
     }
-
-
 
     /**
      * If a form is added, we listen for submits, and if the has also set
@@ -245,8 +224,6 @@ function nod (config) {
         }
     }
 
-
-
     /**
      * Removes elements completely.
      */
@@ -260,8 +237,6 @@ function nod (config) {
             domNodes.removeItem(element);
         });
     }
-
-
 
     /**
      * configure
@@ -293,8 +268,6 @@ function nod (config) {
         }
     }
 
-
-
     /**
      * toggleSubmit
      *
@@ -307,13 +280,11 @@ function nod (config) {
         }
     }
 
-
     /*
      * Listen to all checks, and if the user has set in the configuration to
      * enable/disabled the submit button, we do that.
      */
     mediator.subscribe('all', toggleSubmit);
-
 
     function areAll (status) {
         for (var i = 0, len = checkHandlers.length; i < len; i++) {
@@ -324,7 +295,6 @@ function nod (config) {
 
         return true;
     }
-
 
     function setMessageOptions (options) {
         options = Array.isArray(options) ? options : [options];
@@ -350,8 +320,6 @@ function nod (config) {
         }
     });
 
-
-
     function getStatus (selector, showErrorMessage) {
         var element = nod.getElement(selector),
             status  = checkHandlers.findOrMake(element).getStatus();
@@ -359,17 +327,13 @@ function nod (config) {
         return showErrorMessage ? status : status.status;
     }
 
-
-
     function performCheck (selector) {
         var cs = selector ? nod.getElements(selector).map(checkers.findOrMake) : checkers;
 
-        cs.forEach(function(checker) {
+        cs.forEach(function (checker) {
             checker.performCheck();
         });
     }
-
-
 
     /**
      * Internal functions that are exposed to the public.
@@ -391,13 +355,11 @@ function nod (config) {
     return nodInstace;
 }
 
-
 nod.constants = {
     VALID:          'valid',
     INVALID:        'invalid',
     UNCHECKED:      'unchecked'
 };
-
 
 nod.classes = {
     successClass:         'nod-success',
@@ -405,8 +367,6 @@ nod.classes = {
     errorClass:           'nod-error',
     errorMessageClass:    'nod-error-message'
 };
-
-
 
 // Helper function to create unique id's
 nod.unique = (function () {
@@ -416,9 +376,6 @@ nod.unique = (function () {
         return uniqueCounter++;
     };
 })();
-
-
-
 
 /**
  * makeMediator
@@ -458,8 +415,6 @@ nod.makeMediator = function () {
     };
 };
 
-
-
 nod.findCollectionIndex = function (collection, element) {
     for (var i in collection) {
         if (collection[i].element === element) {
@@ -469,8 +424,6 @@ nod.findCollectionIndex = function (collection, element) {
 
     return -1;
 };
-
-
 
 /**
  * makeCollection
@@ -491,7 +444,9 @@ nod.makeCollection = function (maker) {
 
         // None found, let's make one then.
         var item = maker.apply(null, arguments);
+
         collection.push(item);
+
         return item;
     };
 
@@ -514,8 +469,6 @@ nod.makeCollection = function (maker) {
 
     return collection;
 };
-
-
 
 /**
  * makeListener
@@ -576,9 +529,6 @@ nod.makeListener = function (element, mediator, triggerEvents, configuration) {
     };
 };
 
-
-
-
 /**
  * makeChecker
  *
@@ -632,7 +582,6 @@ nod.makeChecker = function (element, mediator) {
         });
     }
 
-
     return {
         subscribeTo:    subscribeTo,
         addCheck:       addCheck,
@@ -640,8 +589,6 @@ nod.makeChecker = function (element, mediator) {
         element:        element
     };
 };
-
-
 
 /**
  * makeCheckHandler
@@ -709,7 +656,6 @@ nod.makeCheckHandler = function (element, mediator, configuration) {
         };
     }
 
-
     return {
         id:             id,
         subscribeTo:    subscribeTo,
@@ -719,15 +665,12 @@ nod.makeCheckHandler = function (element, mediator, configuration) {
     };
 };
 
-
-
-
 // Helper functions for `makeDomNode`.
 nod.hasClass = function (className, el) {
     if (el.classList) {
         return el.classList.contains(className);
     } else {
-        return !!el.className.match(new RegExp('(\\s|^)'+className+'(\\s|$)'));
+        return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'));
     }
 };
 
@@ -735,7 +678,7 @@ nod.removeClass = function (className, el) {
     if (el.classList) {
         el.classList.remove(className);
     } else if (nod.hasClass(className, el)) {
-            el.className = el.className.replace(new RegExp('(?:^|\\s)'+className+'(?!\\S)'), '');
+        el.className = el.className.replace(new RegExp('(?:^|\\s)' + className + '(?!\\S)'), '');
     }
 };
 
@@ -746,7 +689,6 @@ nod.addClass = function (className, el) {
         el.className += ' ' + className;
     }
 };
-
 
 nod.getParent = function (element, configuration) {
     var klass = configuration.parentClass;
@@ -812,6 +754,7 @@ nod.makeDomNode = function (element, mediator, configuration) {
             nod.removeClass(errorClass, parent);
             nod.addClass(successClass, parent);
             break;
+
         case nod.constants.INVALID:
             nod.removeClass(successClass, parent);
             nod.addClass(errorClass, parent);
@@ -830,11 +773,14 @@ nod.makeDomNode = function (element, mediator, configuration) {
         case nod.constants.VALID:
             nod.removeClass(errorMessageClass, span);
             nod.addClass(successMessageClass, span);
+
             if (configuration.successMessage) {
                 span.textContent = configuration.successMessage;
                 span.style.display = '';
             }
+
             break;
+
         case nod.constants.INVALID:
             nod.removeClass(successMessageClass, span);
             nod.addClass(errorMessageClass, span);
@@ -851,35 +797,27 @@ nod.makeDomNode = function (element, mediator, configuration) {
         // If the dom is showing an invalid message, we want to update the
         // dom right away.
         if (_status === nod.constants.INVALID || configuration.delay === 0) {
-
             _status = status;
             updateParent(status);
             updateSpan(status, errorMessage);
-
         } else {
-
             // If the dom shows either an unchecked or a valid state
             // we won't rush to tell them they are wrong. Instead
             // we use a method similar to "debouncing" the update
             clearTimeout(pendingUpdate);
 
             pendingUpdate = setTimeout(function () {
-
                 _status = status;
                 updateParent(status);
                 updateSpan(status, errorMessage);
-
                 pendingUpdate = null;
-
             }, configuration.delay || 700);
-
         }
     }
 
     function subscribeTo (id) {
         mediator.subscribe(id, set);
     }
-
 
     function setMessageOptions (parentContainer, message) {
         if (parentContainer) {
@@ -892,7 +830,6 @@ nod.makeDomNode = function (element, mediator, configuration) {
             customSpan = true;                      // So we won't delete it.
         }
     }
-
 
     function dispose () {
         // First remove any classes
@@ -912,7 +849,6 @@ nod.makeDomNode = function (element, mediator, configuration) {
         dispose:            dispose
     };
 };
-
 
 nod.makeEventEmitter = function (mediator) {
     var customEvent;
@@ -936,7 +872,6 @@ nod.makeEventEmitter = function (mediator) {
     };
 };
 
-
 /**
  * getElement
  *
@@ -945,7 +880,6 @@ nod.makeEventEmitter = function (mediator) {
 nod.getElement = function (selector) {
     return nod.getElements(selector)[0];
 };
-
 
 /**
  * getElements
@@ -973,7 +907,9 @@ nod.getElements = function (selector) {
         // If not, then we do it the manual way.
         var nodeList = document.querySelectorAll(selector);
 
-        return [].map.call(nodeList, function (el) { return el; });
+        return [].map.call(nodeList, function (el) {
+            return el;
+        });
     }
 
     // if user gave us jQuery elements
@@ -1001,9 +937,6 @@ nod.getElements = function (selector) {
     throw 'Unknown type of elements in your `selector`: ' + selector;
 };
 
-
-
-
 nod.getCheckFunction = function (metric) {
     if (typeof metric.validate === 'function') {
         return metric.validate;
@@ -1018,7 +951,6 @@ nod.getCheckFunction = function (metric) {
 
     if (fnName === 'one-of' || fnName === 'only-one-of' ||
         fnName === 'same-as' || fnName === 'some-radio') {
-
         args.push(metric.selector);
     }
 
@@ -1118,11 +1050,11 @@ nod.checkFunctions = {
             // empty, then it bails out without a check. This is to avoid
             // showing an error message before the user has even reached the
             // element.
-            if (    options &&
-                    options.event &&
-                    options.event.target &&
-                    options.event.target !== options.element &&
-                    value.length === 0) {
+            if (options &&
+                options.event &&
+                options.event.target &&
+                options.event.target !== options.element &&
+                value.length === 0) {
                 return;
             }
 
@@ -1135,8 +1067,8 @@ nod.checkFunctions = {
 
         function getValues () {
             return elements.reduce(function (memo, element) {
-                return memo + "" + (element.value || "");
-            }, "");
+                return memo + '' + (element.value || '');
+            }, '');
         }
 
         return function oneOf (callback) {
@@ -1190,5 +1122,10 @@ nod.checkFunctions = {
         return function email (callback, value) {
             callback(RFC822.test(value));
         };
-    },
+    }
 };
+
+// Safely export nod.
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = nod;
+}
