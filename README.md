@@ -392,6 +392,14 @@ error message. Removing it will happen instantly, and there is currently no way
 to change that.
 
 
+By default nod also waits 0.7 seconds before the first display of an error message.
+This can be configured so if the user enter an input without typing, the message takes longer to appear.
+
+```javascript
+myNod.configure({firstDelay: 1500});
+```
+
+
 
 #### Disable submit button
 
