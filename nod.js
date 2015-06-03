@@ -1019,7 +1019,7 @@ nod.checkFunctions = {
 
     'min-number': function (minimumNumber) {
         return function minNumber (callback, value) {
-            callback(+value <= minimumNumber);
+            callback(+value >= minimumNumber);
         };
     },
 
