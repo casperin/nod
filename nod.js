@@ -2,7 +2,7 @@
 /**
  *
  *
- * nod v.2.0.8
+ * nod v.2.0.9
  * Gorm Casper
  *
  *
@@ -1124,6 +1124,28 @@ nod.checkFunctions = {
         };
     }
 };
+
+// CustomEvent polyfill for older IE versions. Taken from
+// github.com/d4tocchini/customevent-polyfill/blob/master/CustomEvent.js
+try {
+    new CustomEvent("test");
+} catch (e) {
+    var CustomEvent = function (event, params) {
+        var evt;
+        params = params || {
+            bubbles: false,
+            cancelable: false,
+            detail: undefined
+        };
+
+        evt = document.createEvent("CustomEvent");
+        evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+        return evt;
+    };
+
+    CustomEvent.prototype = window.Event.prototype;
+    window.CustomEvent = CustomEvent;
+}
 
 // Safely export nod.
 if (typeof module !== 'undefined' && module.exports) {
