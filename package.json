@@ -1,6 +1,6 @@
 {
   "name": "nod-validate",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "Frontend input validation",
   "main": "nod.js",
   "repository": {
