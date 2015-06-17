@@ -1049,5 +1049,35 @@
         </script>
 
 
+        <form action=''>
+            <div><input tpye='text' id='v_a'></div>
+        </form>
+
+        <script>
+            (function () {
+                var v_nod = nod({
+                        delay: 0,
+                        noDom: true
+                    }),
+                    passed = false;
+
+                v_nod.add({
+                    selector: '#v_a',
+                    validate: 'presence',
+                    errorMessage: ERROR_MSG
+                });
+
+                try {
+                    v_nod.remove('#v_a');
+                    passed = true;
+                } catch (e) {}
+
+                expect(passed, 'Remove element with `noDom: true`');
+
+                removeElement(v_a.parentNode.parentNode);
+            })();
+        </script>
+
+
     </body>
 </html>

@@ -837,7 +837,8 @@ nod.makeDomNode = function (element, mediator, configuration) {
         nod.removeClass(configuration.successClass || nod.classes.successClass, parent);
 
         // Then we remove the span if it wasn't one that was set by the user.
-        if (!customSpan) {
+        // If `noDom` was used, then there won't be any to remove.
+        if (span.parentNode && !customSpan) {
             span.parentNode.removeChild(span);
         }
     }
