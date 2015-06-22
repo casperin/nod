@@ -481,6 +481,12 @@ nod.makeListener = function (element, mediator, triggerEvents, configuration) {
         $element;
 
     function changed (event) {
+        if(element.getAttribute('data-delay') == null) {
+            element.setAttribute('data-delay', configuration.firstDelay || 700);
+        } else {
+            element.setAttribute('data-delay', configuration.delay || 700);
+        }
+
         mediator.fire({
             id:     id,
             event:  event,
@@ -806,12 +812,16 @@ nod.makeDomNode = function (element, mediator, configuration) {
             // we use a method similar to "debouncing" the update
             clearTimeout(pendingUpdate);
 
+            var delay = parseInt(options.element.getAttribute('data-delay'));
+
             pendingUpdate = setTimeout(function () {
                 _status = status;
                 updateParent(status);
                 updateSpan(status, errorMessage);
                 pendingUpdate = null;
-            }, configuration.delay || 700);
+
+            }, delay);
+
         }
     }
 
