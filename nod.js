@@ -345,7 +345,10 @@ function nod (config) {
         getStatus:              getStatus,
         configure:              configure,
         setMessageOptions:      setMessageOptions,
-        performCheck:           performCheck
+        performCheck:           performCheck,
+        setInvalid:             setInvalid,
+        setValid:               setValid,
+        setAllNodeValid:        setAllNodeValid
     };
 
     if (config) {
@@ -848,6 +851,7 @@ nod.makeDomNode = function (element, mediator, configuration) {
         element:            element,
         setMessageOptions:  setMessageOptions,
         dispose:            dispose
+        dispose:            dispose,
     };
 };
 
