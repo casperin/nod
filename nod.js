@@ -80,7 +80,12 @@ function nod (config) {
             // them individually.
             } else {
                 if (!Array.isArray(metric.errorMessage)) {
-                    throw 'If you pass in `validate:...` as an array, then `errorMessage:...` also needs to be an array. "' + metric.validate + '", and "' + metric.errorMessage + '"';
+                    var errorMsg = 'If you pass in `validate:...` as an ' +
+                        ' array, then `errorMessage:...` also needs to be an ' +
+                        ' array. "' + metric.validate + '", and "' +
+                        metric.errorMessage + '"';
+
+                    throw Error(errorMsg);
                 }
 
                 // We store each as arrays, and then run through them,
@@ -114,24 +119,36 @@ function nod (config) {
             // dom.
             metricSets = elements.map(function (element) {
                 return {
-                    listener:       listeners.findOrMake(element, mediator, metric.triggerEvents, configuration),
+                    listener:       listeners.findOrMake(element,
+                                                         mediator,
+                                                         metric.triggerEvents,
+                                                         configuration),
                     checker:        checkers.findOrMake(element, mediator),
-                    checkHandler:   checkHandlers.findOrMake(element, mediator, configuration),
-                    domNode:        domNodes.findOrMake(element, mediator, configuration)
+                    checkHandler:   checkHandlers.findOrMake(element,
+                                                             mediator,
+                                                             configuration),
+                    domNode:        domNodes.findOrMake(element,
+                                                        mediator,
+                                                        configuration)
                 };
             });
 
         // Saved for later reference in case the user has a `tap` function
         // defined.
-        checkFunction.validate = (typeof metric.validate === 'function') ? metric.validate.toString() : metric.validate;
+        checkFunction.validate = (typeof metric.validate === 'function')
+            ? metric.validate.toString()
+            : metric.validate;
 
         // Special cases. These `validates` affect each other, and their state
         // needs to update each time either of the elements' values change.
-        if (metric.validate === 'one-of' || metric.validate === 'only-one-of' || metric.validate === 'some-radio') {
+        if (metric.validate === 'one-of'
+            || metric.validate === 'only-one-of'
+            || metric.validate === 'some-radio') {
             specialTriggers.push(metric.selector);
         }
 
-        if (typeof metric.validate === 'string' && metric.validate.indexOf('same-as') > -1) {
+        if (typeof metric.validate === 'string'
+            && metric.validate.indexOf('same-as') > -1) {
             specialTriggers.push(metric.validate.split(':')[1]);
         }
 
@@ -140,7 +157,10 @@ function nod (config) {
             var triggerElements = nod.getElements(selector);
 
             triggerElements.forEach(function (element) {
-                var listener = listeners.findOrMake(element, mediator, null, configuration);
+                var listener = listeners.findOrMake(element,
+                                                    mediator,
+                                                    null,
+                                                    configuration);
 
                 checker.subscribeTo(listener.id);
             });
@@ -171,15 +191,17 @@ function nod (config) {
             metricSet.checker.addCheck(checkFunction, checkId);
 
             // We want the check handler to listen for results from the checker
-            metricSet.checkHandler.subscribeTo(checkId, metric.errorMessage, metric.defaultStatus);
+            metricSet.checkHandler.subscribeTo(checkId,
+                                               metric.errorMessage,
+                                               metric.defaultStatus);
 
             if (configuration.noDom) {
                 eventEmitter.subscribe(metricSet.checkHandler.id);
             } else {
                 // :: checkHandler -> domNode
 
-                // The checkHandler has its own id (and only ever needs one), so we
-                // just ask the domNode to listen for that.
+                // The checkHandler has its own id (and only ever needs one), so
+                // we just ask the domNode to listen for that.
                 metricSet.domNode.subscribeTo(metricSet.checkHandler.id);
             }
         });
@@ -275,8 +297,8 @@ function nod (config) {
      */
     function toggleSubmit () {
         if (configuration.submit && configuration.disableSubmit) {
-            nod.getElements(configuration.submit).forEach(function (submitButton) {
-                submitButton.disabled = !areAll(nod.constants.VALID);
+            nod.getElements(configuration.submit).forEach(function (submitBtn) {
+                submitBtn.disabled = !areAll(nod.constants.VALID);
             });
         }
     }
@@ -316,7 +338,8 @@ function nod (config) {
      * function in the configuration.
      */
     mediator.subscribe('all', function (options) {
-        if (typeof configuration.tap === 'function' && options.type === 'check') {
+        if (typeof configuration.tap === 'function'
+            && options.type === 'check') {
             configuration.tap(options);
         }
     });
@@ -329,7 +352,9 @@ function nod (config) {
     }
 
     function performCheck (selector) {
-        var cs = selector ? nod.getElements(selector).map(checkers.findOrMake) : checkers;
+        var cs = selector
+            ? nod.getElements(selector).map(checkers.findOrMake)
+            : checkers;
 
         cs.forEach(function (checker) {
             checker.performCheck();
@@ -407,12 +432,11 @@ nod.unique = (function () {
     };
 })();
 
-/**
- * makeMediator
+/** makeMediator
  *
- * Minimal implementation of a mediator pattern, used for communication
- * between checkers and checkHandlers (checkers fires events which
- * handlers can subscribe to). Unique ID's are used to tell events apart.
+ * Minimal implementation of a mediator pattern, used for communication between
+ * checkers and checkHandlers (checkers fires events which handlers can
+ * subscribe to). Unique ID's are used to tell events apart.
  *
  * Subscribing to 'all' will give you all results from all checks.
  */
@@ -529,7 +553,9 @@ nod.makeListener = function (element, mediator, triggerEvents, configuration) {
     }
 
     if (triggerEvents) {
-        triggerEvents = Array.isArray(triggerEvents) ? triggerEvents : [triggerEvents];
+        triggerEvents = Array.isArray(triggerEvents)
+            ? triggerEvents
+            : [triggerEvents];
 
         triggerEvents.forEach(function (eventName) {
             element.addEventListener(eventName, changed, false);
@@ -562,14 +588,13 @@ nod.makeListener = function (element, mediator, triggerEvents, configuration) {
 /**
  * makeChecker
  *
- * An "checker" communicates primarily with the mediator. It listens
- * for input changes (coming from listeners), performs its checks
- * and fires off results back to the mediator for checkHandlers to
- * handle.
+ * An "checker" communicates primarily with the mediator. It listens for input
+ * changes (coming from listeners), performs its checks and fires off results
+ * back to the mediator for checkHandlers to handle.
  *
- * The checker has a 1 to 1 relationship with an element, an
- * listeners, and an checkHandler; although they may
- * communicate with other "sets" of listeners, checkers and handlers.
+ * The checker has a 1 to 1 relationship with an element, an listeners, and an
+ * checkHandler; although they may communicate with other "sets" of listeners,
+ * checkers and handlers.
  *
  * Checks are added, from the outside, and consists of a checkFunction (see
  * nod.checkFunctions) and a unique id.
@@ -588,8 +613,8 @@ nod.makeChecker = function (element, mediator) {
         });
     }
 
-    // Add a check function to the element. The result will be handed off
-    // to the mediator (for checkHandlers to evaluate).
+    // Add a check function to the element. The result will be handed off to the
+    // mediator (for checkHandlers to evaluate).
     function addCheck (checkFunction, id) {
         function callback (result) {
             mediator.fire({
@@ -604,7 +629,9 @@ nod.makeChecker = function (element, mediator) {
         checks.push(function (options) {
             // If element.value is undefined, then we might be dealing with
             // another type of element; like <div contenteditable='true'>
-            var value = element.value !== undefined ? element.value : element.innerHTML;
+            var value = element.value !== undefined
+                ? element.value
+                : element.innerHTML;
 
             options.element = element;
 
@@ -623,19 +650,18 @@ nod.makeChecker = function (element, mediator) {
 /**
  * makeCheckHandler
  *
- * Handles checks coming in from the mediator and takes care of calculating
- * the state and error messages.
+ * Handles checks coming in from the mediator and takes care of calculating the
+ * state and error messages.
  *
- * The checkHandlers lives in one to one with the element parsed in,
- * and listens for (usually) multiple error checks.
+ * The checkHandlers lives in one to one with the element parsed in, and listens
+ * for (usually) multiple error checks.
  */
 nod.makeCheckHandler = function (element, mediator, configuration) {
     var results     = {},
         id          = nod.unique();
 
     function subscribeTo (id, errorMessage, defaultStatus) {
-        // Create a representation of the type of error in the results
-        // object.
+        // Create a representation of the type of error in the results object.
         if (!results[id]) {
             results[id] = {
                 status: defaultStatus || nod.constants.UNCHECKED,
@@ -648,13 +674,14 @@ nod.makeCheckHandler = function (element, mediator, configuration) {
     }
 
     function checkHandler (result) {
-        results[result.id].status = result.result ? nod.constants.VALID : nod.constants.INVALID;
+        results[result.id].status = result.result
+            ? nod.constants.VALID
+            : nod.constants.INVALID;
 
         notifyMediator();
     }
 
-    // Runs through all results to see what kind of feedback to show the
-    // user.
+    // Runs through all results to see what kind of feedback to show the user.
     function notifyMediator () {
         var status = getStatus();
 
@@ -700,7 +727,8 @@ nod.hasClass = function (className, el) {
     if (el.classList) {
         return el.classList.contains(className);
     } else {
-        return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'));
+        var regex = new RegExp('(\\s|^)' + className + '(\\s|$)');
+        return !!el.className.match(regex);
     }
 };
 
@@ -708,7 +736,8 @@ nod.removeClass = function (className, el) {
     if (el.classList) {
         el.classList.remove(className);
     } else if (nod.hasClass(className, el)) {
-        el.className = el.className.replace(new RegExp('(?:^|\\s)' + className + '(?!\\S)'), '');
+        var regex = new RegExp('(?:^|\\s)' + className + '(?!\\S)');
+        el.className = el.className.replace(regex, '');
     }
 };
 
@@ -750,18 +779,17 @@ nod.findParentWithClass = function (parent, klass) {
 /**
  * makeDomNode
  *
- * This creates the error/success message behind the input element, as well
- * as takes care of updating classes and taking care of its own state.
+ * This creates the error/success message behind the input element, as well as
+ * takes care of updating classes and taking care of its own state.
  *
- * The dom node is owned by checkHandler, and has a one to one
- * relationship with both the checkHandler and the input element
- * being checked.
+ * The dom node is owned by checkHandler, and has a one to one relationship with
+ * both the checkHandler and the input element being checked.
  *
  */
 nod.makeDomNode = function (element, mediator, configuration) {
     // A 'domNode' consists of two elements: a 'parent', and a 'span'. The
-    // parent is given as a paremeter, while the span is created and added
-    // as a child to the parent.
+    // parent is given as a paremeter, while the span is created and added as a
+    // child to the parent.
     var parent              = nod.getParent(element, configuration),
         _status             = nod.constants.UNCHECKED,
         pendingUpdate       = null,
@@ -776,8 +804,10 @@ nod.makeDomNode = function (element, mediator, configuration) {
 
     // Updates the class of the parent to match the status of the element.
     function updateParent (status) {
-        var successClass    = configuration.successClass || nod.classes.successClass,
-            errorClass      = configuration.errorClass || nod.classes.errorClass;
+        var successClass = configuration.successClass
+                           || nod.classes.successClass,
+            errorClass = configuration.errorClass
+                         || nod.classes.errorClass;
 
         switch (status) {
         case nod.constants.VALID:
@@ -794,8 +824,10 @@ nod.makeDomNode = function (element, mediator, configuration) {
 
     // Updates the text and class according to the status.
     function updateSpan (status, errorMessage) {
-        var successMessageClass = configuration.successMessageClass || nod.classes.successMessageClass,
-            errorMessageClass   = configuration.errorMessageClass || nod.classes.errorMessageClass;
+        var successMessageClass = configuration.successMessageClass
+                                  || nod.classes.successMessageClass,
+          errorMessageClass   = configuration.errorMessageClass
+                                || nod.classes.errorMessageClass;
 
         span.style.display = 'none';
 
@@ -824,16 +856,16 @@ nod.makeDomNode = function (element, mediator, configuration) {
         var status              = options.result,
             errorMessage        = options.errorMessage;
 
-        // If the dom is showing an invalid message, we want to update the
-        // dom right away.
+        // If the dom is showing an invalid message, we want to update the dom
+        // right away.
         if (_status === nod.constants.INVALID || configuration.delay === 0) {
             _status = status;
             updateParent(status);
             updateSpan(status, errorMessage);
         } else {
-            // If the dom shows either an unchecked or a valid state
-            // we won't rush to tell them they are wrong. Instead
-            // we use a method similar to "debouncing" the update
+            // If the dom shows either an unchecked or a valid state we won't
+            // rush to tell them they are wrong. Instead we use a method similar
+            // to "debouncing" the update
             clearTimeout(pendingUpdate);
 
             pendingUpdate = setTimeout(function () {
@@ -863,8 +895,10 @@ nod.makeDomNode = function (element, mediator, configuration) {
 
     function dispose () {
         // First remove any classes
-        nod.removeClass(configuration.errorClass || nod.classes.errorClass, parent);
-        nod.removeClass(configuration.successClass || nod.classes.successClass, parent);
+        nod.removeClass(configuration.errorClass
+                        || nod.classes.errorClass, parent);
+        nod.removeClass(configuration.successClass
+                        || nod.classes.successClass, parent);
 
         // Then we remove the span if it wasn't one that was set by the user.
         // If `noDom` was used, then there won't be any to remove.
@@ -891,7 +925,10 @@ nod.makeEventEmitter = function (mediator) {
 
             options.element.dispatchEvent(customEvent);
         } else {
-            throw('nod.validate tried to fire a custom event, but the browser does not support CustomEvent\'s');
+            var errorMsg = 'nod.validate tried to fire a custom event, but ' +
+                           'the browser does not support CustomEvent\'s';
+
+            throw Error(errorMsg);
         }
     }
 
@@ -966,7 +1003,7 @@ nod.getElements = function (selector) {
         return result;
     }
 
-    throw 'Unknown type of elements in your `selector`: ' + selector;
+    throw Error('Unknown type of elements in your `selector`: ' + selector);
 };
 
 nod.getCheckFunction = function (metric) {
@@ -989,7 +1026,10 @@ nod.getCheckFunction = function (metric) {
     if (typeof nod.checkFunctions[fnName] === 'function') {
         return nod.checkFunctions[fnName].apply(null, args);
     } else {
-        throw 'Couldn\'t find your validator function "' + fnName + '" for "' + metric.selector + '"';
+        var errorMsg = 'Couldn\'t find your validator function "' +
+                       fnName + '" for "' + metric.selector + '"';
+
+        throw Error(errorMsg);
     }
 };
 
@@ -1039,7 +1079,10 @@ nod.checkFunctions = {
 
     'between-length': function (minimumLength, maximumLength) {
         return function betweenLength (callback, value) {
-            callback(value.length >= minimumLength && value.length <= maximumLength);
+            var aboveMinLength = value.length >= minimumLength,
+                belowMaxLength = value.length <= maximumLength;
+
+            callback(aboveMinLength && belowMaxLength);
         };
     },
 
@@ -1077,11 +1120,10 @@ nod.checkFunctions = {
         var sameAsElement = nod.getElement(selector);
 
         return function sameAs (callback, value, options) {
-            // 'same-as' is special, in that if it is triggered by another
-            // field (the one it should be similar to), and the field itself is
-            // empty, then it bails out without a check. This is to avoid
-            // showing an error message before the user has even reached the
-            // element.
+            // 'same-as' is special, in that if it is triggered by another field
+            // (the one it should be similar to), and the field itself is empty,
+            // then it bails out without a check. This is to avoid showing an
+            // error message before the user has even reached the element.
             if (options &&
                 options.event &&
                 options.event.target &&
@@ -1171,7 +1213,10 @@ try {
         };
 
         evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+        evt.initCustomEvent(event,
+                            params.bubbles,
+                            params.cancelable,
+                            params.detail);
         return evt;
     };
 
