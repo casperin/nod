@@ -275,7 +275,9 @@ function nod (config) {
      */
     function toggleSubmit () {
         if (configuration.submit && configuration.disableSubmit) {
-            nod.getElement(configuration.submit).disabled = !areAll(nod.constants.VALID);
+            nod.getElements(configuration.submit).forEach(function (submitButton) {
+                submitButton.disabled = !areAll(nod.constants.VALID);
+            });
         }
     }
 
