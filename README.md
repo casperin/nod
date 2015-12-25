@@ -470,6 +470,14 @@ myNod.setMessageOptions({
 Notice, that the "parent" (despite its name) does not have to strictly be a
 parent. There is also no need to set both the parent and the message.
 
+---
+
+These settings are especially useful when working with radio buttons. Have a
+look at
+[examples/05-radio-inputs.html](https://github.com/casperin/nod/blob/master/examples/05-radio-inputs.html)
+to see an example of how it is used to avoid showing an error message behind
+every single radio button, but rather show just one at the end of the list.
+
 
 ### Manually checking validity
 

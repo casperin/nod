@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <title>Custom check functions</title>
+        <link href='styles.css' rel='stylesheet'>
+        <script src='../nod.js'></script>
+    </head>
+    <body>
+
+        <form action=''>
+            <div>
+                <input class='radio' type='radio' name='a' value='1'>
+            </div>
+            <div>
+                <input class='radio' type='radio' name='a' value='2'>
+            </div>
+            <div>
+                <input class='radio' type='radio' name='a' value='3'>
+            </div>
+            <div class='error-message-here'></div>
+            <button class='submit-btn'>Submit</button>
+        </form>
+
+        <script>
+            var myNod = nod();
+
+            myNod.configure({
+                form: 'form',
+                preventSubmit: true,
+                submit: '.submit-btn'
+            });
+
+            myNod.add({
+                selector: '.radio',
+                // We check that "some radio button has been ticked".
+                validate: 'some-radio',
+                errorMessage: 'custom error span?'
+            });
+             
+            // Without this, each input element will get an error message
+            // behind it. With this, we just display one error message, at the
+            // bottom.
+            myNod.setMessageOptions({
+                selector: '.radio',
+                errorSpan: '.error-message-here'
+            });
+        </script>
+
+    </body>
+</html>
