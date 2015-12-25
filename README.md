@@ -1,4 +1,4 @@
-# Nod v.2.0.10
+# Nod v.2.0.11
 
 Frontend input validation
 
