@@ -70,9 +70,11 @@ function nod (config) {
         var arrayMetrics = Array.isArray(metrics) ? metrics : [metrics];
 
         arrayMetrics.forEach(function (metric) {
-            var validateArray, errorMessageArray;
+            var validateArray, errorMessageArray,
+                notArray = !Array.isArray(metric.validate);
+
             // If the 'validate' is not an array, then we're good to go.
-            if (!Array.isArray(metric.validate)) {
+            if (notArray) {
                 addMetric(metric);
 
             // If it is an array (e.g., validate: ['email', 'max-length:10']),
@@ -268,16 +270,17 @@ function nod (config) {
      * It can either be called with a key/value pair (two arguments), or with
      * an object with key/value pairs.
      */
-    function configure (attributes, value) {
-        if (arguments.length > 1) {
-            var k = attributes;
-            attributes = {};
+    function configure (key, value) {
+        var attributes = {};
 
-            attributes[k] = value;
+        if (arguments.length > 1) {
+            attributes[key] = value;
+        } else {
+            attributes = key;
         }
 
-        for (var key in attributes) {
-            configuration[key] = attributes[key];
+        for (var k in attributes) {
+            configuration[k] = attributes[k];
         }
 
         if (attributes.submit || attributes.disableSubmit) {
@@ -413,7 +416,9 @@ function nod (config) {
 nod.constants = {
     VALID:          'valid',
     INVALID:        'invalid',
-    UNCHECKED:      'unchecked'
+    UNCHECKED:      'unchecked',
+
+    DELAY:          700
 };
 
 nod.classes = {
@@ -629,9 +634,9 @@ nod.makeChecker = function (element, mediator) {
         checks.push(function (options) {
             // If element.value is undefined, then we might be dealing with
             // another type of element; like <div contenteditable='true'>
-            var value = element.value !== undefined
-                ? element.value
-                : element.innerHTML;
+            var value = element.value === undefined
+                ? element.innerHTML
+                : element.value;
 
             options.element = element;
 
@@ -752,12 +757,11 @@ nod.addClass = function (className, el) {
 nod.getParent = function (element, configuration) {
     var klass = configuration.parentClass;
 
-    if (!klass) {
-        return element.parentNode;
-    } else {
+    if (klass) {
         klass = klass.charAt(0) === '.' ? klass.slice(1) : klass;
-
         return nod.findParentWithClass(element.parentNode, klass);
+    } else {
+        return element.parentNode;
     }
 };
 
@@ -873,7 +877,7 @@ nod.makeDomNode = function (element, mediator, configuration) {
                 updateParent(status);
                 updateSpan(status, errorMessage);
                 pendingUpdate = null;
-            }, configuration.delay || 700);
+            }, configuration.delay || nod.constants.DELAY);
         }
     }
 

@@ -12,5 +12,21 @@
   "bugs": {
     "url": "https://github.com/casperin/nod/issues"
   },
-  "homepage": "https://github.com/casperin/nod"
+  "homepage": "https://github.com/casperin/nod",
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "browser": false
+    },
+    "rules": {
+      "no-irregular-whitespace": 2,
+      "comma-style": [2, "last"],
+      "camelcase": [2, {"properties": "always"}],
+      "max-depth": [2, 4],
+      "max-nested-callbacks": [2, 2],
+      "no-negated-condition": 2,
+      "no-magic-numbers": [2, {"ignore": [-1, 0, 1]}],
+      "no-shadow": 2
+    }
+  }
 }
