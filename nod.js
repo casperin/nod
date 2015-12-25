@@ -71,7 +71,6 @@ function nod (config) {
 
         arrayMetrics.forEach(function (metric) {
             var validateArray, errorMessageArray;
-
             // If the 'validate' is not an array, then we're good to go.
             if (!Array.isArray(metric.validate)) {
                 addMetric(metric);
@@ -335,6 +334,32 @@ function nod (config) {
         });
     }
 
+    function setInvalid (selector, errorMessage) {
+        var element = nod.getElement(selector),
+            domNode  = domNodes.findOrMake(element);
+
+        domNode.set({
+            result: nod.constants.INVALID,
+            errorMessage: errorMessage || ''
+        });
+    }
+
+    function setValid (selector) {
+        var element = nod.getElement(selector),
+            domNode  = domNodes.findOrMake(element);
+
+        domNode.set({
+            result: nod.constants.VALID,
+            errorMessage: ''
+        });
+    }
+
+    function setAllNodeValid () {
+        for (var i = 0, len = domNodes.length; i < len; i++) {
+            setValid(domNodes[i].element);
+        }
+    }
+
     /**
      * Internal functions that are exposed to the public.
      */
@@ -345,7 +370,10 @@ function nod (config) {
         getStatus:              getStatus,
         configure:              configure,
         setMessageOptions:      setMessageOptions,
-        performCheck:           performCheck
+        performCheck:           performCheck,
+        setInvalid:             setInvalid,
+        setValid:               setValid,
+        setAllNodeValid:        setAllNodeValid
     };
 
     if (config) {
@@ -847,7 +875,8 @@ nod.makeDomNode = function (element, mediator, configuration) {
         subscribeTo:        subscribeTo,
         element:            element,
         setMessageOptions:  setMessageOptions,
-        dispose:            dispose
+        dispose:            dispose,
+        set:                set
     };
 };
 
