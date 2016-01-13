@@ -306,7 +306,7 @@ function nod (config) {
         }
     }
 
-    /*
+    /**
      * Listen to all checks, and if the user has set in the configuration to
      * enable/disabled the submit button, we do that.
      */
@@ -329,7 +329,9 @@ function nod (config) {
             var elements = nod.getElements(option.selector);
 
             elements.forEach(function (element) {
-                var domNode = domNodes.findOrMake(element);
+                var domNode = domNodes.findOrMake(element,
+                                                  mediator,
+                                                  configuration);
 
                 domNode.setMessageOptions(option.parent, option.errorSpan);
             });
