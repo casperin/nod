@@ -1,4 +1,3 @@
-
 /**
  *
  *
@@ -556,7 +555,7 @@ nod.makeListener = function (element, mediator, triggerEvents, configuration) {
     if (configuration.jQuery) {
         $element = configuration.jQuery(element);
 
-        $element.on('propertychange change click keyup input paste', changed);
+        $element.on('propertychange.nod change.nod click.nod keyup.nod input.nod paste.nod', changed);
     }
 
     if (triggerEvents) {
@@ -575,7 +574,7 @@ nod.makeListener = function (element, mediator, triggerEvents, configuration) {
         element.removeEventListener('blur', changed, false);
 
         if ($element) {
-            $element.off();
+            $element.off('.nod');
         }
 
         if (triggerEvents) {

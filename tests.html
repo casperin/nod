@@ -960,15 +960,16 @@
 
                 expect(s_form.children.length === 1, 'DOM Was not touch with `noDom`');
 
-                var s_check = false;
+                var s_check = false,
+                    handler = function () { s_check = true; };
 
-                s.addEventListener('nod.validation', function () { s_check = true; }, false);
+                s.addEventListener('nod.validation', handler, false);
 
                 setValue(s, 'foo');
 
                 expect(s_check, 'Event is fired on the element with `noDom` set');
 
-                s.removeEventListener('nod.validation');
+                s.removeEventListener('nod.validation', handler);
 
                 removeElement(s.parentNode);
             })();
