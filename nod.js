@@ -796,6 +796,7 @@ nod.makeDomNode = function (element, mediator, configuration) {
     // parent is given as a paremeter, while the span is created and added as a
     // child to the parent.
     var parent              = nod.getParent(element, configuration),
+        container           = nod.getElement(configuration.errorContainer),
         _status             = nod.constants.UNCHECKED,
         pendingUpdate       = null,
         span                = document.createElement('span'),
@@ -804,7 +805,11 @@ nod.makeDomNode = function (element, mediator, configuration) {
     span.style.display = 'none';
 
     if (!configuration.noDom) {
-        parent.appendChild(span);
+        if (container) {
+            container.appendChild(span);
+        } else {
+            parent.appendChild(span);
+        }
     }
 
     // Updates the class of the parent to match the status of the element.
